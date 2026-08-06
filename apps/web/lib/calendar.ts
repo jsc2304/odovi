@@ -1,6 +1,8 @@
 import "server-only";
 import { and, eq, gte, lt, sql } from "drizzle-orm";
-import { chargeSessions, drives } from "@tripatlas/db";
+import { alias } from "drizzle-orm/pg-core";
+import { chargeSessions, drives, places } from "@tripatlas/db";
+import { summarizeDriveEnergy } from "@tripatlas/core";
 import { db } from "./db";
 import { APP_TIMEZONE } from "./config";
 import { dayBounds } from "./day";
@@ -17,27 +19,37 @@ export function monthBounds(month: string): { start: Date; end: Date } {
 }
 
 /**
- * Loads per-day drive stats (count + total km) for one vehicle across one
- * calendar month, grouped by local calendar day in APP_TIMEZONE. One grouped
- * query — avoids N+1 across up to 31 days.
+ * Loads all drives for one vehicle across one calendar month, then groups them
+ * by local calendar day in memory. The single query avoids N+1 work while
+ * retaining the fields needed for weighted summaries and compact previews.
  */
 async function loadDriveStatsByDay(
   vehicleId: number,
   month: string,
-): Promise<Map<string, { driveCount: number; totalKm: number }>> {
+): Promise<Map<string, Omit<CalendarDayStats, "chargeCount">>> {
   const { start, end } = monthBounds(month);
+  const startPlace = alias(places, "calendar_start_place");
+  const endPlace = alias(places, "calendar_end_place");
 
   const rows = await db
     .select({
+      id: drives.id,
       day: sql<string>`to_char(${drives.startTime} AT TIME ZONE ${APP_TIMEZONE}, 'YYYY-MM-DD')`.as(
         "day",
       ),
-      driveCount: sql<number>`count(*)::int`.as("drive_count"),
-      totalKm: sql<number>`coalesce(sum(${drives.distanceKm}), 0)::float8`.as(
-        "total_km",
-      ),
+      startTime: drives.startTime,
+      distanceKm: drives.distanceKm,
+      consumedEnergyKwh: drives.consumedEnergyKwh,
+      avgConsumptionWhKm: drives.avgConsumptionWhKm,
+      energyIsEstimated: drives.energyIsEstimated,
+      startPlaceName: startPlace.name,
+      startAddress: drives.startAddress,
+      endPlaceName: endPlace.name,
+      endAddress: drives.endAddress,
     })
     .from(drives)
+    .leftJoin(startPlace, eq(drives.startPlaceId, startPlace.id))
+    .leftJoin(endPlace, eq(drives.endPlaceId, endPlace.id))
     .where(
       and(
         eq(drives.vehicleId, vehicleId),
@@ -45,11 +57,39 @@ async function loadDriveStatsByDay(
         lt(drives.startTime, end),
       ),
     )
-    .groupBy(sql`1`);
+    .orderBy(drives.startTime);
 
-  const map = new Map<string, { driveCount: number; totalKm: number }>();
-  for (const r of rows) {
-    map.set(r.day, { driveCount: r.driveCount, totalKm: r.totalKm });
+  const grouped = new Map<string, typeof rows>();
+  for (const row of rows) {
+    const list = grouped.get(row.day) ?? [];
+    list.push(row);
+    grouped.set(row.day, list);
+  }
+
+  const map = new Map<string, Omit<CalendarDayStats, "chargeCount">>();
+  for (const [day, dayRows] of grouped) {
+    const energy = summarizeDriveEnergy(dayRows);
+    map.set(day, {
+      date: day,
+      driveCount: dayRows.length,
+      totalKm: energy.totalDistanceKm,
+      totalEnergyKwh: energy.totalEnergyKwh,
+      usableDistanceKm: energy.usableDistanceKm,
+      avgConsumptionWhKm: energy.avgConsumptionWhKm,
+      anyEstimated: energy.anyEstimated,
+      hasIncompleteEnergy: energy.hasIncompleteEnergy,
+      drives: dayRows.map((row) => ({
+        id: row.id,
+        startTimeIso: row.startTime.toISOString(),
+        startPlaceName: row.startPlaceName,
+        startAddress: row.startAddress,
+        endPlaceName: row.endPlaceName,
+        endAddress: row.endAddress,
+        distanceKm: row.distanceKm,
+        avgConsumptionWhKm: row.avgConsumptionWhKm,
+        energyIsEstimated: row.energyIsEstimated,
+      })),
+    });
   }
   return map;
 }
@@ -109,6 +149,12 @@ export async function getCalendarMonthStats(
       driveCount: d?.driveCount ?? 0,
       totalKm: d?.totalKm ?? 0,
       chargeCount: chargeCounts.get(date) ?? 0,
+      totalEnergyKwh: d?.totalEnergyKwh ?? 0,
+      usableDistanceKm: d?.usableDistanceKm ?? 0,
+      avgConsumptionWhKm: d?.avgConsumptionWhKm ?? null,
+      anyEstimated: d?.anyEstimated ?? false,
+      hasIncompleteEnergy: d?.hasIncompleteEnergy ?? false,
+      drives: d?.drives ?? [],
     });
   }
   return map;

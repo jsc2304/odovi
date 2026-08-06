@@ -5,6 +5,7 @@
   "driveTime": "Fahrzeit",
   "estimated": "geschätzt",
   "estimatedLegend": "~ = geschätzt",
+  "partialEnergyLegend": "† Der Verbrauch berücksichtigt nur Fahrten mit verfügbaren Energiedaten.",
   "estimatedValueTitle": "geschätzter Wert",
   "vehicleSelectLabel": "Fahrzeug wählen",
   "prevDay": "Vorheriger Tag",

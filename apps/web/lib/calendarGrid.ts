@@ -12,7 +12,27 @@ export interface CalendarDayStats {
   driveCount: number;
   totalKm: number;
   chargeCount: number;
+  totalEnergyKwh: number;
+  usableDistanceKm: number;
+  avgConsumptionWhKm: number | null;
+  anyEstimated: boolean;
+  hasIncompleteEnergy: boolean;
+  drives: CalendarDrivePreview[];
 }
+
+export interface CalendarDrivePreview {
+  id: number;
+  startTimeIso: string;
+  startPlaceName: string | null;
+  startAddress: string | null;
+  endPlaceName: string | null;
+  endAddress: string | null;
+  distanceKm: number | null;
+  avgConsumptionWhKm: number | null;
+  energyIsEstimated: boolean;
+}
+
+export type CalendarMetric = "distance" | "consumption" | "energy" | "trips";
 
 export interface CalendarCell {
   date: string; // YYYY-MM-DD
@@ -20,7 +40,7 @@ export interface CalendarCell {
   inMonth: boolean;
   isToday: boolean;
   stats: CalendarDayStats | null;
-  /** 0..1 relative to the month's max totalKm, for background intensity. */
+  /** 0..1 relative to the month's maximum selected metric. */
   intensity: number;
 }
 
@@ -61,25 +81,60 @@ function makeCell(
   inMonth: boolean,
   today: string,
   statsByDay: Map<string, CalendarDayStats>,
-  maxKm: number,
 ): CalendarCell {
   const stats = statsByDay.get(date) ?? null;
   const dayOfMonth = Number(date.slice(8, 10));
-  const intensity = stats && maxKm > 0 ? Math.min(1, stats.totalKm / maxKm) : 0;
   return {
     date,
     dayOfMonth,
     inMonth,
     isToday: date === today,
     stats,
-    intensity,
+    intensity: 0,
   };
+}
+
+export function calendarMetricValue(
+  stats: CalendarDayStats | null,
+  metric: CalendarMetric,
+): number | null {
+  if (!stats) return null;
+  switch (metric) {
+    case "distance":
+      return stats.totalKm > 0 ? stats.totalKm : null;
+    case "consumption":
+      return stats.avgConsumptionWhKm;
+    case "energy":
+      return stats.totalEnergyKwh > 0 ? stats.totalEnergyKwh : null;
+    case "trips":
+      return stats.driveCount > 0 ? stats.driveCount : null;
+  }
+}
+
+/** Recomputes the subtle cell intensity for the selected display metric. */
+export function applyCalendarMetric(
+  cells: CalendarCell[],
+  metric: CalendarMetric,
+): CalendarCell[] {
+  const max = Math.max(
+    0,
+    ...cells
+      .filter((cell) => cell.inMonth)
+      .map((cell) => calendarMetricValue(cell.stats, metric) ?? 0),
+  );
+  return cells.map((cell) => {
+    const value = calendarMetricValue(cell.stats, metric);
+    return {
+      ...cell,
+      intensity: value != null && max > 0 ? Math.min(1, value / max) : 0,
+    };
+  });
 }
 
 /**
  * Builds a full Mo–So month grid (always a multiple of 7 cells, including
  * leading/trailing days of adjacent months) with per-day stats and a
- * 0..1 intensity relative to the month's max totalKm.
+ * 0..1 intensity relative to the month's maximum distance by default.
  */
 export function buildCalendarGrid(
   month: string,
@@ -90,25 +145,18 @@ export function buildCalendarGrid(
   const leading = mondayIndex(firstOfMonth);
   const totalDays = daysInMonth(month);
 
-  const maxKm = Math.max(
-    0,
-    ...[...statsByDay.values()]
-      .filter((s) => s.date.startsWith(month))
-      .map((s) => s.totalKm),
-  );
-
   const cells: CalendarCell[] = [];
 
   // Leading days from the previous month.
   for (let i = leading; i > 0; i--) {
     const date = shiftDate(firstOfMonth, -i);
-    cells.push(makeCell(date, false, today, statsByDay, maxKm));
+    cells.push(makeCell(date, false, today, statsByDay));
   }
 
   // Days of the current month.
   for (let day = 1; day <= totalDays; day++) {
     const date = addDaysToMonthDay(month, day);
-    cells.push(makeCell(date, true, today, statsByDay, maxKm));
+    cells.push(makeCell(date, true, today, statsByDay));
   }
 
   // Trailing days from the next month, padded to a full week row.
@@ -118,11 +166,11 @@ export function buildCalendarGrid(
     const toAdd = 7 - remainder;
     for (let i = 1; i <= toAdd; i++) {
       const date = shiftDate(lastDate, i);
-      cells.push(makeCell(date, false, today, statsByDay, maxKm));
+      cells.push(makeCell(date, false, today, statsByDay));
     }
   }
 
-  return cells;
+  return applyCalendarMetric(cells, "distance");
 }
 
 /** Shifts a YYYY-MM string by `delta` months, handling year boundaries. */

@@ -40,7 +40,14 @@
     "noData": "No data",
     "classifyNow": "classify now",
     "allDone": "All done",
-    "importedExtra": "plus {count} historical (import)"
+    "importedExtra": "plus {count} historical (import)",
+    "partialEnergy": "† Consumption only covers drives with available energy data.",
+    "costSource": {
+      "auto": "Cost calculated automatically",
+      "manual": "Cost entered manually",
+      "synced": "Cost imported during sync",
+      "unknown": "Cost source unknown"
+    }
   },
   "recentDrives": {
     "title": "Recent drives",

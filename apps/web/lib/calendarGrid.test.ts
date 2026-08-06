@@ -1,11 +1,31 @@
 import { describe, expect, it } from "vitest";
 import {
+  applyCalendarMetric,
   buildCalendarGrid,
   formatMonthLabel,
   isValidMonthParam,
   shiftMonth,
   type CalendarDayStats,
 } from "./calendarGrid";
+
+function dayStats(
+  date: string,
+  overrides: Partial<CalendarDayStats> = {},
+): CalendarDayStats {
+  return {
+    date,
+    driveCount: 0,
+    totalKm: 0,
+    chargeCount: 0,
+    totalEnergyKwh: 0,
+    usableDistanceKm: 0,
+    avgConsumptionWhKm: null,
+    anyEstimated: false,
+    hasIncompleteEnergy: false,
+    drives: [],
+    ...overrides,
+  };
+}
 
 describe("shiftMonth", () => {
   it("shifts within a year", () => {
@@ -68,8 +88,8 @@ describe("buildCalendarGrid", () => {
 
   it("computes intensity relative to the month max km", () => {
     const stats = new Map<string, CalendarDayStats>([
-      ["2026-07-05", { date: "2026-07-05", driveCount: 2, totalKm: 20, chargeCount: 0 }],
-      ["2026-07-10", { date: "2026-07-10", driveCount: 4, totalKm: 40, chargeCount: 1 }],
+      ["2026-07-05", dayStats("2026-07-05", { driveCount: 2, totalKm: 20 })],
+      ["2026-07-10", dayStats("2026-07-10", { driveCount: 4, totalKm: 40, chargeCount: 1 })],
     ]);
     const grid = buildCalendarGrid("2026-07", stats, "2026-07-01");
     const day5 = grid.find((c) => c.date === "2026-07-05")!;
@@ -80,6 +100,37 @@ describe("buildCalendarGrid", () => {
     expect(day5.intensity).toBeCloseTo(0.5);
     expect(empty.intensity).toBe(0);
     expect(empty.stats).toBeNull();
+  });
+
+  it("recomputes intensity for the selected metric", () => {
+    const stats = new Map<string, CalendarDayStats>([
+      [
+        "2026-07-05",
+        dayStats("2026-07-05", {
+          driveCount: 4,
+          totalKm: 100,
+          totalEnergyKwh: 10,
+          avgConsumptionWhKm: 100,
+        }),
+      ],
+      [
+        "2026-07-10",
+        dayStats("2026-07-10", {
+          driveCount: 2,
+          totalKm: 50,
+          totalEnergyKwh: 15,
+          avgConsumptionWhKm: 300,
+        }),
+      ],
+    ]);
+    const distanceGrid = buildCalendarGrid("2026-07", stats, "2026-07-01");
+    const consumptionGrid = applyCalendarMetric(distanceGrid, "consumption");
+    const tripsGrid = applyCalendarMetric(distanceGrid, "trips");
+
+    expect(consumptionGrid.find((c) => c.date === "2026-07-10")!.intensity).toBe(1);
+    expect(consumptionGrid.find((c) => c.date === "2026-07-05")!.intensity).toBeCloseTo(1 / 3);
+    expect(tripsGrid.find((c) => c.date === "2026-07-05")!.intensity).toBe(1);
+    expect(tripsGrid.find((c) => c.date === "2026-07-10")!.intensity).toBe(0.5);
   });
 
   it("handles an empty month with no stats at all", () => {

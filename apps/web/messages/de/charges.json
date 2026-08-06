@@ -7,7 +7,15 @@
       "energyAdded": "Energie geladen",
       "totalCost": "Kosten gesamt",
       "costsPartial": "(soweit erfasst)",
-      "acDc": "AC / DC"
+      "acDc": "AC-/DC-Energie",
+      "avgPerSession": "Ø {value} je Ladevorgang",
+      "effectivePower": "Effektiv Ø {value}",
+      "vsPreviousMonth": "{value} zum Vormonat",
+      "costPerKwh": "{value}/kWh",
+      "costCoverage": "Kosten für {value} der Energie erfasst",
+      "mixedCurrencies": "Mehrere Währungen – keine Gesamtsumme",
+      "acDcSessions": "{ac} AC- / {dc} DC-Ladevorgänge",
+      "noComparableData": "Keine Energiedaten"
     },
     "empty": {
       "title": "Keine Ladevorgänge in diesem Monat.",

@@ -7,7 +7,15 @@
       "energyAdded": "Energy charged",
       "totalCost": "Total cost",
       "costsPartial": "(as recorded)",
-      "acDc": "AC / DC"
+      "acDc": "AC / DC energy",
+      "avgPerSession": "Ø {value} per session",
+      "effectivePower": "Effective Ø {value}",
+      "vsPreviousMonth": "{value} vs previous month",
+      "costPerKwh": "{value}/kWh",
+      "costCoverage": "Costs cover {value} of energy",
+      "mixedCurrencies": "Mixed currencies — no combined total",
+      "acDcSessions": "{ac} AC / {dc} DC sessions",
+      "noComparableData": "No energy data"
     },
     "empty": {
       "title": "No charging sessions this month.",

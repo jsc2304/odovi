@@ -40,7 +40,14 @@
     "noData": "Keine Daten",
     "classifyNow": "jetzt klassifizieren",
     "allDone": "Alles erledigt",
-    "importedExtra": "zzgl. {count} historische (Import)"
+    "importedExtra": "zzgl. {count} historische (Import)",
+    "partialEnergy": "† Der Verbrauch berücksichtigt nur Fahrten mit verfügbaren Energiedaten.",
+    "costSource": {
+      "auto": "Kosten automatisch berechnet",
+      "manual": "Kosten manuell eingetragen",
+      "synced": "Kosten bei der Synchronisierung importiert",
+      "unknown": "Kostenquelle unbekannt"
+    }
   },
   "recentDrives": {
     "title": "Letzte Fahrten",

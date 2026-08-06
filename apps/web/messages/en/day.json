@@ -5,6 +5,7 @@
   "driveTime": "drive time",
   "estimated": "estimated",
   "estimatedLegend": "~ = estimated",
+  "partialEnergyLegend": "† Consumption only covers drives with available energy data.",
   "estimatedValueTitle": "estimated value",
   "vehicleSelectLabel": "Select vehicle",
   "prevDay": "Previous day",

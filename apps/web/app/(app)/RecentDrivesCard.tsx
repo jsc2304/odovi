@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { ArrowRight, Route } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { formatKm, formatPlaceLabel } from "@tripatlas/core";
+import {
+  formatConsumption,
+  formatDuration,
+  formatKm,
+  formatPlaceLabel,
+  formatSoc,
+} from "@tripatlas/core";
 import { APP_TIMEZONE } from "../../lib/config";
 import type { DriveTrack, RecentDriveRow } from "../../lib/dashboard";
 import { EmptyState } from "../../components/ui/EmptyState";
@@ -81,24 +87,45 @@ export async function RecentDrivesCard({
               <li key={d.id}>
                 <Link
                   href={`/drives/${d.id}`}
-                  className="flex items-center gap-3 py-2.5 text-sm hover:bg-neutral-50 dark:hover:bg-neutral-800/60"
+                  className="flex items-start gap-3 py-2.5 text-sm hover:bg-neutral-50 dark:hover:bg-neutral-800/60"
                 >
                   <span
                     aria-hidden
-                    className={`h-2 w-2 shrink-0 rounded-full ${CLASSIFICATION_DOT[classification]}`}
+                    className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${CLASSIFICATION_DOT[classification]}`}
                     title={tCommon(`classification.${classification}`)}
                   />
-                  <span className="w-16 shrink-0 tabular-nums text-neutral-500 dark:text-neutral-400">
+                  <span className="w-16 shrink-0 pt-0.5 tabular-nums text-neutral-500 dark:text-neutral-400">
                     {dateFormatter.format(d.startTime)} {timeFormatter.format(d.startTime)}
                   </span>
-                  <span className="min-w-0 flex-1 truncate">
-                    {from} <span className="text-neutral-400">→</span> {to}
-                  </span>
-                  {d.distanceKm != null && (
-                    <span className="shrink-0 tabular-nums text-neutral-500 dark:text-neutral-400">
-                      {formatKm(d.distanceKm)}
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-start justify-between gap-2">
+                      <span className="min-w-0 truncate">
+                        {from} <span className="text-neutral-400">→</span> {to}
+                      </span>
+                      {d.distanceKm != null && (
+                        <span className="shrink-0 tabular-nums text-neutral-500 dark:text-neutral-400">
+                          {formatKm(d.distanceKm)}
+                        </span>
+                      )}
                     </span>
-                  )}
+                    <span className="mt-0.5 flex flex-wrap gap-x-1 text-xs tabular-nums text-neutral-400 dark:text-neutral-500">
+                      {d.durationSeconds != null && (
+                        <span>{formatDuration(d.durationSeconds)}</span>
+                      )}
+                      {d.avgConsumptionWhKm != null && (
+                        <span>
+                          {d.durationSeconds != null ? "· " : ""}
+                          {formatConsumption(d.avgConsumptionWhKm, d.energyIsEstimated)}
+                        </span>
+                      )}
+                      {d.startSoc != null && d.endSoc != null && (
+                        <span>
+                          {d.durationSeconds != null || d.avgConsumptionWhKm != null ? "· " : ""}
+                          {formatSoc(d.startSoc)} → {formatSoc(d.endSoc)}
+                        </span>
+                      )}
+                    </span>
+                  </span>
                 </Link>
               </li>
             );

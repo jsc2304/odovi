@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getCalendarMonthStats } from "../../../lib/calendar";
 import { buildCalendarGrid, isValidMonthParam } from "../../../lib/calendarGrid";
 import { todayInAppTz } from "../../../lib/day";
+import { APP_TIMEZONE } from "../../../lib/config";
 import { getVehicles } from "../../../lib/queries";
 import { MonthNav } from "./MonthNav";
 import { CalendarVehicleSwitcher } from "./CalendarVehicleSwitcher";
@@ -54,7 +55,11 @@ export default async function CalendarPage({
       )}
 
       <div className="mt-6">
-        <MonthGrid cells={cells} vehicleQuery={vehicleQuery} />
+        <MonthGrid
+          cells={cells}
+          vehicleQuery={vehicleQuery}
+          timeZone={APP_TIMEZONE}
+        />
       </div>
     </div>
   );

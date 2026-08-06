@@ -6,6 +6,22 @@
   "vehicleSelectLabel": "Fahrzeug wählen",
   "chargeIcon": "Ladevorgang",
   "driveCountLabel": "{count, plural, one {# Fahrt} other {# Fahrten}}",
+  "daySummary": "{date}: {metric}",
+  "metric": {
+    "label": "Kalender-Kennzahl",
+    "distance": "Distanz",
+    "consumption": "Verbrauch",
+    "energy": "Energie",
+    "trips": "Fahrten"
+  },
+  "preview": {
+    "open": "Fahrten am {date} als Vorschau öffnen",
+    "close": "Fahrtenvorschau schließen",
+    "summary": "{count, plural, one {# Fahrt} other {# Fahrten}} · {distance}",
+    "unknownPlace": "Unbekannter Ort",
+    "partialEnergy": "† Der Verbrauch berücksichtigt nur Fahrten mit verfügbaren Energiedaten.",
+    "openDay": "Ganzen Tag öffnen"
+  },
   "weekday": {
     "mon": "Mo",
     "tue": "Di",

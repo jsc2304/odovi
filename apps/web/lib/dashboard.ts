@@ -9,7 +9,11 @@ import {
   vehicleStatus,
   vehicles,
 } from "@tripatlas/db";
-import { matchPlace, type MatchablePlace } from "@tripatlas/core";
+import {
+  matchPlace,
+  summarizeDriveEnergy,
+  type MatchablePlace,
+} from "@tripatlas/core";
 import { db } from "./db";
 import { dayBounds, shiftDate, todayInAppTz } from "./day";
 
@@ -145,6 +149,11 @@ export interface RecentDriveRow {
   startTime: Date;
   endTime: Date | null;
   distanceKm: number | null;
+  durationSeconds: number | null;
+  avgConsumptionWhKm: number | null;
+  energyIsEstimated: boolean;
+  startSoc: number | null;
+  endSoc: number | null;
   classification: "unclassified" | "private" | "business" | "commute";
   startPlaceName: string | null;
   startAddress: string | null;
@@ -168,6 +177,11 @@ export async function getRecentDrives(
       startTime: drives.startTime,
       endTime: drives.endTime,
       distanceKm: drives.distanceKm,
+      durationSeconds: drives.durationSeconds,
+      avgConsumptionWhKm: drives.avgConsumptionWhKm,
+      energyIsEstimated: drives.energyIsEstimated,
+      startSoc: drives.startSoc,
+      endSoc: drives.endSoc,
       classification: drives.classification,
       startPlaceId: drives.startPlaceId,
       startAddress: drives.startAddress,
@@ -202,6 +216,11 @@ export async function getRecentDrives(
     startTime: d.startTime,
     endTime: d.endTime,
     distanceKm: d.distanceKm,
+    durationSeconds: d.durationSeconds,
+    avgConsumptionWhKm: d.avgConsumptionWhKm,
+    energyIsEstimated: d.energyIsEstimated,
+    startSoc: d.startSoc,
+    endSoc: d.endSoc,
     classification: d.classification,
     startPlaceName: d.startPlaceId != null ? placeNameById.get(d.startPlaceId) ?? null : null,
     startAddress: d.startAddress,
@@ -278,6 +297,10 @@ function thinPoints<T>(rows: T[], max: number): T[] {
 export interface TodayStats {
   distanceKm: number;
   driveCount: number;
+  energyKwh: number;
+  avgConsumptionWhKm: number | null;
+  anyEstimated: boolean;
+  hasIncompleteEnergy: boolean;
 }
 
 /** Km + drive count for "today" (APP_TIMEZONE calendar day). */
@@ -289,6 +312,10 @@ export async function getTodayStats(vehicleId: number): Promise<TodayStats> {
 export interface WeekStats {
   distanceKm: number;
   driveCount: number;
+  energyKwh: number;
+  avgConsumptionWhKm: number | null;
+  anyEstimated: boolean;
+  hasIncompleteEnergy: boolean;
 }
 
 /** Km + drive count for the current Monday-based week (APP_TIMEZONE). */
@@ -309,11 +336,12 @@ async function getDriveStatsInRange(
   vehicleId: number,
   start: Date,
   end: Date,
-): Promise<{ distanceKm: number; driveCount: number }> {
+): Promise<TodayStats> {
   const rows = await db
     .select({
-      distanceKm: sql<number>`coalesce(sum(${drives.distanceKm}), 0)::float8`,
-      driveCount: sql<number>`count(*)::int`,
+      distanceKm: drives.distanceKm,
+      consumedEnergyKwh: drives.consumedEnergyKwh,
+      energyIsEstimated: drives.energyIsEstimated,
     })
     .from(drives)
     .where(
@@ -323,12 +351,28 @@ async function getDriveStatsInRange(
         lt(drives.startTime, end),
       ),
     );
-  return rows[0] ?? { distanceKm: 0, driveCount: 0 };
+  const energy = summarizeDriveEnergy(rows);
+  return {
+    distanceKm: energy.totalDistanceKm,
+    driveCount: rows.length,
+    energyKwh: energy.totalEnergyKwh,
+    avgConsumptionWhKm: energy.avgConsumptionWhKm,
+    anyEstimated: energy.anyEstimated,
+    hasIncompleteEnergy: energy.hasIncompleteEnergy,
+  };
 }
 
 export interface LastChargeStats {
+  id: number;
   energyAddedKwh: number | null;
   endTime: Date;
+  startSoc: number | null;
+  endSoc: number | null;
+  durationSeconds: number | null;
+  chargerType: "ac" | "dc" | null;
+  cost: string | null;
+  currency: string | null;
+  costSource: string | null;
   placeName: string | null;
   address: string | null;
 }
@@ -337,8 +381,16 @@ export interface LastChargeStats {
 export async function getLastCharge(vehicleId: number): Promise<LastChargeStats | null> {
   const rows = await db
     .select({
+      id: chargeSessions.id,
       energyAddedKwh: chargeSessions.energyAddedKwh,
       endTime: chargeSessions.endTime,
+      startSoc: chargeSessions.startSoc,
+      endSoc: chargeSessions.endSoc,
+      durationSeconds: chargeSessions.durationSeconds,
+      chargerType: chargeSessions.chargerType,
+      cost: chargeSessions.cost,
+      currency: chargeSessions.currency,
+      costSource: chargeSessions.costSource,
       address: chargeSessions.address,
       placeName: places.name,
     })
@@ -351,8 +403,16 @@ export async function getLastCharge(vehicleId: number): Promise<LastChargeStats 
   const row = rows[0];
   if (!row || !row.endTime) return null;
   return {
+    id: row.id,
     energyAddedKwh: row.energyAddedKwh,
     endTime: row.endTime,
+    startSoc: row.startSoc,
+    endSoc: row.endSoc,
+    durationSeconds: row.durationSeconds,
+    chargerType: row.chargerType,
+    cost: row.cost,
+    currency: row.currency,
+    costSource: row.costSource,
     placeName: row.placeName,
     address: row.address,
   };
