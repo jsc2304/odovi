@@ -68,6 +68,7 @@ export function BottomNav() {
           <Link
             key={item.href}
             href={item.href}
+            aria-current={active ? "page" : undefined}
             className={itemClasses(active, "bottom")}
           >
             <Icon aria-hidden size={20} strokeWidth={active ? 2.25 : 2} />
@@ -92,6 +93,7 @@ export function SideNav() {
           <Link
             key={item.href}
             href={item.href}
+            aria-current={active ? "page" : undefined}
             className={itemClasses(active, "side")}
           >
             <Icon aria-hidden size={20} strokeWidth={active ? 2.25 : 2} className="shrink-0" />

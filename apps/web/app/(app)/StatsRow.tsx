@@ -95,7 +95,7 @@ export async function StatsRow({
 
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-      <StatCard icon={CalendarDays} label={t("stats.today")}>
+      <StatCard icon={CalendarDays} label={t("stats.today")} href="/day">
         <p className="text-lg font-semibold tabular-nums">{formatKm(today.distanceKm)}</p>
         <p className="flex flex-wrap gap-x-1 text-xs text-neutral-500 dark:text-neutral-400">
           <span>{t("stats.driveCount", { count: today.driveCount })}</span>
@@ -113,7 +113,7 @@ export async function StatsRow({
         </p>
       </StatCard>
 
-      <StatCard icon={CalendarRange} label={t("stats.thisWeek")}>
+      <StatCard icon={CalendarRange} label={t("stats.thisWeek")} href="/calendar">
         <p className="text-lg font-semibold tabular-nums">{formatKm(week.distanceKm)}</p>
         <p className="flex flex-wrap gap-x-1 text-xs text-neutral-500 dark:text-neutral-400">
           <span>{t("stats.driveCount", { count: week.driveCount })}</span>
@@ -179,15 +179,16 @@ export async function StatsRow({
         )}
       </StatCard>
 
-      <StatCard icon={HelpCircle} label={t("stats.unclassified")}>
+      <StatCard
+        icon={HelpCircle}
+        label={t("stats.unclassified")}
+        href={unclassifiedCount.live > 0 ? "/search?classification=unclassified" : undefined}
+      >
         <p className="text-lg font-semibold tabular-nums">{unclassifiedCount.live}</p>
         {unclassifiedCount.live > 0 ? (
-          <Link
-            href="/search?classification=unclassified"
-            className="mt-0.5 inline-flex items-center gap-1 text-xs font-medium text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
-          >
+          <span className="mt-0.5 inline-flex items-center gap-1 text-xs font-medium text-neutral-600 dark:text-neutral-400">
             {t("stats.classifyNow")} <ArrowRight aria-hidden size={11} />
-          </Link>
+          </span>
         ) : (
           <p className="text-xs text-neutral-500 dark:text-neutral-400">{t("stats.allDone")}</p>
         )}

@@ -6,6 +6,7 @@ import {
   ArrowDown,
   ArrowUp,
   BatteryCharging,
+  ChevronDown,
   MapPin,
   Navigation,
   Plus,
@@ -172,6 +173,7 @@ export function Planner({
   const [capacityKwh, setCapacityKwh] = useState(
     String(initialPlan?.snapshot.capacityKwh ?? defaultCapacityKwh),
   );
+  const [advancedOpen, setAdvancedOpen] = useState(Boolean(initialPlan));
   const [pending, setPending] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -274,14 +276,17 @@ export function Planner({
       return;
     }
     if (!Number.isFinite(reserve) || reserve < 0 || reserve > 50) {
+      setAdvancedOpen(true);
       setError(t("errors.reserveRange"));
       return;
     }
     if (!Number.isFinite(temperature)) {
+      setAdvancedOpen(true);
       setError(t("errors.tempInvalid"));
       return;
     }
     if (!Number.isFinite(capacity) || capacity < 5 || capacity > 250) {
+      setAdvancedOpen(true);
       setError(t("errors.capacityRange"));
       return;
     }
@@ -392,54 +397,79 @@ export function Planner({
               className={`mt-1 ${inputClasses}`}
             />
           </label>
-          <label>
-            <span className={labelClasses}>{t("form.reserveSoc")}</span>
-            <input
-              type="number"
-              inputMode="numeric"
-              min={0}
-              max={50}
-              value={reserveSoc}
-              onChange={(event) => {
-                setReserveSoc(event.target.value);
-                setPlan(null);
-              }}
-              className={`mt-1 ${inputClasses}`}
-            />
-          </label>
-          <label>
-            <span className={labelClasses}>{t("form.expectedTemp")}</span>
-            <input
-              type="number"
-              inputMode="numeric"
-              value={tempC}
-              onChange={(event) => {
-                setTempC(event.target.value);
-                setPlan(null);
-              }}
-              className={`mt-1 ${inputClasses}`}
-            />
-          </label>
-          <label className="sm:col-span-2">
-            <span className={labelClasses}>{t("form.batteryCapacity")}</span>
-            <input
-              type="number"
-              inputMode="numeric"
-              min={5}
-              max={250}
-              value={capacityKwh}
-              onChange={(event) => {
-                setCapacityKwh(event.target.value);
-                setPlan(null);
-              }}
-              className={`mt-1 ${inputClasses}`}
-            />
-            <span className="mt-1 block text-xs text-neutral-400 dark:text-neutral-500">
-              {capacityIsDerived
-                ? t("form.capacityHintDerived")
-                : t("form.capacityHintDefault")}
-            </span>
-          </label>
+          <details
+            open={advancedOpen}
+            onToggle={(event) => setAdvancedOpen(event.currentTarget.open)}
+            className="group rounded-xl border border-neutral-200 sm:col-span-2 dark:border-neutral-800"
+          >
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-neutral-900 dark:hover:bg-neutral-800/60 dark:focus-visible:ring-white [&::-webkit-details-marker]:hidden">
+              <span>
+                {t("form.forecastSettings")}
+                <span className="ml-2 text-xs font-normal text-neutral-500 dark:text-neutral-400">
+                  {t("form.forecastSummary", {
+                    reserve: reserveSoc,
+                    temp: tempC,
+                    capacity: capacityKwh,
+                  })}
+                </span>
+              </span>
+              <ChevronDown
+                aria-hidden
+                size={16}
+                className="shrink-0 text-neutral-400 transition-transform group-open:rotate-180"
+              />
+            </summary>
+            <div className="grid grid-cols-1 gap-4 border-t border-neutral-200 p-3 sm:grid-cols-2 dark:border-neutral-800">
+              <label>
+                <span className={labelClasses}>{t("form.reserveSoc")}</span>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  max={50}
+                  value={reserveSoc}
+                  onChange={(event) => {
+                    setReserveSoc(event.target.value);
+                    setPlan(null);
+                  }}
+                  className={`mt-1 ${inputClasses}`}
+                />
+              </label>
+              <label>
+                <span className={labelClasses}>{t("form.expectedTemp")}</span>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  value={tempC}
+                  onChange={(event) => {
+                    setTempC(event.target.value);
+                    setPlan(null);
+                  }}
+                  className={`mt-1 ${inputClasses}`}
+                />
+              </label>
+              <label className="sm:col-span-2">
+                <span className={labelClasses}>{t("form.batteryCapacity")}</span>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={5}
+                  max={250}
+                  value={capacityKwh}
+                  onChange={(event) => {
+                    setCapacityKwh(event.target.value);
+                    setPlan(null);
+                  }}
+                  className={`mt-1 ${inputClasses}`}
+                />
+                <span className="mt-1 block text-xs text-neutral-400 dark:text-neutral-500">
+                  {capacityIsDerived
+                    ? t("form.capacityHintDerived")
+                    : t("form.capacityHintDefault")}
+                </span>
+              </label>
+            </div>
+          </details>
         </div>
 
         <div className="mt-5 border-t border-neutral-200 pt-5 dark:border-neutral-800">

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { X } from "lucide-react";
 import { searchAddress, type AddressSearchResult } from "../../../lib/actions/places";
 
 const DEBOUNCE_MS = 600;
@@ -90,6 +91,15 @@ export function DestinationSearch({
     }
   }
 
+  function handleClear() {
+    requestId.current += 1;
+    onValueChange("");
+    setResults([]);
+    setOpen(false);
+    setLoading(false);
+    setActiveIndex(-1);
+  }
+
   return (
     <div className="relative">
       <input
@@ -104,12 +114,24 @@ export function DestinationSearch({
         aria-expanded={open}
         aria-autocomplete="list"
         aria-controls="planner-destination-results"
-        className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-base text-neutral-900 outline-none focus:border-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:focus:border-neutral-100"
+        className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 pr-10 text-base text-neutral-900 outline-none focus:border-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:focus:border-neutral-100"
       />
       {loading && (
         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-neutral-400">
           {t("destinationSearch.searching")}
         </span>
+      )}
+      {value && !loading && (
+        <button
+          type="button"
+          aria-label={t("destinationSearch.clear")}
+          title={t("destinationSearch.clear")}
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={handleClear}
+          className="absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:hover:bg-neutral-800 dark:hover:text-neutral-200 dark:focus-visible:ring-white"
+        >
+          <X aria-hidden size={16} />
+        </button>
       )}
       {open && results.length > 0 && (
         <ul

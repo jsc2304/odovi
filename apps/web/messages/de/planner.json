@@ -25,6 +25,8 @@
     "destPlaceAriaLabel": "Ziel-Ort",
     "noPlaces": "Keine Orte",
     "startSoc": "Start-SoC (%)",
+    "forecastSettings": "Prognose-Einstellungen",
+    "forecastSummary": "{reserve} % Reserve · {temp} °C · {capacity} kWh",
     "reserveSoc": "Gewünschte Reserve (%)",
     "expectedTemp": "Erwartete Außentemperatur (°C)",
     "batteryCapacity": "Batteriekapazität (kWh)",
@@ -120,6 +122,7 @@
   },
   "destinationSearch": {
     "placeholder": "Zieladresse suchen…",
-    "searching": "Suche…"
+    "searching": "Suche…",
+    "clear": "Ziel löschen"
   }
 }
