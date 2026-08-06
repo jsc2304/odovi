@@ -1,7 +1,13 @@
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { CalendarDays, Download } from "lucide-react";
-import { formatDuration, formatKm, formatKwh } from "@tripatlas/core";
+import {
+  formatConsumption,
+  formatDuration,
+  formatKm,
+  formatKwh,
+  summarizeDriveEnergy,
+} from "@tripatlas/core";
 import { APP_TIMEZONE } from "../../../../lib/config";
 import {
   formatLongDate,
@@ -63,19 +69,14 @@ export default async function DayPage({
 
   // Day totals (drives only).
   const driveCount = timeline.drives.length;
-  const totalKm = timeline.drives.reduce(
-    (sum, d) => sum + (d.distanceKm ?? 0),
-    0,
-  );
+  const energySummary = summarizeDriveEnergy(timeline.drives);
+  const totalKm = energySummary.totalDistanceKm;
   const totalDriveSeconds = timeline.drives.reduce(
     (sum, d) => sum + (d.durationSeconds ?? 0),
     0,
   );
-  const totalEnergy = timeline.drives.reduce(
-    (sum, d) => sum + (d.consumedEnergyKwh ?? 0),
-    0,
-  );
-  const anyEstimated = timeline.drives.some((d) => d.energyIsEstimated);
+  const totalEnergy = energySummary.totalEnergyKwh;
+  const anyEstimated = energySummary.anyEstimated;
 
   const isEmpty =
     timeline.drives.length === 0 &&
@@ -165,10 +166,26 @@ export default async function DayPage({
                     </span>
                   </>
                 )}
+                {energySummary.avgConsumptionWhKm != null && (
+                  <>
+                    <span aria-hidden>·</span>
+                    <span className="tabular-nums">
+                      {formatConsumption(
+                        energySummary.avgConsumptionWhKm,
+                        anyEstimated,
+                      )}
+                    </span>
+                  </>
+                )}
               </div>
               {anyEstimated && (
                 <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">
                   {t("estimatedLegend")}
+                </p>
+              )}
+              {energySummary.hasIncompleteEnergy && (
+                <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">
+                  {t("partialEnergyLegend")}
                 </p>
               )}
             </div>

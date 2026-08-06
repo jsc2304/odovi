@@ -6,6 +6,22 @@
   "vehicleSelectLabel": "Select vehicle",
   "chargeIcon": "Charging session",
   "driveCountLabel": "{count, plural, one {# drive} other {# drives}}",
+  "daySummary": "{date}: {metric}",
+  "metric": {
+    "label": "Calendar metric",
+    "distance": "Distance",
+    "consumption": "Consumption",
+    "energy": "Energy",
+    "trips": "Trips"
+  },
+  "preview": {
+    "open": "Preview drives on {date}",
+    "close": "Close drive preview",
+    "summary": "{count, plural, one {# drive} other {# drives}} · {distance}",
+    "unknownPlace": "Unknown place",
+    "partialEnergy": "† Consumption only covers drives with available energy data.",
+    "openDay": "Open full day"
+  },
   "weekday": {
     "mon": "Mo",
     "tue": "Tu",
