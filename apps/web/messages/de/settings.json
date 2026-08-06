@@ -59,6 +59,17 @@
   "security": {
     "title": "Sicherheit"
   },
+  "tesla": {
+    "title": "Tesla Fleet API",
+    "description": "Überträgt die Checkpoints eines geplanten Roadtrips direkt an die Navigation im Fahrzeug.",
+    "notConfigured": "Tesla-Entwicklerdaten und Token-Verschlüsselung müssen auf dem Server eingerichtet werden.",
+    "connected": "Tesla-Konto verbunden",
+    "vehicle": "Fahrzeug",
+    "connect": "Mit Tesla verbinden",
+    "disconnect": "Verbindung trennen",
+    "pair": "Virtuellen Schlüssel koppeln",
+    "pairHint": "Vor dem ersten Senden muss der virtuelle Tripatlas-Schlüssel einmal über die Tesla-App mit dem Fahrzeug gekoppelt werden."
+  },
   "passwordChange": {
     "currentPassword": "Aktuelles Passwort",
     "newPassword": "Neues Passwort",

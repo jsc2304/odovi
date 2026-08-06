@@ -20,6 +20,6 @@ export function middleware(request: NextRequest) {
 export const config = {
   // Everything except /login, the health check, Next internals and static files.
   matcher: [
-    "/((?!login|api/health|_next/static|_next/image|favicon.ico|manifest\\.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    "/((?!login|roadtrip-offline|api/health|sw\\.js|\\.well-known/appspecific/com\\.tesla\\.3p\\.public-key\\.pem|_next/static|_next/image|favicon.ico|manifest\\.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };

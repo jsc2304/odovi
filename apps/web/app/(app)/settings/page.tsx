@@ -12,6 +12,8 @@ import { EfficiencyOverrideForm } from "./EfficiencyOverrideForm";
 import { PasswordChangeForm } from "./PasswordChangeForm";
 import { SoftwareTimeline } from "./SoftwareTimeline";
 import { DiagnosticsCard } from "./DiagnosticsCard";
+import { TeslaIntegrationCard } from "./TeslaIntegrationCard";
+import { getTeslaIntegrationStatus } from "../../../lib/tesla/integration";
 
 export const dynamic = "force-dynamic";
 
@@ -38,11 +40,12 @@ function maskVin(vin: string | null): string {
 }
 
 export default async function SettingsPage() {
-  const [t, locale, vehicles, syncRows] = await Promise.all([
+  const [t, locale, vehicles, syncRows, teslaStatus] = await Promise.all([
     getTranslations("settings"),
     getLocale(),
     getVehiclesDetailed(),
     getSyncState(),
+    getTeslaIntegrationStatus(),
   ]);
   const defaultVehicleId = vehicles[0]?.id;
   const softwareUpdates =
@@ -65,6 +68,21 @@ export default async function SettingsPage() {
       </p>
 
       <DiagnosticsCard />
+
+      <TeslaIntegrationCard
+        status={teslaStatus}
+        labels={{
+          title: t("tesla.title"),
+          description: t("tesla.description"),
+          notConfigured: t("tesla.notConfigured"),
+          connected: t("tesla.connected"),
+          vehicle: t("tesla.vehicle"),
+          connect: t("tesla.connect"),
+          disconnect: t("tesla.disconnect"),
+          pair: t("tesla.pair"),
+          pairHint: t("tesla.pairHint"),
+        }}
+      />
 
       <Link
         href="/rules"

@@ -28,7 +28,9 @@ Tessie and similar services are good, but they come with subscription costs, ove
 - **Journeys** - Vacations/trips as a wrapper around drives and charging stops, with KPI dashboard, map of all stages, and export as CSV, PDF, and GPX
 - **Insights** - Personal consumption curve: consumption vs. outside temperature and speed, seasonal patterns, share of short trips
 - **Parking analytics** - Vampire drain per parking session, parking durations by place
-- **Route planner (experimental)** - Range check with a real route (OSRM), elevation profile, and your personal consumption profile from your own history; all assumptions are disclosed
+- **Roadtrip planner** - Ordered checkpoints, versioned journey plans, real routes (OSRM), elevation profile and your personal consumption profile
+- **Mobile roadtrip companion** - Store a plan on the phone, follow the next stop and key leg metrics even when reception drops
+- **Tesla navigation handoff (optional)** - Send the complete ordered checkpoint list to the vehicle through Tesla Fleet API
 
 **Cockpit and vehicle**
 - **Home dashboard** - SoC + range, location, status, weather, tire pressure warnings, recent trips as map + list
@@ -139,6 +141,24 @@ On first startup, an admin account is bootstrapped. Optionally set a password be
 
 There is no built-in reverse proxy in the Compose stack. Recommendation: put [`tailscale serve`](https://tailscale.com/kb/1242/tailscale-serve) in front of `${WEB_PORT}` on the target device - TLS certificate and access only inside your own tailnet, without opening a router port.
 
+### Optional: send roadtrips to Tesla
+
+The planner and offline companion work without Tesla API access. Direct vehicle
+handoff additionally needs a Tesla developer application and a public HTTPS
+domain. If Tesla requires signed commands for the vehicle, point
+`TESLA_COMMAND_API_URL` at a compatible command proxy using the matching virtual
+private key.
+Set the `TESLA_*` variables documented in `.env.example`, restart the web
+container, then open **More → Tesla Fleet API** to connect the Tesla account and
+pair the virtual key when required. OAuth tokens are encrypted at rest; any
+private virtual key remains in the command proxy and is never stored in Tripatlas.
+When `TESLA_PUBLIC_KEY_PEM_BASE64` is set, Tripatlas serves the public half at
+Tesla's required `/.well-known/appspecific/com.tesla.3p.public-key.pem` path.
+
+The vehicle always recalculates the route and charging strategy from the sent
+checkpoint order. Test the handoff with the parked vehicle before relying on it
+for a trip.
+
 ### Update
 
 ```bash
@@ -169,10 +189,10 @@ Idempotent (safe to run multiple times), does not collide with TeslaMate data.
 
 ## Limitations (honest)
 
-- **Requires TeslaMate** as a data source - Tripatlas does not talk to the Tesla API itself and never wakes your car
+- **Requires TeslaMate** as the tracking data source; optional Fleet API access is only used when explicitly sending a planned route
 - **One vehicle** per instance is the current focus (multi-vehicle is on the roadmap)
 - **Number formatting** is currently consistently de-DE (decimal comma), including in the English UI
-- **Route planner** is an experimental range check - no charging stop planning yet, default routing uses the public OSRM demo server
+- **Charging stops are explicit checkpoints** - automatic charger discovery/optimization is not implemented yet; default routing uses the public OSRM demo server
 - **No tax/legal opinion**: exports are logbook-like with audit log, but acceptance by the tax office depends on the individual case
 
 ## Roadmap

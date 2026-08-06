@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Download, Zap, ArrowRight, ChevronLeft } from "lucide-react";
+import { Download, Zap, ArrowRight, ChevronLeft, MapPinned, Pencil } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import {
   buildJourneyKpis,
@@ -9,6 +9,7 @@ import {
   formatKm,
   formatKwh,
   formatTime,
+  type RoadtripPlanSnapshot,
 } from "@tripatlas/core";
 import { APP_TIMEZONE } from "../../../../lib/config";
 import {
@@ -18,9 +19,12 @@ import {
   type JourneyTimelineItem,
 } from "../../../../lib/journeys";
 import { buttonClasses } from "../../../../components/ui/Button";
+import { getLatestJourneyPlan } from "../../../../lib/roadtripPlans";
 import { DeleteJourneyButton } from "./DeleteJourneyButton";
 import { AddItemButton, RemoveItemButton } from "./ItemButtons";
 import { JourneyMapLoader } from "./JourneyMapLoader";
+import { OfflinePlanButton } from "./OfflinePlanButton";
+import { TeslaSendButton } from "./TeslaSendButton";
 
 export const dynamic = "force-dynamic";
 
@@ -89,9 +93,10 @@ export default async function JourneyDetailPage({
   const { journey, items, kpiDrives, kpiCharges } = detail;
   const kpis = buildJourneyKpis(kpiDrives, kpiCharges);
   const driveIds = items.filter((i) => i.kind === "drive").map((i) => i.id);
-  const [candidates, routeTracks] = await Promise.all([
+  const [candidates, routeTracks, storedPlan] = await Promise.all([
     getJourneyCandidates(journeyId),
     getJourneyRouteTracks(driveIds),
+    getLatestJourneyPlan(journeyId),
   ]);
 
   const chargeMarkers = items
@@ -187,6 +192,16 @@ export default async function JourneyDetailPage({
           </a>
         )}
       </div>
+
+      {storedPlan && (
+        <PlannedRoadtripCard
+          journeyId={journey.id}
+          version={storedPlan.version}
+          plan={storedPlan.snapshot}
+          journeyName={journey.name}
+          t={t}
+        />
+      )}
 
       {hasRouteData && (
         <div className="mt-4">
@@ -319,6 +334,102 @@ export default async function JourneyDetailPage({
         )}
       </div>
     </div>
+  );
+}
+
+function PlannedRoadtripCard({
+  journeyId,
+  version,
+  plan,
+  journeyName,
+  t,
+}: {
+  journeyId: number;
+  version: number;
+  plan: RoadtripPlanSnapshot;
+  journeyName: string;
+  t: Awaited<ReturnType<typeof getTranslations>>;
+}) {
+  return (
+    <section className="mt-5 rounded-2xl border border-sky-200 bg-sky-50/70 p-4 dark:border-sky-900/60 dark:bg-sky-950/20">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2">
+            <MapPinned aria-hidden size={18} className="text-sky-600 dark:text-sky-400" />
+            <h2 className="text-sm font-semibold">{t("detail.plan.title")}</h2>
+            <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-medium text-neutral-500 dark:bg-neutral-900 dark:text-neutral-400">
+              {t("detail.plan.version", { version })}
+            </span>
+          </div>
+          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+            {t("detail.plan.summary", {
+              stops: plan.stops.length,
+              distance: formatKm(plan.totals.distanceKm),
+              duration: formatDuration(plan.totals.durationSeconds),
+            })}
+          </p>
+        </div>
+        <Link
+          href={`/planner?journey=${journeyId}`}
+          className={buttonClasses("secondary", "sm")}
+        >
+          <Pencil aria-hidden size={14} />
+          {t("detail.plan.edit")}
+        </Link>
+      </div>
+
+      <ol className="mt-4 flex flex-col gap-2">
+        {plan.stops.map((stop, index) => {
+          const leg = index > 0 ? plan.legs[index - 1] : null;
+          return (
+            <li key={stop.id} className="flex items-start gap-3 text-sm">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-xs font-semibold text-sky-700 shadow-sm dark:bg-neutral-900 dark:text-sky-300">
+                {index + 1}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-medium">{stop.label}</p>
+                {leg && (
+                  <p className="text-xs tabular-nums text-neutral-500 dark:text-neutral-400">
+                    {formatKm(leg.distanceKm)} · {formatDuration(leg.durationSeconds)} · {Math.round(leg.arrivalSoc)}% {t("detail.plan.arrival")}
+                  </p>
+                )}
+              </div>
+              {stop.kind === "charge" && (
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+                  {t("detail.plan.charge")}
+                </span>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+
+      <p className="mt-4 text-xs text-neutral-500 dark:text-neutral-400">
+        {t("detail.plan.teslaHint")}
+      </p>
+      <div className="mt-3">
+        <div className="flex flex-wrap items-start gap-2">
+          <TeslaSendButton
+            journeyId={journeyId}
+            version={version}
+            labels={{
+              send: t("detail.plan.teslaSend"),
+              sending: t("detail.plan.teslaSending"),
+              confirm: t("detail.plan.teslaConfirm", { count: plan.stops.length - 1 }),
+            }}
+          />
+          <OfflinePlanButton
+            journeyId={journeyId}
+            journeyName={journeyName}
+            version={version}
+            plan={plan}
+            saveLabel={t("detail.plan.offlineSave")}
+            openLabel={t("detail.plan.offlineOpen")}
+            savedLabel={t("detail.plan.offlineSaved")}
+          />
+        </div>
+      </div>
+    </section>
   );
 }
 

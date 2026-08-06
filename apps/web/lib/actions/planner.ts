@@ -2,15 +2,15 @@
 import { z } from "zod";
 import { getTranslations } from "next-intl/server";
 import {
+  buildRoadtripLegs,
   downsample,
-  predictConsumption,
   summarizeElevation,
-  type ConsumptionBreakdown,
+  type RoadtripPlanSnapshot,
+  type RoadtripStop,
 } from "@tripatlas/core";
 import { validateSession } from "../auth/session";
 import {
   resolveBaseConsumption,
-  type BaseConsumptionSource,
 } from "../planner";
 
 /**
@@ -40,50 +40,42 @@ const ELEVATION_MAX_POINTS = 100;
 // bleibt (lange Routen haben leicht mehrere tausend OSRM-Koordinaten).
 const MAP_MAX_POINTS = 400;
 
-const planRouteInputSchema = z.object({
-  vehicleId: z.number().int().positive(),
-  startLat: z.number().gte(-90).lte(90),
-  startLon: z.number().gte(-180).lte(180),
-  destLat: z.number().gte(-90).lte(90),
-  destLon: z.number().gte(-180).lte(180),
-  startSoc: z.number().min(0).max(100),
-  tempC: z.number().min(-40).max(55),
-  capacityKwh: z.number().min(5).max(250),
+const roadtripStopSchema = z.object({
+  id: z.string().trim().min(1).max(100),
+  label: z.string().trim().min(1).max(500),
+  lat: z.number().gte(-90).lte(90),
+  lon: z.number().gte(-180).lte(180),
+  kind: z.enum(["start", "waypoint", "charge", "destination"]),
+  targetSoc: z.number().min(0).max(100).nullable().optional(),
 });
 
-export type PlanRouteInput = z.infer<typeof planRouteInputSchema>;
+const planRoadtripInputSchema = z.object({
+  vehicleId: z.number().int().positive(),
+  departureAt: z.string().datetime(),
+  stops: z.array(roadtripStopSchema).min(2).max(12),
+  startSoc: z.number().min(0).max(100),
+  reserveSoc: z.number().min(0).max(50),
+  tempC: z.number().min(-40).max(55),
+  capacityKwh: z.number().min(5).max(250),
+}).superRefine((value, ctx) => {
+  if (value.stops[0]?.kind !== "start") {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["stops", 0, "kind"],
+      message: "First stop must be the start",
+    });
+  }
+  if (value.stops.at(-1)?.kind !== "destination") {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["stops", value.stops.length - 1, "kind"],
+      message: "Last stop must be the destination",
+    });
+  }
+});
 
-export interface PlanResult {
-  distanceKm: number;
-  durationSeconds: number;
-  avgSpeedKmh: number;
-
-  energyKwh: number;
-  whPerKm: number;
-  breakdown: ConsumptionBreakdown;
-
-  ascentM: number;
-  descentM: number;
-  /** Ob das Höhenprofil geladen werden konnte (sonst ohne Höhenterm gerechnet). */
-  elevationOk: boolean;
-
-  baseWhPerKm: number;
-  baseSource: BaseConsumptionSource;
-  referenceSpeedKmh: number;
-  tempBinCenterC: number | null;
-  historyDriveCount: number;
-
-  tempC: number;
-  startSoc: number;
-  capacityKwh: number;
-  /** Ankunfts-SoC in % (kann < 0 sein → Reichweite reicht nicht). */
-  arrivalSoc: number;
-
-  /** true = öffentlicher OSRM-Demo-Server, false = eigener via OSRM_URL. */
-  osrmIsDefault: boolean;
-  /** [lat, lon]-Tupel für die Karten-Polyline (ausgedünnt). */
-  geometry: [number, number][];
-}
+export type PlanRoadtripInput = z.infer<typeof planRoadtripInputSchema>;
+export type PlanResult = RoadtripPlanSnapshot;
 
 export type PlanRouteResponse =
   | { ok: true; plan: PlanResult }
@@ -92,6 +84,7 @@ export type PlanRouteResponse =
 interface OsrmRoute {
   distanceM: number;
   durationS: number;
+  legs: Array<{ distanceM: number; durationS: number }>;
   /** OSRM liefert [lon, lat] — hier bereits so belassen. */
   coordinates: [number, number][];
 }
@@ -101,14 +94,14 @@ interface OsrmRoute {
  * OSRM-Route holen → Höhenprofil batchen → Basisverbrauch aus Historie →
  * core-Modell → SoC-Rechnung.
  */
-export async function planRoute(
-  input: PlanRouteInput,
+export async function planRoadtrip(
+  input: PlanRoadtripInput,
 ): Promise<PlanRouteResponse> {
   const t = await getTranslations("planner");
   const user = await validateSession();
   if (!user) return { ok: false, error: t("errors.notAuthenticated") };
 
-  const parsed = planRouteInputSchema.safeParse(input);
+  const parsed = planRoadtripInputSchema.safeParse(input);
   if (!parsed.success) {
     return {
       ok: false,
@@ -117,30 +110,18 @@ export async function planRoute(
   }
   const {
     vehicleId,
-    startLat,
-    startLon,
-    destLat,
-    destLon,
+    departureAt,
+    stops,
     startSoc,
+    reserveSoc,
     tempC,
     capacityKwh,
   } = parsed.data;
 
   // 1) Routing (OSRM) — server-seitig, mit Timeout und freundlicher Fehlermeldung.
-  const routeResult = await fetchOsrmRoute(
-    startLat,
-    startLon,
-    destLat,
-    destLon,
-    t,
-  );
+  const routeResult = await fetchOsrmRoute(stops, t);
   if (!routeResult.ok) return { ok: false, error: routeResult.error };
   const route = routeResult.route;
-
-  const distanceKm = route.distanceM / 1000;
-  const durationSeconds = route.durationS;
-  const avgSpeedKmh =
-    durationSeconds > 0 ? distanceKm / (durationSeconds / 3600) : 0;
 
   // 2) Höhenprofil (Open-Meteo, ein Batch-Request) — optional/failure-soft.
   const elevationSample = downsample(
@@ -156,19 +137,21 @@ export async function planRoute(
   // 3) Persönlicher Basisverbrauch aus der Historie (Fallback-Kette in lib/planner).
   const base = await resolveBaseConsumption(vehicleId, tempC);
 
-  // 4) Reines Verbrauchsmodell.
-  const prediction = predictConsumption({
-    distanceKm,
-    avgSpeedKmh,
+  // 4) Deterministische Verbrauchs- und SoC-Prognose je OSRM-Etappe.
+  const prediction = buildRoadtripLegs({
+    stops,
+    routeLegs: route.legs.map((leg) => ({
+      distanceKm: leg.distanceM / 1000,
+      durationSeconds: leg.durationS,
+    })),
+    startSoc,
+    capacityKwh,
     tempC,
-    ascentM,
-    descentM,
     baseWhPerKm: base.baseWhPerKm,
     referenceSpeedKmh: base.referenceSpeedKmh,
+    totalAscentM: ascentM,
+    totalDescentM: descentM,
   });
-
-  // 5) Ankunfts-SoC.
-  const arrivalSoc = startSoc - (prediction.energyKwh / capacityKwh) * 100;
 
   // Karten-Geometrie ausdünnen und auf [lat, lon] drehen.
   const geometry: [number, number][] = downsample(
@@ -179,26 +162,30 @@ export async function planRoute(
   return {
     ok: true,
     plan: {
-      distanceKm,
-      durationSeconds,
-      avgSpeedKmh,
-      energyKwh: prediction.energyKwh,
-      whPerKm: prediction.whPerKm,
-      breakdown: prediction.breakdown,
-      ascentM,
-      descentM,
-      elevationOk,
-      baseWhPerKm: base.baseWhPerKm,
-      baseSource: base.source,
-      referenceSpeedKmh: base.referenceSpeedKmh,
-      tempBinCenterC: base.tempBinCenterC,
-      historyDriveCount: base.historyDriveCount,
-      tempC,
+      schemaVersion: 1,
+      vehicleId,
+      departureAt,
       startSoc,
+      reserveSoc,
+      tempC,
       capacityKwh,
-      arrivalSoc,
-      osrmIsDefault: OSRM_IS_DEFAULT,
+      stops,
+      legs: prediction.legs,
+      totals: prediction.totals,
       geometry,
+      assumptions: {
+        baseWhPerKm: base.baseWhPerKm,
+        baseSource: base.source,
+        referenceSpeedKmh: base.referenceSpeedKmh,
+        tempBinCenterC: base.tempBinCenterC,
+        historyDriveCount: base.historyDriveCount,
+        elevationOk,
+        ascentM,
+        descentM,
+        elevationAllocation: "distance-proportional",
+        routeProvider: "osrm",
+        routeProviderIsDefault: OSRM_IS_DEFAULT,
+      },
     },
   };
 }
@@ -209,14 +196,11 @@ type OsrmResult =
 
 /** OSRM route API: profile driving, overview=full, geometries=geojson. */
 async function fetchOsrmRoute(
-  startLat: number,
-  startLon: number,
-  destLat: number,
-  destLon: number,
+  stops: RoadtripStop[],
   t: Awaited<ReturnType<typeof getTranslations>>,
 ): Promise<OsrmResult> {
   const base = OSRM_URL.replace(/\/+$/, "");
-  const coords = `${startLon},${startLat};${destLon},${destLat}`;
+  const coords = stops.map((stop) => `${stop.lon},${stop.lat}`).join(";");
   const url = new URL(`${base}/route/v1/driving/${coords}`);
   url.searchParams.set("overview", "full");
   url.searchParams.set("geometries", "geojson");
@@ -254,7 +238,7 @@ async function fetchOsrmRoute(
     return { ok: false, error: t("errors.routingBadResponse") };
   }
 
-  const parsed = parseOsrmBody(body);
+  const parsed = parseOsrmBody(body, stops.length - 1);
   if (!parsed) {
     return {
       ok: false,
@@ -270,11 +254,12 @@ interface OsrmResponseShape {
     distance?: number;
     duration?: number;
     geometry?: { coordinates?: unknown };
+    legs?: Array<{ distance?: number; duration?: number }>;
   }>;
 }
 
 /** Validiert die OSRM-Antwort und extrahiert Distanz/Dauer/Koordinaten. */
-function parseOsrmBody(body: unknown): OsrmRoute | null {
+function parseOsrmBody(body: unknown, expectedLegs: number): OsrmRoute | null {
   if (typeof body !== "object" || body === null) return null;
   const b = body as OsrmResponseShape;
   if (b.code !== "Ok") return null;
@@ -283,7 +268,9 @@ function parseOsrmBody(body: unknown): OsrmRoute | null {
     !route ||
     typeof route.distance !== "number" ||
     typeof route.duration !== "number" ||
-    !Array.isArray(route.geometry?.coordinates)
+    !Array.isArray(route.geometry?.coordinates) ||
+    !Array.isArray(route.legs) ||
+    route.legs.length !== expectedLegs
   ) {
     return null;
   }
@@ -300,9 +287,21 @@ function parseOsrmBody(body: unknown): OsrmRoute | null {
   }
   if (coordinates.length < 2) return null;
 
+  const legs: Array<{ distanceM: number; durationS: number }> = [];
+  for (const leg of route.legs) {
+    if (
+      typeof leg.distance !== "number" ||
+      typeof leg.duration !== "number"
+    ) {
+      return null;
+    }
+    legs.push({ distanceM: leg.distance, durationS: leg.duration });
+  }
+
   return {
     distanceM: route.distance,
     durationS: route.duration,
+    legs,
     coordinates,
   };
 }

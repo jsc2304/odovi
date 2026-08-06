@@ -1,7 +1,7 @@
 {
   "title": "Route Planner",
   "experimentalBadge": "Experimental",
-  "subtitle": "Range check based on your personal consumption curve. An honest forecast with disclosed assumptions — no guarantee, no charging-stop planning (coming in a later version).",
+  "subtitle": "Plan a route with checkpoints, predict every leg using your personal consumption curve, and save it as a Journey.",
   "baseSource": {
     "tempBin": "personal consumption curve (temperature range)",
     "historyAvg": "personal overall average",
@@ -14,6 +14,9 @@
     "critical": "Charging stop required"
   },
   "form": {
+    "tripName": "Trip name",
+    "tripNamePlaceholder": "For example Lake Maggiore 2026",
+    "departure": "Departure",
     "start": "Start",
     "currentPosition": "Current vehicle position",
     "destination": "Destination",
@@ -22,16 +25,33 @@
     "destPlaceAriaLabel": "Destination place",
     "noPlaces": "No places",
     "startSoc": "Start SoC (%)",
+    "reserveSoc": "Desired reserve (%)",
     "expectedTemp": "Expected outside temperature (°C)",
     "batteryCapacity": "Battery capacity (kWh)",
     "capacityHintDerived": "Derived from current range and SoC — adjust if needed.",
     "capacityHintDefault": "Could not be derived from vehicle data — default value, please check.",
     "submit": "Check range",
+    "submitRoadtrip": "Calculate route",
     "submitPending": "Calculating…",
     "historyHint": "Only {count, plural, one {# drive} other {# drives}} in history — base value not yet very reliable.",
     "routingPrefix": "Routing:",
     "routingDefaultHint": "public OSRM demo server — set up your own server via OSRM_URL.",
     "routingCustomHint": "your own OSRM server (OSRM_URL)."
+  },
+  "checkpoints": {
+    "title": "Checkpoints",
+    "hint": "Tesla will calculate the roads between these points again later.",
+    "add": "Add checkpoint",
+    "destination": "Destination",
+    "stop": "Stop {number}",
+    "kindLabel": "Stop type",
+    "kindWaypoint": "Waypoint",
+    "kindCharge": "Charging stop",
+    "moveUp": "Move checkpoint up",
+    "moveDown": "Move checkpoint down",
+    "remove": "Remove checkpoint",
+    "savedPlace": "Select saved place",
+    "chooseSavedPlace": "Choose saved place…"
   },
   "errors": {
     "missingStart": "Please select a starting point.",
@@ -40,6 +60,12 @@
     "socRange": "Start SoC must be between 0 and 100.",
     "tempInvalid": "Please enter a valid outside temperature.",
     "capacityRange": "Battery capacity must be between 5 and 250 kWh.",
+    "reserveRange": "Reserve must be between 0 and 50 percent.",
+    "departureInvalid": "Please enter a valid departure time.",
+    "missingCheckpoints": "Please select the start, destination, and every checkpoint.",
+    "vehicleNotFound": "The selected vehicle was not found.",
+    "journeyNotFound": "The Journey to edit was not found.",
+    "saveFailed": "The roadtrip plan could not be saved.",
     "notAuthenticated": "Not signed in.",
     "invalidInput": "Invalid input.",
     "routingUnreachable": "Routing service unreachable (timeout or network error). Please try again later.",
@@ -54,7 +80,18 @@
     "avgSpeed": "Avg. speed",
     "consumption": "Consumption",
     "arrivalSoc": "Arrival SoC",
-    "lowArrivalHint": "The predicted arrival SoC is low — a charging stop is required. Automatic charging-stop planning is coming in a later version."
+    "lowArrivalHint": "The predicted arrival SoC is low — a charging stop is required. Automatic charging-stop planning is coming in a later version.",
+    "itinerary": "Itinerary",
+    "arrival": "Arrival",
+    "reserveMet": "Reserve met",
+    "reserveMissed": "below {reserve}% reserve"
+  },
+  "save": {
+    "defaultName": "Roadtrip to {destination}",
+    "createJourney": "Save as Journey",
+    "newVersion": "Save new plan version",
+    "pending": "Saving…",
+    "editingVersion": "Editing plan version {version}"
   },
   "assumptions": {
     "summary": "Assumptions & breakdown",
@@ -78,7 +115,8 @@
     "ascent": "Ascent",
     "descentRegen": "Downhill regeneration",
     "total": "Total",
-    "footer": "Experimental forecast based on assumptions (driving style, wind, load, tires, and climate control are not accounted for). Plan a reserve."
+    "footer": "Experimental forecast based on assumptions (driving style, wind, load, tires, and climate control are not accounted for). Plan a reserve.",
+    "waypointFooter": "Tripatlas transfers ordered checkpoints. Tesla recalculates the exact roads and charging plan in the vehicle."
   },
   "destinationSearch": {
     "placeholder": "Search destination address…",
