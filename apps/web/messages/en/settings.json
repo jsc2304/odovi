@@ -59,6 +59,17 @@
   "security": {
     "title": "Security"
   },
+  "tesla": {
+    "title": "Tesla Fleet API",
+    "description": "Sends the checkpoints of a planned roadtrip directly to the vehicle navigation.",
+    "notConfigured": "Tesla developer credentials and token encryption must be configured on the server.",
+    "connected": "Tesla account connected",
+    "vehicle": "Vehicle",
+    "connect": "Connect Tesla",
+    "disconnect": "Disconnect",
+    "pair": "Pair virtual key",
+    "pairHint": "Before the first send, pair Tripatlas' virtual key with the vehicle once through the Tesla app."
+  },
   "passwordChange": {
     "currentPassword": "Current password",
     "newPassword": "New password",

@@ -1,7 +1,7 @@
 {
   "title": "Routenplaner",
   "experimentalBadge": "Experimentell",
-  "subtitle": "Reichweiten-Check auf Basis deiner persönlichen Verbrauchskurve. Eine ehrliche Prognose mit offengelegten Annahmen — keine Garantie, keine Ladestopp-Planung (kommt in einer späteren Version).",
+  "subtitle": "Plane eine Route mit Checkpoints, prognostiziere jede Etappe mit deiner persönlichen Verbrauchskurve und speichere sie als Reise.",
   "baseSource": {
     "tempBin": "persönliche Verbrauchskurve (Temperatur-Bereich)",
     "historyAvg": "persönlicher Gesamtdurchschnitt",
@@ -14,6 +14,9 @@
     "critical": "Ladestopp nötig"
   },
   "form": {
+    "tripName": "Reisename",
+    "tripNamePlaceholder": "Zum Beispiel Lago Maggiore 2026",
+    "departure": "Abfahrt",
     "start": "Start",
     "currentPosition": "Aktuelle Fahrzeugposition",
     "destination": "Ziel",
@@ -22,16 +25,33 @@
     "destPlaceAriaLabel": "Ziel-Ort",
     "noPlaces": "Keine Orte",
     "startSoc": "Start-SoC (%)",
+    "reserveSoc": "Gewünschte Reserve (%)",
     "expectedTemp": "Erwartete Außentemperatur (°C)",
     "batteryCapacity": "Batteriekapazität (kWh)",
     "capacityHintDerived": "Aus aktueller Reichweite und SoC hergeleitet — bei Bedarf anpassen.",
     "capacityHintDefault": "Konnte nicht aus Fahrzeugdaten hergeleitet werden — Standardwert, bitte prüfen.",
     "submit": "Reichweite prüfen",
+    "submitRoadtrip": "Route berechnen",
     "submitPending": "Berechne…",
     "historyHint": "Nur {count, plural, one {# Fahrt} other {# Fahrten}} in der Historie — Basiswert noch wenig belastbar.",
     "routingPrefix": "Routing:",
     "routingDefaultHint": "öffentlicher OSRM-Demo-Server — eigenen Server über OSRM_URL hinterlegen.",
     "routingCustomHint": "eigener OSRM-Server (OSRM_URL)."
+  },
+  "checkpoints": {
+    "title": "Checkpoints",
+    "hint": "Tesla berechnet die Straßen zwischen diesen Punkten später selbst neu.",
+    "add": "Checkpoint hinzufügen",
+    "destination": "Ziel",
+    "stop": "Stopp {number}",
+    "kindLabel": "Art des Stopps",
+    "kindWaypoint": "Zwischenziel",
+    "kindCharge": "Ladestopp",
+    "moveUp": "Checkpoint nach oben verschieben",
+    "moveDown": "Checkpoint nach unten verschieben",
+    "remove": "Checkpoint entfernen",
+    "savedPlace": "Gespeicherten Ort auswählen",
+    "chooseSavedPlace": "Gespeicherten Ort wählen…"
   },
   "errors": {
     "missingStart": "Bitte einen Startpunkt wählen.",
@@ -40,6 +60,12 @@
     "socRange": "Start-SoC muss zwischen 0 und 100 liegen.",
     "tempInvalid": "Bitte eine gültige Außentemperatur angeben.",
     "capacityRange": "Batteriekapazität muss zwischen 5 und 250 kWh liegen.",
+    "reserveRange": "Die Reserve muss zwischen 0 und 50 Prozent liegen.",
+    "departureInvalid": "Bitte eine gültige Abfahrtszeit angeben.",
+    "missingCheckpoints": "Bitte Start, Ziel und alle Checkpoints vollständig auswählen.",
+    "vehicleNotFound": "Das ausgewählte Fahrzeug wurde nicht gefunden.",
+    "journeyNotFound": "Die zu bearbeitende Reise wurde nicht gefunden.",
+    "saveFailed": "Der Reiseplan konnte nicht gespeichert werden.",
     "notAuthenticated": "Nicht angemeldet.",
     "invalidInput": "Ungültige Eingabe.",
     "routingUnreachable": "Routing-Dienst nicht erreichbar (Zeitüberschreitung oder Netzwerkfehler). Bitte später erneut versuchen.",
@@ -54,7 +80,18 @@
     "avgSpeed": "Ø-Tempo",
     "consumption": "Verbrauch",
     "arrivalSoc": "Ankunfts-SoC",
-    "lowArrivalHint": "Der prognostizierte Ankunfts-SoC ist niedrig — ein Ladestopp ist nötig. Automatische Ladestopp-Planung kommt in einer späteren Version."
+    "lowArrivalHint": "Der prognostizierte Ankunfts-SoC ist niedrig — ein Ladestopp ist nötig. Automatische Ladestopp-Planung kommt in einer späteren Version.",
+    "itinerary": "Etappen",
+    "arrival": "Ankunft",
+    "reserveMet": "Reserve eingehalten",
+    "reserveMissed": "unter {reserve}% Reserve"
+  },
+  "save": {
+    "defaultName": "Roadtrip nach {destination}",
+    "createJourney": "Als Reise speichern",
+    "newVersion": "Neue Planversion speichern",
+    "pending": "Speichere…",
+    "editingVersion": "Bearbeitet Planversion {version}"
   },
   "assumptions": {
     "summary": "Annahmen & Aufschlüsselung",
@@ -78,7 +115,8 @@
     "ascent": "Anstieg",
     "descentRegen": "Rekuperation bergab",
     "total": "Gesamt",
-    "footer": "Experimentelle Prognose auf Basis von Annahmen (Fahrstil, Wind, Beladung, Reifen, Klima bleiben unberücksichtigt). Reserve einplanen."
+    "footer": "Experimentelle Prognose auf Basis von Annahmen (Fahrstil, Wind, Beladung, Reifen, Klima bleiben unberücksichtigt). Reserve einplanen.",
+    "waypointFooter": "Tripatlas überträgt geordnete Checkpoints. Die genaue Straßenführung und Ladeplanung berechnet Tesla im Fahrzeug neu."
   },
   "destinationSearch": {
     "placeholder": "Zieladresse suchen…",

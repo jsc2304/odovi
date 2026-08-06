@@ -58,6 +58,15 @@ services:
       # Testquery). Im Normalbetrieb liest ausschließlich der Worker die
       # TeslaMate-DB — dieser Wert kann leer bleiben.
       TESLAMATE_DATABASE_URL: ${TESLAMATE_DATABASE_URL:-}
+      TESLA_CLIENT_ID: ${TESLA_CLIENT_ID:-}
+      TESLA_CLIENT_SECRET: ${TESLA_CLIENT_SECRET:-}
+      TESLA_REDIRECT_URI: ${TESLA_REDIRECT_URI:-}
+      TESLA_PARTNER_DOMAIN: ${TESLA_PARTNER_DOMAIN:-}
+      TESLA_TOKEN_ENCRYPTION_KEY: ${TESLA_TOKEN_ENCRYPTION_KEY:-}
+      TESLA_PUBLIC_KEY_PEM_BASE64: ${TESLA_PUBLIC_KEY_PEM_BASE64:-}
+      TESLA_COMMAND_PROXY_URL: ${TESLA_COMMAND_PROXY_URL:-}
+      TESLA_COMMAND_API_URL: ${TESLA_COMMAND_API_URL:-}
+      TESLA_FLEET_API_BASE_URL: ${TESLA_FLEET_API_BASE_URL:-https://fleet-api.prd.eu.vn.cloud.tesla.com}
     depends_on:
       db:
         condition: service_healthy

@@ -8,7 +8,6 @@ import { db } from "../db";
 import { SESSION_COOKIE } from "../config";
 
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
-const RENEW_THRESHOLD_MS = 15 * 24 * 60 * 60 * 1000; // renew when <15 days left
 
 /** sha256-hex of the raw token; only the hash is ever stored in the DB. */
 function hashToken(token: string): string {
@@ -60,9 +59,12 @@ export async function createSession(userId: number): Promise<void> {
 
 /**
  * Validates the current request's session cookie. Returns the associated user
- * or null. Expired sessions are deleted. Sessions with fewer than 15 days left
- * are slid forward to a fresh 30-day expiry. Wrapped in React `cache()` so the
+ * or null. Expired sessions are deleted. Wrapped in React `cache()` so the
  * lookup runs at most once per request.
+ *
+ * Cookie renewal deliberately does not happen here: this function is called by
+ * Server Components, where Next.js forbids modifying cookies. A fixed 30-day
+ * session is preferable to turning otherwise valid page loads into HTTP 500s.
  */
 export const validateSession = cache(
   async (): Promise<SessionUser | null> => {
@@ -89,22 +91,6 @@ export const validateSession = cache(
     if (row.expiresAt.getTime() <= Date.now()) {
       await db.delete(sessions).where(eq(sessions.id, id));
       return null;
-    }
-
-    // Sliding renewal.
-    if (row.expiresAt.getTime() - Date.now() < RENEW_THRESHOLD_MS) {
-      const newExpiry = new Date(Date.now() + SESSION_TTL_MS);
-      await db
-        .update(sessions)
-        .set({ expiresAt: newExpiry })
-        .where(eq(sessions.id, id));
-      cookieStore.set(SESSION_COOKIE, token, {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: await cookieSecure(),
-        expires: newExpiry,
-      });
     }
 
     return { id: row.userId, username: row.username };

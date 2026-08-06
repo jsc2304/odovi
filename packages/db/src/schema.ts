@@ -410,6 +410,31 @@ export const journeys = pgTable(
   (t) => [index("journeys_start_idx").on(t.startTime)],
 );
 
+// Immutable planned roadtrip snapshots linked to the existing Journey
+// container. Editing a plan inserts the next version instead of overwriting
+// the assumptions that were visible before departure.
+export const journeyPlans = pgTable(
+  "journey_plans",
+  {
+    id: id(),
+    journeyId: bigint("journey_id", { mode: "number" })
+      .notNull()
+      .references(() => journeys.id, { onDelete: "cascade" }),
+    vehicleId: bigint("vehicle_id", { mode: "number" })
+      .notNull()
+      .references(() => vehicles.id),
+    version: integer("version").notNull(),
+    schemaVersion: integer("schema_version").notNull().default(1),
+    snapshot: jsonb("snapshot").notNull(),
+    createdBy: text("created_by").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    unique("journey_plans_version_uq").on(t.journeyId, t.version),
+    index("journey_plans_journey_idx").on(t.journeyId, t.version),
+  ],
+);
+
 // Mitgliedschaft ist explizit (Zeitraum-Auto-Zuordnung legt Rows an, manuelle
 // Korrekturen ändern sie): assignedBy unterscheidet auto/manual; excluded=true
 // heißt "vom Nutzer entfernt, Auto-Zuordnung darf nicht erneut hinzufügen".

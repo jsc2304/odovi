@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import "./globals.css";
+import { ServiceWorkerRegistration } from "../components/ServiceWorkerRegistration";
 
 // Auf die App-Grundflächen abgestimmt (bg-neutral-50 / bg-neutral-950).
 const THEME_LIGHT = "#fafafa";
@@ -63,6 +64,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body>
+        <ServiceWorkerRegistration />
         {isSystem && (
           <script
             // Läuft nur im System-Modus und setzt die .dark-Klasse vor dem

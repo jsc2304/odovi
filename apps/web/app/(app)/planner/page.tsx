@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { getVehicles } from "../../../lib/queries";
 import { getPlannerContext, getPlannerPlaces } from "../../../lib/planner";
+import { getJourneyById } from "../../../lib/journeys";
+import { getLatestJourneyPlan } from "../../../lib/roadtripPlans";
 import { getCurrentWeather } from "../../../lib/weather";
 import { Planner } from "./Planner";
 
@@ -12,11 +14,28 @@ const FALLBACK_SOC = 80;
 // Vorbelegung der Außentemperatur, falls kein Wetter abrufbar ist.
 const FALLBACK_TEMP_C = 15;
 
-export default async function PlannerPage() {
+export default async function PlannerPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ journey?: string }>;
+}) {
   const t = await getTranslations("planner");
   const vehicles = await getVehicles();
   if (vehicles.length === 0) notFound();
-  const vehicleId = vehicles[0]!.id;
+  const params = await searchParams;
+  const requestedJourneyId = Number(params.journey);
+  const editJourneyId =
+    Number.isInteger(requestedJourneyId) && requestedJourneyId > 0
+      ? requestedJourneyId
+      : null;
+  const [journey, storedPlan] = editJourneyId
+    ? await Promise.all([
+        getJourneyById(editJourneyId),
+        getLatestJourneyPlan(editJourneyId),
+      ])
+    : [null, null];
+  if (editJourneyId && (!journey || !storedPlan)) notFound();
+  const vehicleId = storedPlan?.vehicleId ?? vehicles[0]!.id;
 
   const [context, places] = await Promise.all([
     getPlannerContext(vehicleId),
@@ -65,6 +84,16 @@ export default async function PlannerPage() {
           capacityIsDerived={context.capacityIsDerived}
           historyDriveCount={context.historyDriveCount}
           osrmIsDefault={process.env.OSRM_URL == null}
+          initialPlan={
+            journey && storedPlan
+              ? {
+                  journeyId: journey.id,
+                  name: journey.name,
+                  version: storedPlan.version,
+                  snapshot: storedPlan.snapshot,
+                }
+              : null
+          }
         />
       </div>
     </div>

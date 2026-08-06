@@ -50,6 +50,13 @@
       "when": 1783517368570,
       "tag": "0006_gray_big_bertha",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1786036415361,
+      "tag": "0007_parched_vapor",
+      "breakpoints": true
     }
   ]
 }
