@@ -83,8 +83,15 @@ Referenz: `docs/brand-assets/04-night-cartography.webp`
 
 ## Auswahlstatus
 
-Der Master-Look ist noch nicht entschieden. Nach der Auswahl wird nur die
-gewählte Richtung weiterentwickelt und als Higgsfield-Brand-Referenz genutzt.
+Die Bildwelten haben getrennte Rollen:
+
+- **Memory Ribbon** ist der emotionale Einstieg und Hero-Master.
+- **Night Cartography** ist das systematische Journey-Motiv.
+
+Beide Richtungen bilden gemeinsam das Tripatlas-System. Memory Ribbon verkauft
+das Gefühl der Reise; Night Cartography zeigt, wie Tripatlas diese Reise
+strukturiert und bewahrt. Die verbindliche Bewegungssprache steht im
+[Motion System](./motion-system.md).
 
 ## Motion-Prinzipien nach der Auswahl
 
