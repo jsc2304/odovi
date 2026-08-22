@@ -1,7 +1,15 @@
 import "server-only";
-import { sql } from "drizzle-orm";
+import { and, desc, eq, gt, isNotNull, isNull, or, sql } from "drizzle-orm";
 import { computeVampireLoss } from "@tripatlas/core";
+import { chargeSessions, parkSessions, vehicleStatus } from "@tripatlas/db";
 import { db } from "./db";
+import {
+  resolveDashboardParkDrainSession,
+  sumParkDrainSessions,
+  type DashboardParkDrainSession,
+  type LastChargeBoundary,
+  type ParkDrainSourceSession,
+} from "./parkDrain";
 
 // Zeittoleranz beim Matchen von Park-Nachbar-Fahrten über start/end_time
 // (TeslaMate rundet Zeitstempel teils auf die Minute) — siehe Modul-Doku in
@@ -13,6 +21,8 @@ export interface ParkLoss {
   lossPct: number | null;
   /** true wenn während des Parks eine Ladesession lief (Verlust dadurch nicht bestimmbar). */
   hadCharge: boolean;
+  /** SoC at the end of this park (next drive start, or current vehicle SoC). */
+  nextStartSoc: number | null;
 }
 
 /**
@@ -24,6 +34,7 @@ export interface ParkLoss {
  */
 export async function getParkLossForSessions(
   parkIds: number[],
+  openSessionSoc: number | null = null,
 ): Promise<Map<number, ParkLoss>> {
   const result = new Map<number, ParkLoss>();
   if (parkIds.length === 0) return result;
@@ -46,16 +57,18 @@ export async function getParkLossForSessions(
         order by abs(extract(epoch from d.end_time - ps.start_time)) asc
         limit 1
       ) as prev_end_soc,
-      (
-        select d.start_soc
-        from drives d
-        where d.source = 'teslamate'
-          and d.vehicle_id = ps.vehicle_id
-          and ps.end_time is not null
-          and abs(extract(epoch from d.start_time - ps.end_time)) <= ${NEIGHBOR_TOLERANCE_SECONDS}
-        order by abs(extract(epoch from d.start_time - ps.end_time)) asc
-        limit 1
-      ) as next_start_soc,
+      case
+        when ps.end_time is null then ${openSessionSoc}
+        else (
+          select d.start_soc
+          from drives d
+          where d.source = 'teslamate'
+            and d.vehicle_id = ps.vehicle_id
+            and abs(extract(epoch from d.start_time - ps.end_time)) <= ${NEIGHBOR_TOLERANCE_SECONDS}
+          order by abs(extract(epoch from d.start_time - ps.end_time)) asc
+          limit 1
+        )
+      end as next_start_soc,
       exists (
         select 1
         from charge_sessions cs
@@ -68,7 +81,6 @@ export async function getParkLossForSessions(
       parkIds.map((id) => sql`${id}`),
       sql.raw(","),
     )})
-      and ps.end_time is not null
   `);
 
   for (const r of rows) {
@@ -77,10 +89,106 @@ export async function getParkLossForSessions(
       nextStartSoc: r.next_start_soc,
       hadCharge: r.had_charge,
     });
-    result.set(r.id, { lossPct, hadCharge: r.had_charge });
+    result.set(r.id, {
+      lossPct,
+      hadCharge: r.had_charge,
+      nextStartSoc: r.next_start_soc,
+    });
   }
 
   return result;
+}
+
+export interface DashboardParkDrain {
+  current: DashboardParkDrainSession | null;
+  previous: DashboardParkDrainSession | null;
+  /** Null when there is no completed charge boundary or the sum is incomplete. */
+  totalSinceLastChargePct: number | null;
+}
+
+/**
+ * Drain for the open/latest park plus the trustworthy sum since the most
+ * recent completed charge. The current vehicle SoC closes an open park's
+ * measurement interval without persisting synthetic park SoC values.
+ */
+export async function getDashboardParkDrain(
+  vehicleId: number,
+): Promise<DashboardParkDrain> {
+  const [currentRows, previousRows, latestChargeRows, statusRows] = await Promise.all([
+    db
+      .select({ id: parkSessions.id, startTime: parkSessions.startTime, endTime: parkSessions.endTime })
+      .from(parkSessions)
+      .where(and(eq(parkSessions.vehicleId, vehicleId), isNull(parkSessions.endTime)))
+      .orderBy(desc(parkSessions.startTime))
+      .limit(1),
+    db
+      .select({ id: parkSessions.id, startTime: parkSessions.startTime, endTime: parkSessions.endTime })
+      .from(parkSessions)
+      .where(and(eq(parkSessions.vehicleId, vehicleId), isNotNull(parkSessions.endTime)))
+      .orderBy(desc(parkSessions.endTime))
+      .limit(1),
+    db
+      .select({ endTime: chargeSessions.endTime, endSoc: chargeSessions.endSoc })
+      .from(chargeSessions)
+      .where(eq(chargeSessions.vehicleId, vehicleId))
+      .orderBy(desc(chargeSessions.startTime))
+      .limit(1),
+    db
+      .select({ soc: vehicleStatus.soc })
+      .from(vehicleStatus)
+      .where(eq(vehicleStatus.vehicleId, vehicleId))
+      .limit(1),
+  ]);
+
+  const current = currentRows[0] ?? null;
+  const previous = previousRows[0] ?? null;
+  const latestCharge = latestChargeRows[0];
+  const lastCharge: LastChargeBoundary | null =
+    latestCharge?.endTime != null
+      ? { endTime: latestCharge.endTime, endSoc: latestCharge.endSoc }
+      : null;
+
+  const sinceChargeRows: ParkDrainSourceSession[] = lastCharge
+    ? await db
+        .select({ id: parkSessions.id, startTime: parkSessions.startTime, endTime: parkSessions.endTime })
+        .from(parkSessions)
+        .where(
+          and(
+            eq(parkSessions.vehicleId, vehicleId),
+            or(isNull(parkSessions.endTime), gt(parkSessions.endTime, lastCharge.endTime)),
+          ),
+        )
+        .orderBy(parkSessions.startTime)
+    : [];
+
+  const sessionIds = new Set<number>([
+    ...(current ? [current.id] : []),
+    ...(previous ? [previous.id] : []),
+    ...sinceChargeRows.map((session) => session.id),
+  ]);
+  const losses = await getParkLossForSessions(
+    [...sessionIds],
+    statusRows[0]?.soc ?? null,
+  );
+  const now = new Date();
+
+  const resolve = (session: ParkDrainSourceSession | null) => {
+    if (!session) return null;
+    const loss = losses.get(session.id);
+    if (!loss) return null;
+    return resolveDashboardParkDrainSession(session, loss, lastCharge, now);
+  };
+
+  const sinceCharge = sinceChargeRows
+    .map((session) => resolve(session))
+    .filter((session): session is DashboardParkDrainSession => session != null);
+
+  return {
+    current: resolve(current),
+    previous: resolve(previous),
+    totalSinceLastChargePct:
+      lastCharge == null ? null : sumParkDrainSessions(sinceCharge),
+  };
 }
 
 export interface PlaceDwellStats {

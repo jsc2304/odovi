@@ -1,9 +1,10 @@
 import { BatteryCharging, Car as CarIcon, MapPin } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
-import { formatKwh, formatOdometer, formatTime } from "@tripatlas/core";
+import { formatDuration, formatKwh, formatOdometer, formatTime } from "@tripatlas/core";
 import { APP_TIMEZONE } from "../../lib/config";
 import { formatRelativeTime } from "../../lib/day";
 import type { OpenSessionStatus, VehicleStatusRow } from "../../lib/dashboard";
+import type { DashboardParkDrain } from "../../lib/parkAnalytics";
 
 type VehicleCardTranslator = Awaited<ReturnType<typeof getTranslations>>;
 
@@ -58,15 +59,19 @@ function statusLine(
 export async function VehicleCard({
   status,
   openSession,
+  parkDrain,
 }: {
   status: VehicleStatusRow;
   openSession: OpenSessionStatus | null;
+  parkDrain: DashboardParkDrain;
 }) {
   const [t, locale] = await Promise.all([
     getTranslations("dashboard"),
     getLocale(),
   ]);
   const soc = status.soc;
+  const activePark = openSession?.kind === "parked";
+  const displayedPark = activePark ? parkDrain.current : parkDrain.previous;
 
   return (
     <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
@@ -113,6 +118,30 @@ export async function VehicleCard({
         <BatteryCharging aria-hidden size={15} className="shrink-0 text-neutral-400" />
         {statusLine(t, openSession, status)}
       </p>
+
+      {(displayedPark || parkDrain.totalSinceLastChargePct != null) && (
+        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1.5 rounded-xl bg-neutral-50 px-3 py-2.5 text-sm dark:bg-neutral-800/60">
+          {displayedPark && (
+            <span className="font-medium text-neutral-800 dark:text-neutral-200">
+              {displayedPark.lossPct != null
+                ? t(activePark ? "vehicleCard.currentParkDrain" : "vehicleCard.previousParkDrain", {
+                    pct: displayedPark.lossPct,
+                    duration: formatDuration(displayedPark.durationSeconds),
+                  })
+                : t(activePark ? "vehicleCard.currentParkDrainUnknown" : "vehicleCard.previousParkDrainUnknown", {
+                    duration: formatDuration(displayedPark.durationSeconds),
+                  })}
+            </span>
+          )}
+          {parkDrain.totalSinceLastChargePct != null && (
+            <span className="text-neutral-500 dark:text-neutral-400">
+              {t("vehicleCard.totalDrainSinceCharge", {
+                pct: parkDrain.totalSinceLastChargePct,
+              })}
+            </span>
+          )}
+        </div>
+      )}
 
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-neutral-100 pt-3 text-sm text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
         <span>
