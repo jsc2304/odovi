@@ -25,7 +25,7 @@ Tessie and similar services are good, but they come with subscription costs, ove
 - **Trip detail** - Route on the map, combined history chart (elevation/SoC/speed), temperatures, max speed/power/recuperation, historical weather at trip time, GPX export
 - **Charging overview** - Charging curve (kW over SoC), AC/DC, cost, location map
 - **Automatic charging costs** - Store an electricity price per place (for example home at EUR 0.32/kWh) -> sessions without a known price are calculated automatically, while manual and synced costs remain untouched
-- **Journeys** - Vacations/trips as a wrapper around drives and charging stops, with KPI dashboard, map of all stages, and export as CSV, PDF, and GPX
+- **Journeys** - Vacations/trips as a wrapper around drives and charging stops, with KPI dashboard, map of all stages, an [immersive scroll-controlled 3D recap](docs/journey-recap.md), and export as CSV, PDF, and GPX
 - **Insights** - Personal consumption curve: consumption vs. outside temperature and speed, seasonal patterns, share of short trips
 - **Parking analytics** - Vampire drain per parking session, parking durations by place
 - **Roadtrip planner** - Ordered checkpoints, versioned journey plans, real routes (OSRM), elevation profile and your personal consumption profile

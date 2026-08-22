@@ -22,7 +22,7 @@ interface NavItem {
   labelKey: string;
   icon: LucideIcon;
   match: (path: string) => boolean;
-  /** Nur in der Desktop-Sidebar — die Bottom-Bar bleibt bei 5 Slots. */
+  /** Nur in der Desktop-Sidebar. */
   sideOnly?: boolean;
 }
 
@@ -31,7 +31,7 @@ const items: NavItem[] = [
   { href: "/day", labelKey: "day", icon: CalendarDays, match: (p) => p.startsWith("/day") || p.startsWith("/drives") },
   { href: "/calendar", labelKey: "calendar", icon: CalendarRange, match: (p) => p.startsWith("/calendar"), sideOnly: true },
   { href: "/search", labelKey: "search", icon: Search, match: (p) => p.startsWith("/search") },
-  { href: "/journeys", labelKey: "journeys", icon: Route, match: (p) => p.startsWith("/journeys"), sideOnly: true },
+  { href: "/journeys", labelKey: "journeys", icon: Route, match: (p) => p.startsWith("/journeys") },
   { href: "/charges", labelKey: "charges", icon: Zap, match: (p) => p.startsWith("/charges") },
   { href: "/places", labelKey: "places", icon: MapPin, match: (p) => p.startsWith("/places"), sideOnly: true },
   { href: "/reports", labelKey: "reports", icon: FileBarChart, match: (p) => p.startsWith("/reports"), sideOnly: true },
