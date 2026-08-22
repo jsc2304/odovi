@@ -32,7 +32,7 @@ import {
 import styles from "./RecapExperience.module.css";
 
 interface RecapJourney {
-  id: number;
+  id: number | null;
   name: string;
   type: string;
   startTime: string;
@@ -74,6 +74,16 @@ export interface JourneyRecapData {
   items: RecapItem[];
   tracks: RecapRouteTrack[];
   plannedRoute: [number, number][];
+  presentation?: {
+    backHref: string;
+    backLabel: string;
+    eyebrow: string;
+    dateLabel?: string;
+    finaleEyebrow: string;
+    finaleTitle: string;
+    scrollHint?: string;
+    chaptersLabel?: string;
+  };
   totals: {
     distanceKm: number;
     driveTimeSeconds: number;
@@ -715,7 +725,12 @@ export function RecapExperience({ data }: { data: JourneyRecapData }) {
     year: "numeric",
     timeZone: data.timeZone,
   });
-  const journeyDates = `${dateRange.format(new Date(data.journey.startTime))} – ${dateRange.format(new Date(data.journey.endTime))}`;
+  const journeyDates =
+    data.presentation?.dateLabel ??
+    `${dateRange.format(new Date(data.journey.startTime))} – ${dateRange.format(new Date(data.journey.endTime))}`;
+  const backHref =
+    data.presentation?.backHref ??
+    (data.journey.id != null ? `/journeys/${data.journey.id}` : "/journeys");
 
   const renderChapterContent = (chapter: Chapter) => {
     if (chapter.kind === "intro") {
@@ -723,7 +738,7 @@ export function RecapExperience({ data }: { data: JourneyRecapData }) {
         <>
           <p className={styles.eyebrow}>
             <Sparkles aria-hidden size={15} />
-            {t("eyebrow")}
+            {data.presentation?.eyebrow ?? t("eyebrow")}
           </p>
           <h1 className={styles.heroTitle}>{data.journey.name}</h1>
           <p className={styles.lead}>{journeyDates}</p>
@@ -744,9 +759,11 @@ export function RecapExperience({ data }: { data: JourneyRecapData }) {
         <>
           <p className={styles.eyebrow}>
             <Sparkles aria-hidden size={15} />
-            {t("finaleEyebrow")}
+            {data.presentation?.finaleEyebrow ?? t("finaleEyebrow")}
           </p>
-          <h1 className={styles.chapterTitle}>{t("finaleTitle")}</h1>
+          <h1 className={styles.chapterTitle}>
+            {data.presentation?.finaleTitle ?? t("finaleTitle")}
+          </h1>
           <p className={styles.lead}>{data.journey.name}</p>
           <div className={styles.metrics}>
             <Metric
@@ -882,9 +899,9 @@ export function RecapExperience({ data }: { data: JourneyRecapData }) {
       </div>
 
       <header className={styles.header}>
-        <Link href={`/journeys/${data.journey.id}`} className={styles.backLink}>
+        <Link href={backHref} className={styles.backLink}>
           <ArrowLeft aria-hidden size={17} />
-          <span>{t("back")}</span>
+          <span>{data.presentation?.backLabel ?? t("back")}</span>
         </Link>
         <div className={styles.wordmark}>
           <MapPin aria-hidden size={16} />
@@ -960,7 +977,7 @@ export function RecapExperience({ data }: { data: JourneyRecapData }) {
       <nav
         className={styles.chapterNav}
         data-dense={chapters.length > 14 ? "true" : undefined}
-        aria-label={t("chaptersLabel")}
+        aria-label={data.presentation?.chaptersLabel ?? t("chaptersLabel")}
       >
         <button
           type="button"
@@ -1014,7 +1031,7 @@ export function RecapExperience({ data }: { data: JourneyRecapData }) {
         data-hidden={chapterIndex > 0 ? "true" : undefined}
       >
         <Mouse aria-hidden size={15} />
-        <span>{t("scrollHint")}</span>
+        <span>{data.presentation?.scrollHint ?? t("scrollHint")}</span>
       </div>
     </main>
   );

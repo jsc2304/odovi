@@ -1,6 +1,7 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
-import { CalendarDays, Download } from "lucide-react";
+import { ArrowRight, CalendarDays, Download, Sparkles } from "lucide-react";
 import {
   formatConsumption,
   formatDuration,
@@ -121,6 +122,32 @@ export default async function DayPage({
             date={date}
           />
         </div>
+      )}
+
+      {driveCount >= 2 && (
+        <Link
+          href={`/day-recap/${date}${vehicleQuery}`}
+          className="group mt-5 flex items-center justify-between gap-4 overflow-hidden rounded-2xl border border-violet-200 bg-gradient-to-br from-violet-50 via-white to-sky-50 p-4 transition hover:-translate-y-0.5 hover:border-violet-300 hover:shadow-lg hover:shadow-violet-100 dark:border-violet-900/60 dark:from-violet-950/50 dark:via-neutral-900 dark:to-sky-950/40 dark:hover:border-violet-700 dark:hover:shadow-violet-950/40"
+        >
+          <span className="flex min-w-0 items-center gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-600 text-white shadow-lg shadow-violet-300 dark:shadow-violet-950">
+              <Sparkles aria-hidden size={19} />
+            </span>
+            <span className="min-w-0">
+              <span className="block text-sm font-semibold text-neutral-900 dark:text-white">
+                {t("recap.open")}
+              </span>
+              <span className="block truncate text-xs text-neutral-500 dark:text-neutral-400">
+                {t("recap.preview", { count: driveCount })}
+              </span>
+            </span>
+          </span>
+          <ArrowRight
+            aria-hidden
+            size={18}
+            className="shrink-0 text-violet-500 transition-transform group-hover:translate-x-1"
+          />
+        </Link>
       )}
 
       <div className="mt-6">

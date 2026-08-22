@@ -13,6 +13,17 @@
   "today": "Today",
   "dateSelectLabel": "Select date",
   "openCalendar": "Open calendar",
+  "recap": {
+    "open": "Experience day recap",
+    "preview": "Experience {count} drives as an animated route",
+    "title": "Your day on the road",
+    "eyebrow": "Your day recap",
+    "back": "Back to day view",
+    "finaleEyebrow": "The day in numbers",
+    "finaleTitle": "This is how your day unfolded.",
+    "scrollHint": "Scroll to steer the day",
+    "chaptersLabel": "Day recap chapters"
+  },
   "parkedAt": "Parked: {place}",
   "chargedAt": "Charged: {place}",
   "chargedShort": "⚡ charged",

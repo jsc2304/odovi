@@ -2,7 +2,9 @@
 
 The journey recap is an authenticated, immersive presentation of an existing
 journey. It is available at `/journey-recap/[id]` and linked from the regular
-journey detail page.
+journey detail page. The same experience is available for a single calendar day
+at `/day-recap/[date]` when that vehicle has at least two drives on the day; the
+day view exposes the entry point and preserves the selected vehicle.
 
 ## Interaction model
 

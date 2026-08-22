@@ -96,6 +96,8 @@ export interface DriveRow {
   consumedEnergyKwh: number | null;
   avgConsumptionWhKm: number | null;
   energyIsEstimated: boolean;
+  startSoc: number | null;
+  endSoc: number | null;
   startPlaceName: string | null;
   startAddress: string | null;
   startLat: number | null;
@@ -126,6 +128,7 @@ export interface ChargeRow {
   lat: number | null;
   lon: number | null;
   energyAddedKwh: number | null;
+  durationSeconds: number | null;
   startSoc: number | null;
   endSoc: number | null;
   maxPowerKw: number | null;
@@ -166,6 +169,8 @@ export async function getDayTimeline(
       consumedEnergyKwh: drives.consumedEnergyKwh,
       avgConsumptionWhKm: drives.avgConsumptionWhKm,
       energyIsEstimated: drives.energyIsEstimated,
+      startSoc: drives.startSoc,
+      endSoc: drives.endSoc,
       startPlaceId: drives.startPlaceId,
       startAddress: drives.startAddress,
       startLat: drives.startLat,
@@ -204,6 +209,8 @@ export async function getDayTimeline(
     consumedEnergyKwh: d.consumedEnergyKwh,
     avgConsumptionWhKm: d.avgConsumptionWhKm,
     energyIsEstimated: d.energyIsEstimated,
+    startSoc: d.startSoc,
+    endSoc: d.endSoc,
     startPlaceName: d.startPlaceId != null ? placeNameById.get(d.startPlaceId) ?? null : null,
     startAddress: d.startAddress,
     startLat: d.startLat,
@@ -245,6 +252,7 @@ export async function getDayTimeline(
       lat: chargeSessions.lat,
       lon: chargeSessions.lon,
       energyAddedKwh: chargeSessions.energyAddedKwh,
+      durationSeconds: chargeSessions.durationSeconds,
       startSoc: chargeSessions.startSoc,
       endSoc: chargeSessions.endSoc,
       maxPowerKw: chargeSessions.maxPowerKw,
@@ -282,6 +290,7 @@ export async function getDayTimeline(
       lat: c.lat,
       lon: c.lon,
       energyAddedKwh: c.energyAddedKwh,
+      durationSeconds: c.durationSeconds,
       startSoc: c.startSoc,
       endSoc: c.endSoc,
       maxPowerKw: c.maxPowerKw,
