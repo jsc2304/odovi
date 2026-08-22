@@ -45,8 +45,8 @@ function buildSeriesMeta(t: (key: string) => string): Record<SeriesKey, SeriesMe
       label: t("chart.elevation"),
       unit: "m",
       colorClass: "text-blue-600 dark:text-blue-400",
-      swatch: "#2563eb",
-      swatchDark: "#60a5fa",
+      swatch: "#7c3aed",
+      swatchDark: "#a78bfa",
     },
     soc: {
       key: "soc",

@@ -18,7 +18,10 @@ export const metadata: Metadata = {
   description:
     "Plane Roadtrips, dokumentiere Fahrten automatisch und erlebe deine Tesla-Reisen als visuellen Rückblick – hosted in Deutschland oder self-hosted.",
   applicationName: "Tripatlas",
-  icons: [{ url: "/icon-192.png", type: "image/png", sizes: "192x192" }],
+  icons: [
+    { url: "/icon.svg", type: "image/svg+xml" },
+    { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+  ],
   openGraph: {
     type: "website",
     locale: "de_DE",

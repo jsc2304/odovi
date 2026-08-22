@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { PRIVACY_NOTICE_VERSION } from "./legal-config";
 
 type SubmitState = "idle" | "sending" | "success" | "error";
 
@@ -22,6 +23,7 @@ export function WaitlistForm() {
         interest: form.get("interest"),
         teslamate: form.get("teslamate"),
         consent: form.get("consent") === "on",
+        consentVersion: PRIVACY_NOTICE_VERSION,
       }),
     }).catch(() => null);
 
@@ -80,7 +82,9 @@ export function WaitlistForm() {
         <input name="consent" type="checkbox" required disabled={state === "sending"} />
         <span>
           Tripatlas darf mich zum Early Access kontaktieren. Meine Daten werden
-          nur für diese Produktinformation verwendet.
+          nur für diesen Zweck verwendet. Ich habe die{" "}
+          <a href="/datenschutz">Datenschutzerklärung</a> gelesen. Die
+          Einwilligung kann ich jederzeit für die Zukunft widerrufen.
         </span>
       </label>
 

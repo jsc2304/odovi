@@ -11,6 +11,8 @@ export interface DestinationSearchProps {
   onSelect: (result: AddressSearchResult) => void;
   /** Anzeigetext des aktuell gewählten Ziels (gesteuert vom Formular). */
   value: string;
+  /** Verhindert eine erneute Geocoding-Suche für bereits aufgelöste Orte. */
+  selected?: boolean;
   onValueChange: (value: string) => void;
 }
 
@@ -24,6 +26,7 @@ export interface DestinationSearchProps {
 export function DestinationSearch({
   onSelect,
   value,
+  selected = false,
   onValueChange,
 }: DestinationSearchProps) {
   const t = useTranslations("planner");
@@ -36,6 +39,13 @@ export function DestinationSearch({
   const requestId = useRef(0);
 
   useEffect(() => {
+    if (selected) {
+      requestId.current += 1;
+      setResults([]);
+      setOpen(false);
+      setLoading(false);
+      return;
+    }
     if (justSelected.current) {
       justSelected.current = false;
       return;
@@ -60,7 +70,7 @@ export function DestinationSearch({
     }, DEBOUNCE_MS);
 
     return () => clearTimeout(timer);
-  }, [value]);
+  }, [selected, value]);
 
   function handleSelect(result: AddressSearchResult) {
     justSelected.current = true;
@@ -107,14 +117,14 @@ export function DestinationSearch({
         value={value}
         onChange={(e) => onValueChange(e.target.value)}
         onKeyDown={handleKeyDown}
-        onFocus={() => results.length > 0 && setOpen(true)}
+        onFocus={() => !selected && results.length > 0 && setOpen(true)}
         onBlur={() => setTimeout(() => setOpen(false), 150)}
         placeholder={t("destinationSearch.placeholder")}
         role="combobox"
         aria-expanded={open}
         aria-autocomplete="list"
         aria-controls="planner-destination-results"
-        className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 pr-10 text-base text-neutral-900 outline-none focus:border-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:focus:border-neutral-100"
+        className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 pr-10 text-base text-neutral-900 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-cyan-300/50 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-100 dark:focus:border-violet-400"
       />
       {loading && (
         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-neutral-400">

@@ -134,7 +134,7 @@ export default async function JourneyDetailPage({
             <span
               aria-hidden
               className="h-3 w-3 shrink-0 rounded-full"
-              style={{ backgroundColor: journey.color ?? "#94a3b8" }}
+              style={{ backgroundColor: journey.color ?? "#a78bfa" }}
             />
             <h1 className="text-2xl font-semibold tracking-tight">
               {journey.name}

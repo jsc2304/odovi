@@ -110,7 +110,7 @@ export default async function DayRecapPage({
       type: "day",
       startTime: firstDrive.startTime.toISOString(),
       endTime: (lastDrive.endTime ?? lastDrive.startTime).toISOString(),
-      color: "#8b5cf6",
+      color: "#7c3aed",
       description: null,
     },
     items,

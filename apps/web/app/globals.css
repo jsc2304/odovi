@@ -5,13 +5,62 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
-  --font-sans:
-    system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-brand:
-    "Avenir Next", Avenir, "Inter", "Segoe UI", system-ui, sans-serif;
-  --font-brand-mono:
-    "SFMono-Regular", "IBM Plex Mono", "Roboto Mono", "Cascadia Mono", Menlo,
-    monospace;
+  --font-sans: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  --font-brand: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  --font-brand-mono: var(--font-geist-mono), monospace;
+
+  --color-white: #f7f8fb;
+  --color-black: #080a18;
+  --color-neutral-50: #f7f8fb;
+  --color-neutral-100: #eef0f6;
+  --color-neutral-200: #d9dce6;
+  --color-neutral-300: #c3c8d4;
+  --color-neutral-400: #a8afbe;
+  --color-neutral-500: #858d9f;
+  --color-neutral-600: #626a7d;
+  --color-neutral-700: #3e455b;
+  --color-neutral-800: #24293d;
+  --color-neutral-900: #121528;
+  --color-neutral-950: #080a18;
+
+  --color-violet-50: #f5f1ff;
+  --color-violet-100: #ebe3ff;
+  --color-violet-200: #d9c9ff;
+  --color-violet-300: #c6adff;
+  --color-violet-400: #a78bfa;
+  --color-violet-500: #8f62f3;
+  --color-violet-600: #7c3aed;
+  --color-violet-700: #6424ce;
+  --color-violet-800: #4c1d95;
+  --color-violet-900: #321667;
+  --color-violet-950: #1b0d38;
+
+  --color-sky-50: #f5f1ff;
+  --color-sky-100: #ebe3ff;
+  --color-sky-200: #d9c9ff;
+  --color-sky-300: #c6adff;
+  --color-sky-400: #a78bfa;
+  --color-sky-500: #8f62f3;
+  --color-sky-600: #7c3aed;
+  --color-sky-700: #6424ce;
+  --color-sky-800: #4c1d95;
+  --color-sky-900: #321667;
+  --color-sky-950: #1b0d38;
+
+  --color-blue-400: #a78bfa;
+  --color-blue-500: #8f62f3;
+  --color-blue-600: #7c3aed;
+  --color-blue-700: #6424ce;
+}
+
+:root {
+  --brand-ink: #f7f8fb;
+  --brand-muted: #a8afbe;
+  --brand-violet: #7c3aed;
+  --brand-violet-bright: #a78bfa;
+  --brand-cyan: #67e8f9;
+  --brand-amber: #f4b860;
+  --brand-night: #080a18;
 }
 
 html {
@@ -26,9 +75,65 @@ html.dark {
 
 body {
   min-height: 100dvh;
+  background: var(--color-neutral-50);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+html.dark body {
+  background:
+    radial-gradient(circle at 78% 18%, rgb(124 58 237 / 10%), transparent 28rem),
+    var(--brand-night);
+}
+
+::selection {
+  color: var(--brand-ink);
+  background: rgb(124 58 237 / 72%);
+}
+
+:focus-visible {
+  outline-color: var(--brand-cyan);
+}
+
+.brand-wordmark {
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  color: var(--brand-night);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-weight: 520;
+  letter-spacing: -0.05em;
+}
+
+.dark .brand-wordmark { color: var(--brand-ink); }
+.brand-wordmark-atlas { color: #b892ff; font-weight: 700; }
+.brand-wordmark-sm { font-size: 1.18rem; }
+.brand-wordmark-md { font-size: 1.28rem; }
+.brand-wordmark-lg { font-size: 2.2rem; }
+
+.brand-wordmark-pin {
+  position: relative;
+  width: 15px;
+  height: 15px;
+  margin-right: 9px;
+  border: 2px solid #a879ff;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+}
+
+.brand-wordmark-pin::after {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--brand-ink);
+  content: "";
+}
+
+html:not(.dark) .brand-wordmark-pin::after { background: var(--brand-night); }
 
 /* iOS zoomt beim Fokus auf Felder < 16px hinein und bleibt gezoomt.
    Auf schmalen Viewports Formularfelder daher auf mindestens 16px heben —
@@ -43,12 +148,14 @@ body {
 
 /* Zentrale Card-Optik — nur bereitgestellt (bestehende Seiten bleiben unverändert). */
 @utility card {
-  border-radius: 0.75rem;
+  border-radius: 1rem;
   border: 1px solid var(--color-neutral-200);
   background-color: var(--color-white);
+  box-shadow: 0 18px 44px rgb(8 10 24 / 6%);
 }
 
 .dark .card {
   border-color: var(--color-neutral-800);
-  background-color: var(--color-neutral-900);
+  background: linear-gradient(150deg, rgb(18 21 40 / 96%), rgb(10 12 25 / 96%));
+  box-shadow: 0 26px 70px rgb(0 0 0 / 24%);
 }

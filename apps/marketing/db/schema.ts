@@ -17,6 +17,10 @@ export const waitlistEntries = sqliteTable(
       .notNull()
       .default("no"),
     consent: integer("consent", { mode: "boolean" }).notNull().default(true),
+    consentVersion: text("consent_version")
+      .notNull()
+      .default("legacy-pre-2026-08-22"),
+    consentedAt: text("consented_at").notNull().default(sql`CURRENT_TIMESTAMP`),
     createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
   },

@@ -50,7 +50,7 @@ export function PlaceMap({ lat, lon, radiusM, onChange }: PlaceMapProps) {
 
     const icon = L.divIcon({
       className: "",
-      html: '<span style="display:block;width:16px;height:16px;border-radius:9999px;background:#171717;border:2px solid white;box-shadow:0 0 0 1px rgba(0,0,0,0.4);"></span>',
+      html: '<span style="display:block;width:16px;height:16px;border-radius:9999px;background:#7c3aed;border:2px solid #f7f8fb;box-shadow:0 0 0 3px rgba(124,58,237,0.24);"></span>',
       iconSize: [16, 16],
       iconAnchor: [8, 8],
     });
@@ -63,9 +63,9 @@ export function PlaceMap({ lat, lon, radiusM, onChange }: PlaceMapProps) {
 
     const circle = L.circle(center, {
       radius: radiusM,
-      color: "#171717",
+      color: "#7c3aed",
       weight: 1.5,
-      fillColor: "#171717",
+      fillColor: "#7c3aed",
       fillOpacity: 0.12,
     }).addTo(map);
 

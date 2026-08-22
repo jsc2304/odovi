@@ -46,13 +46,13 @@ function itemClasses(active: boolean, layout: "bottom" | "side"): string {
       ? "flex flex-1 flex-col items-center gap-0.5 py-2 text-xs"
       : "flex items-center gap-3 rounded-lg px-3 py-2 text-sm";
   const state = active
-    ? "text-neutral-900 dark:text-white font-medium"
+    ? "font-medium text-violet-700 dark:text-violet-300"
     : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white";
   const motion = "transition-colors";
   const sideActiveBg =
-    layout === "side" && active ? "bg-neutral-100 dark:bg-neutral-800" : "";
+    layout === "side" && active ? "bg-violet-100 dark:bg-violet-950" : "";
   const focus =
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-white dark:focus-visible:ring-offset-neutral-950";
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-cyan-300 dark:focus-visible:ring-offset-neutral-950";
   return `${base} ${state} ${sideActiveBg} ${motion} ${focus}`.trim();
 }
 

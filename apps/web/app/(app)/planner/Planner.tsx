@@ -586,6 +586,7 @@ export function Planner({
                   )}
                   <DestinationSearch
                     value={checkpoint.query}
+                    selected={checkpoint.point != null}
                     onValueChange={(query) =>
                       updateCheckpoint(checkpoint.id, { query, point: null })
                     }

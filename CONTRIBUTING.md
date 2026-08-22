@@ -2,9 +2,23 @@
 
 Tripatlas is a self-hosted Tesla trip archive based on TeslaMate data. Thank you for helping keep it useful, maintainable, and safe for self-hosted deployments.
 
-## License
+## Contributions and licensing
 
-Tripatlas is copyright (C) 2026 Jan Schultheiss and licensed under the GNU Affero General Public License v3.0. By contributing, you agree that your contributions are provided under the same AGPL-3.0 license.
+Bug reports, feature proposals, reproducible test cases and documentation
+feedback are welcome in German or English.
+
+Tripatlas is currently protecting the option to offer both Fair Source and
+commercial licenses. For that reason, code or other copyrightable material is
+accepted from external contributors only after a separate written contributor
+agreement has been completed with the maintainer. Opening a pull request does
+not by itself transfer rights or grant permission to relicense a contribution.
+
+Please open an issue before investing in a code contribution. Pull requests
+without a confirmed contributor agreement may be reviewed for discussion, but
+will not be merged. Do not submit employer-owned, client-owned or third-party
+code unless you have documented authority to do so.
+
+See [LICENSING.md](LICENSING.md) for the licenses that apply to Tripatlas.
 
 ## Development Setup
 
@@ -40,4 +54,6 @@ pnpm --filter @tripatlas/web exec tsc --noEmit
 
 Keep pull requests small and focused. Describe what changed, why it changed, and how you tested it.
 
-Pull request descriptions and discussion are welcome in English or German.
+Pull request descriptions and discussion are welcome in English or German. If
+the change includes copyrightable material, state which contributor agreement
+the maintainer confirmed before requesting merge.

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { ensureWaitlistSchema, waitlistDb } from "../../../db/client";
+import { PRIVACY_NOTICE_VERSION } from "../../legal-config";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const INTEREST = new Set(["hosted", "self-hosted", "both"]);
@@ -21,6 +22,8 @@ export async function POST(request: Request) {
   const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
   const interest = typeof body.interest === "string" ? body.interest : "hosted";
   const teslamate = typeof body.teslamate === "string" ? body.teslamate : "no";
+  const consentVersion =
+    typeof body.consentVersion === "string" ? body.consentVersion : "";
 
   if (email.length > 254 || !EMAIL_RE.test(email)) {
     return NextResponse.json(
@@ -28,7 +31,12 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
-  if (!INTEREST.has(interest) || !TESLAMATE.has(teslamate) || body.consent !== true) {
+  if (
+    !INTEREST.has(interest) ||
+    !TESLAMATE.has(teslamate) ||
+    body.consent !== true ||
+    consentVersion !== PRIVACY_NOTICE_VERSION
+  ) {
     return NextResponse.json(
       { error: "Bitte prüfe deine Auswahl und Zustimmung." },
       { status: 400 },
@@ -40,15 +48,18 @@ export async function POST(request: Request) {
   await db
     .prepare(
       `INSERT INTO waitlist_entries
-        (email, interest, teslamate_experience, consent, created_at, updated_at)
-       VALUES (?, ?, ?, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        (email, interest, teslamate_experience, consent, consent_version,
+         consented_at, created_at, updated_at)
+       VALUES (?, ?, ?, 1, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
        ON CONFLICT(email) DO UPDATE SET
          interest = excluded.interest,
          teslamate_experience = excluded.teslamate_experience,
          consent = 1,
+         consent_version = excluded.consent_version,
+         consented_at = CURRENT_TIMESTAMP,
          updated_at = CURRENT_TIMESTAMP`,
     )
-    .bind(email, interest, teslamate)
+    .bind(email, interest, teslamate, consentVersion)
     .run();
 
   return NextResponse.json({ ok: true }, { status: 201 });

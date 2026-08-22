@@ -1,19 +1,14 @@
+import Image from "next/image";
+import { MotionStage } from "./MotionStage";
+import { JourneyFilm } from "./JourneyFilm";
 import { WaitlistForm } from "./WaitlistForm";
-
-const routeStops = [
-  { label: "Zürich", detail: "08:42", x: "10%", y: "76%" },
-  { label: "Andermatt", detail: "11:18", x: "38%", y: "53%" },
-  { label: "Lago Maggiore", detail: "15:06", x: "70%", y: "24%" },
-  { label: "Finale", detail: "17:31", x: "90%", y: "36%" },
-];
 
 export default function Home() {
   return (
     <main>
-      <section className="hero" id="start">
-        <div className="hero-glow hero-glow-one" aria-hidden="true" />
-        <div className="hero-glow hero-glow-two" aria-hidden="true" />
+      <MotionStage />
 
+      <section className="hero" id="start">
         <nav className="nav shell" aria-label="Hauptnavigation">
           <a className="wordmark" href="#start" aria-label="Tripatlas Startseite">
             <span className="wordmark-pin" aria-hidden="true" />
@@ -35,7 +30,7 @@ export default function Home() {
               <span aria-hidden="true">✦</span>
               Mehr als Fahrten. Deine Geschichte auf der Straße.
             </p>
-            <h1>
+            <h1 aria-label="Deine Tesla-Reisen. Automatisch dokumentiert. Unter deiner Kontrolle.">
               Deine Tesla-Reisen.
               <span>Automatisch dokumentiert.</span>
               Unter deiner Kontrolle.
@@ -66,107 +61,139 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="route-showcase" aria-label="Vorschau eines Tripatlas Journey-Rückblicks">
-            <div className="route-meta">
-              <div>
-                <p>Journey Rückblick</p>
-                <h2>Über die Alpen</h2>
-              </div>
-              <span>742 km</span>
-            </div>
-
-            <div className="route-world" aria-hidden="true">
-              <div className="terrain terrain-one" />
-              <div className="terrain terrain-two" />
-              <div className="route-line route-line-one" />
-              <div className="route-line route-line-two" />
-              <div className="route-line route-line-three" />
-              <div className="route-pulse" />
-              {routeStops.map((stop, index) => (
-                <div
-                  className="route-stop"
-                  key={stop.label}
-                  style={{ left: stop.x, top: stop.y }}
-                >
-                  <i data-active={index === routeStops.length - 1 ? "true" : undefined} />
-                  <span>
-                    <strong>{stop.label}</strong>
-                    <small>{stop.detail}</small>
-                  </span>
-                </div>
-              ))}
-              <div className="north-marker">N</div>
-            </div>
-
-            <div className="route-footer">
-              <span><strong>7</strong> Etappen</span>
-              <span><strong>10 h 24 min</strong> Fahrzeit</span>
-              <span><strong>3</strong> Ladestopps</span>
-            </div>
-          </div>
+          <aside
+            className="journey-caption"
+            aria-label="Beispiel einer dokumentierten Reise"
+          >
+            <p>Journey 01 · Über die Alpen</p>
+            <dl>
+              <div><dt>Distanz</dt><dd>742 km</dd></div>
+              <div><dt>Etappen</dt><dd>7</dd></div>
+              <div><dt>Ankunft</dt><dd>17:31</dd></div>
+            </dl>
+          </aside>
         </div>
 
-        <a className="scroll-cue" href="#produkt">
+        <a className="scroll-cue" href="#journey-film">
           <span aria-hidden="true" />
           Entdecken
         </a>
       </section>
 
+      <JourneyFilm />
+
       <section className="story-section section" id="produkt">
         <div className="shell">
-          <div className="section-heading reveal">
-            <p className="section-kicker">Journey-first</p>
-            <h2>Nicht noch ein Fahrzeug-Dashboard.</h2>
+          <div className="section-heading story-heading reveal">
+            <p className="section-kicker">Echte Oberfläche</p>
+            <h2>So sieht Tripatlas im Alltag aus.</h2>
             <p>
-              Tripatlas macht aus Telemetrie eine nachvollziehbare Geschichte:
-              von der einzelnen Fahrt bis zur kompletten Reise.
+              Keine Konzeptgrafiken: Diese Ansichten stammen aus der laufenden
+              Tripatlas-Demo mit synthetischen Fahrdaten aus dem Raum Zürich.
             </p>
           </div>
 
-          <div className="story-steps">
-            <article className="story-step reveal">
-              <span>01</span>
-              <div className="step-icon route-icon" aria-hidden="true"><i /><i /><i /></div>
-              <h3>Planen</h3>
-              <p>Roadtrips mit mehreren Etappen, Reichweitenprognose und Ladestopps vorbereiten.</p>
+          <article className="product-proof product-proof-dashboard reveal">
+            <div className="product-proof-copy">
+              <p className="proof-number">01 · Überblick</p>
+              <h3>Was dein Tesla heute wirklich macht.</h3>
+              <p>
+                Fahrzeugzustand, Park-Drain, letzte Ladung, Wochenleistung und
+                die jüngsten Routen stehen in einem ruhigen Überblick – ohne
+                dein Auto für einen Datenabruf zu wecken.
+              </p>
+              <dl className="proof-facts">
+                <div><dt>Sync</dt><dd>Read-only aus TeslaMate</dd></div>
+                <div><dt>Fokus</dt><dd>Fahrten, Energie, Standzeit</dd></div>
+              </dl>
+            </div>
+            <figure className="app-shot app-shot-wide">
+              <figcaption><span>Live-Demo</span><strong>Dashboard · Zürich</strong></figcaption>
+              <Image
+                src="/product/dashboard.webp"
+                width={1265}
+                height={712}
+                sizes="(max-width: 980px) 100vw, 760px"
+                alt="Tripatlas-Dashboard mit Fahrzeugstatus, Wochenwerten und einer Karte der letzten Fahrten in Zürich"
+              />
+            </figure>
+          </article>
+
+          <div className="product-proof-grid">
+            <article className="product-proof product-proof-compact reveal">
+              <div className="product-proof-copy">
+                <p className="proof-number">02 · Vor der Fahrt</p>
+                <h3>Roadtrips mit Reserve planen.</h3>
+                <p>
+                  Mehrere Checkpoints, Start-SoC, Temperatur und deine
+                  persönliche Verbrauchskurve ergeben eine nachvollziehbare
+                  Prognose bis zur Ankunft.
+                </p>
+                <ul className="proof-list">
+                  <li>Etappen und Ladestopps explizit planen</li>
+                  <li>Ankunfts-SoC und Reserve sofort sehen</li>
+                  <li>Als Journey speichern und unterwegs öffnen</li>
+                </ul>
+              </div>
+              <figure className="app-shot app-shot-tall">
+                <figcaption><span>Live-Demo</span><strong>Roadtrip-Planer</strong></figcaption>
+                <Image
+                  src="/product/planner.webp"
+                  width={1265}
+                  height={1451}
+                  sizes="(max-width: 980px) 100vw, 570px"
+                  alt="Tripatlas-Roadtrip-Planer mit Ziel, violetter Route, Verbrauchsprognose und Ankunfts-SoC"
+                />
+              </figure>
             </article>
-            <article className="story-step reveal">
-              <span>02</span>
-              <div className="step-icon drive-icon" aria-hidden="true"><i /></div>
-              <h3>Fahren</h3>
-              <p>Fahrten, Stopps, Energie und Park-Drain entstehen automatisch aus deinen Daten.</p>
-            </article>
-            <article className="story-step reveal">
-              <span>03</span>
-              <div className="step-icon archive-icon" aria-hidden="true"><i /><i /></div>
-              <h3>Wiederfinden</h3>
-              <p>Jeden Tag, jeden Ort und jede Strecke durchsuchen, klassifizieren und exportieren.</p>
-            </article>
-            <article className="story-step reveal">
-              <span>04</span>
-              <div className="step-icon spark-icon" aria-hidden="true">✦</div>
-              <h3>Wiedererleben</h3>
-              <p>Tage und Journeys als scroll-gesteuerten, räumlichen Routenrückblick erleben.</p>
+
+            <article className="product-proof product-proof-compact reveal">
+              <div className="product-proof-copy">
+                <p className="proof-number">03 · Nach der Fahrt</p>
+                <h3>Ein Tag, vollständig nachvollziehbar.</h3>
+                <p>
+                  Fahrten und Parkphasen bleiben getrennt und ergeben gemeinsam
+                  eine Chronik. Danach kannst du klassifizieren, suchen oder als
+                  CSV, PDF und GPX exportieren.
+                </p>
+                <ul className="proof-list">
+                  <li>Jede Fahrt mit Start, Ziel, Dauer und Verbrauch</li>
+                  <li>Parkphasen und Ladeereignisse dazwischen</li>
+                  <li>Privat, geschäftlich oder Arbeitsweg zuordnen</li>
+                </ul>
+              </div>
+              <figure className="app-shot app-shot-tall">
+                <figcaption><span>Live-Demo</span><strong>Tageschronik</strong></figcaption>
+                <Image
+                  src="/product/day.webp"
+                  width={1265}
+                  height={1169}
+                  sizes="(max-width: 980px) 100vw, 570px"
+                  alt="Tripatlas-Tageschronik mit vier Fahrten, Parkphasen und Klassifizierungsoptionen"
+                />
+              </figure>
             </article>
           </div>
         </div>
       </section>
 
-      <section className="bento-section section">
+      <section className="bento-section section" id="features">
         <div className="shell bento-grid">
           <article className="bento-card bento-large reveal">
-            <div className="mini-day">
-              <div className="mini-day-head"><span>Mittwoch, 19. August</span><strong>3 Fahrten</strong></div>
-              <div className="mini-timeline">
-                <i /><span><strong>Zuhause → Büro</strong><small>08:12 · 18,4 km</small></span>
-                <i /><span><strong>Büro → Seeufer</strong><small>16:48 · 27,1 km</small></span>
-                <i /><span><strong>Seeufer → Zuhause</strong><small>20:06 · 22,8 km</small></span>
-              </div>
-            </div>
+            <figure className="app-shot bento-app-shot">
+              <figcaption><span>81 Messpunkte</span><strong>Büro → Zuhause</strong></figcaption>
+              <Image
+                src="/product/drive.webp"
+                width={1265}
+                height={1420}
+                sizes="(max-width: 980px) 100vw, 620px"
+                alt="Tripatlas-Fahrtendetail mit Kennzahlen, Karte und Verlauf von Ladestand und Geschwindigkeit"
+              />
+            </figure>
             <div>
-              <p className="card-kicker">Tagesarchiv</p>
-              <h3>Dein Tag bleibt nachvollziehbar.</h3>
-              <p>Separate Fahrten, Ladestopps und Parkvorgänge in einer klaren Timeline – ohne sie künstlich zusammenzukleben.</p>
+              <p className="card-kicker">Fahrtendetail</p>
+              <h3>Nicht nur Strecke. Auch ihr Kontext.</h3>
+              <p>Route, SoC, Tempo, Höhenprofil, Wetter und nachvollziehbar gekennzeichnete Schätzwerte erklären jede einzelne Fahrt.</p>
             </div>
           </article>
 
@@ -229,11 +256,11 @@ export default function Home() {
             <article className="choice-card reveal">
               <div className="choice-topline"><span>Für Selbsthoster</span><i>Community</i></div>
               <h3>Self-hosted</h3>
-              <p className="choice-lead">Der komplette freie AGPL-Core auf deinem Server, NAS oder Raspberry Pi.</p>
+              <p className="choice-lead">Der vollständige Tripatlas-Core unter FSL-1.1-ALv2 auf deinem Server, NAS oder Raspberry Pi.</p>
               <ul>
                 <li>Volle Datenhoheit</li>
                 <li>Keine laufenden Gebühren</li>
-                <li>Offener Quellcode auf GitHub</li>
+                <li>Fair Source: einsehbar und anpassbar</li>
                 <li>Eigene TeslaMate-Installation</li>
               </ul>
               <a className="button button-secondary" href="https://github.com/jsc2304/tripatlas">Auf GitHub ansehen <span>↗</span></a>
@@ -295,7 +322,7 @@ export default function Home() {
             </details>
             <details className="reveal">
               <summary>Ist Tripatlas ein offizielles Tesla-Produkt?</summary>
-              <p>Nein. Tripatlas ist ein unabhängiges Open-Source-Projekt und nicht mit Tesla, Inc. verbunden oder von Tesla unterstützt.</p>
+              <p>Nein. Tripatlas ist ein unabhängiges Fair-Source-Projekt und nicht mit Tesla, Inc. verbunden oder von Tesla unterstützt.</p>
             </details>
           </div>
         </div>
@@ -311,8 +338,10 @@ export default function Home() {
             <a href="#produkt">Produkt</a>
             <a href="#wahlfreiheit">Hosted &amp; Self-hosted</a>
             <a href="https://github.com/jsc2304/tripatlas">GitHub</a>
+            <a href="/impressum">Impressum</a>
+            <a href="/datenschutz">Datenschutz</a>
           </div>
-          <p className="footer-note">Unabhängiges Open-Source-Projekt · AGPL-3.0</p>
+          <p className="footer-note">Unabhängiges Fair-Source-Projekt · Neue Versionen: FSL-1.1-ALv2 · Frühere Veröffentlichungen: AGPL-3.0</p>
         </div>
       </footer>
     </main>

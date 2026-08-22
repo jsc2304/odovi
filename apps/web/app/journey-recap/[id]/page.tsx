@@ -43,7 +43,7 @@ export default async function JourneyRecapPage({
       type: detail.journey.type,
       startTime: detail.journey.startTime.toISOString(),
       endTime: detail.journey.endTime.toISOString(),
-      color: detail.journey.color ?? "#8b5cf6",
+      color: detail.journey.color ?? "#7c3aed",
       description: detail.journey.description,
     },
     items: detail.items.map((item) =>

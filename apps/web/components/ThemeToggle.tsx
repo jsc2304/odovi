@@ -76,7 +76,7 @@ export function ThemeToggle({
           next: t(`theme.${next.labelKey}`),
         })}
         title={t("theme.currentTitle", { current: t(`theme.${current.labelKey}`) })}
-        className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-white dark:focus-visible:ring-white dark:focus-visible:ring-offset-neutral-950"
+        className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-neutral-500 transition-colors hover:bg-violet-100 hover:text-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:text-neutral-400 dark:hover:bg-violet-950 dark:hover:text-violet-300 dark:focus-visible:ring-cyan-300 dark:focus-visible:ring-offset-neutral-950"
       >
         <Icon aria-hidden size={18} />
       </button>
@@ -100,9 +100,9 @@ export function ThemeToggle({
             onClick={() => select(o.value)}
             aria-pressed={active}
             title={label}
-            className={`inline-flex flex-1 items-center justify-center rounded-md px-2 py-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-white dark:focus-visible:ring-offset-neutral-950 ${
+            className={`inline-flex flex-1 items-center justify-center rounded-md px-2 py-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-cyan-300 dark:focus-visible:ring-offset-neutral-950 ${
               active
-                ? "bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-white"
+                ? "bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300"
                 : "text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
             }`}
           >

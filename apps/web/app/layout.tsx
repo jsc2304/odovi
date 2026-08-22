@@ -1,13 +1,23 @@
 import type { Metadata, Viewport } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
 import { cookies } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import "./globals.css";
 import { ServiceWorkerRegistration } from "../components/ServiceWorkerRegistration";
 
-// Auf die App-Grundflächen abgestimmt (bg-neutral-50 / bg-neutral-950).
-const THEME_LIGHT = "#fafafa";
-const THEME_DARK = "#0a0a0a";
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const THEME_LIGHT = "#f7f8fb";
+const THEME_DARK = "#080a18";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("ui");
@@ -63,7 +73,7 @@ export default async function RootLayout({
       className={explicitDark ? "dark" : undefined}
       suppressHydrationWarning
     >
-      <body>
+      <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <ServiceWorkerRegistration />
         {isSystem && (
           <script

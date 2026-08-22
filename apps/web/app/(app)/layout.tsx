@@ -31,7 +31,7 @@ export default async function AppLayout({
   return (
     <div className="min-h-dvh bg-neutral-50 text-neutral-900 md:flex dark:bg-neutral-950 dark:text-neutral-100">
       {/* Sidebar on md+ */}
-      <aside className="sticky top-0 hidden h-dvh w-56 shrink-0 flex-col border-r border-neutral-200 md:flex dark:border-neutral-800">
+      <aside className="sticky top-0 hidden h-dvh w-56 shrink-0 flex-col border-r border-neutral-200 bg-white/80 backdrop-blur-xl md:flex dark:border-neutral-800 dark:bg-neutral-950/88">
         <div className="shrink-0 px-5 py-5">
           <Link href="/" aria-label="Tripatlas start">
             <BrandWordmark size="md" />
@@ -51,7 +51,7 @@ export default async function AppLayout({
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Mobile header */}
-        <header className="flex items-center justify-between border-b border-neutral-200 px-4 py-3 md:hidden dark:border-neutral-800">
+        <header className="flex items-center justify-between border-b border-neutral-200 bg-white/82 px-4 py-3 backdrop-blur-xl md:hidden dark:border-neutral-800 dark:bg-neutral-950/88">
           <Link href="/" aria-label="Tripatlas start">
             <BrandWordmark size="sm" />
           </Link>
