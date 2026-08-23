@@ -1,6 +1,4 @@
-import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
-import { ChevronRight, Wand2 } from "lucide-react";
 import { APP_TIMEZONE } from "../../../lib/config";
 import { formatRelativeTime } from "../../../lib/day";
 import { getSyncState, getVehiclesDetailed } from "../../../lib/queries";
@@ -14,6 +12,7 @@ import { SoftwareTimeline } from "./SoftwareTimeline";
 import { DiagnosticsCard } from "./DiagnosticsCard";
 import { TeslaIntegrationCard } from "./TeslaIntegrationCard";
 import { getTeslaIntegrationStatus } from "../../../lib/tesla/integration";
+import { MoreHub } from "./MoreHub";
 
 export const dynamic = "force-dynamic";
 
@@ -52,20 +51,14 @@ export default async function SettingsPage() {
     defaultVehicleId != null ? await getSoftwareUpdates(defaultVehicleId) : [];
   const entityLabels = buildEntityLabels(t);
 
-  const links = [
-    { href: "/tags", label: t("links.tags") },
-    { href: "/journeys", label: t("links.journeys") },
-    { href: "/calendar", label: t("links.calendar") },
-    { href: "/reports", label: t("links.reports") },
-    { href: "/insights", label: t("links.insights") },
-  ];
-
   return (
     <div className="mx-auto max-w-2xl">
       <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
       <p className="mt-3 text-neutral-500 dark:text-neutral-400">
         {t("subtitle")}
       </p>
+
+      <MoreHub />
 
       <DiagnosticsCard />
 
@@ -83,24 +76,6 @@ export default async function SettingsPage() {
           pairHint: t("tesla.pairHint"),
         }}
       />
-
-      <Link
-        href="/rules"
-        className="mt-6 flex items-center gap-3 rounded-xl border border-neutral-200 bg-white p-4 transition hover:border-neutral-300 hover:bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-neutral-700 dark:hover:bg-neutral-800"
-      >
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300">
-          <Wand2 aria-hidden size={20} />
-        </span>
-        <span className="flex-1">
-          <span className="block text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-            {t("rulesLink.title")}
-          </span>
-          <span className="block text-sm text-neutral-500 dark:text-neutral-400">
-            {t("rulesLink.subtitle")}
-          </span>
-        </span>
-        <ChevronRight aria-hidden size={18} className="shrink-0 text-neutral-400" />
-      </Link>
 
       <Card title={t("vehicles.title")}>
         <div className="flex flex-col gap-3">
@@ -242,19 +217,6 @@ export default async function SettingsPage() {
       <Card title={t("security.title")}>
         <PasswordChangeForm />
       </Card>
-
-      <div className="mt-6 divide-y divide-neutral-200 rounded-xl border border-neutral-200 bg-white dark:divide-neutral-800 dark:border-neutral-800 dark:bg-neutral-900">
-        {links.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className="flex items-center justify-between px-4 py-3 text-sm font-medium text-neutral-900 hover:bg-neutral-50 dark:text-neutral-100 dark:hover:bg-neutral-800"
-          >
-            {link.label}
-            <ChevronRight aria-hidden size={18} className="text-neutral-400" />
-          </Link>
-        ))}
-      </div>
 
       <div className="mt-8 border-t border-neutral-200 pt-6 dark:border-neutral-800">
         <LogoutButton />

@@ -2,42 +2,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import {
-  House,
-  CalendarDays,
-  CalendarRange,
-  Search,
-  Route,
-  Zap,
-  MapPin,
-  FileBarChart,
-  Lightbulb,
-  Navigation,
-  Ellipsis,
-  type LucideIcon,
-} from "lucide-react";
+import { APP_DESTINATIONS, MORE_DESTINATION } from "./navigation";
 
-interface NavItem {
-  href: string;
-  labelKey: string;
-  icon: LucideIcon;
-  match: (path: string) => boolean;
-  /** Nur in der Desktop-Sidebar. */
-  sideOnly?: boolean;
-}
-
-const items: NavItem[] = [
-  { href: "/", labelKey: "start", icon: House, match: (p) => p === "/" },
-  { href: "/day", labelKey: "day", icon: CalendarDays, match: (p) => p.startsWith("/day") || p.startsWith("/drives") },
-  { href: "/calendar", labelKey: "calendar", icon: CalendarRange, match: (p) => p.startsWith("/calendar"), sideOnly: true },
-  { href: "/search", labelKey: "search", icon: Search, match: (p) => p.startsWith("/search") },
-  { href: "/journeys", labelKey: "journeys", icon: Route, match: (p) => p.startsWith("/journeys") },
-  { href: "/charges", labelKey: "charges", icon: Zap, match: (p) => p.startsWith("/charges") },
-  { href: "/places", labelKey: "places", icon: MapPin, match: (p) => p.startsWith("/places"), sideOnly: true },
-  { href: "/reports", labelKey: "reports", icon: FileBarChart, match: (p) => p.startsWith("/reports"), sideOnly: true },
-  { href: "/insights", labelKey: "insights", icon: Lightbulb, match: (p) => p.startsWith("/insights"), sideOnly: true },
-  { href: "/planner", labelKey: "planner", icon: Navigation, match: (p) => p.startsWith("/planner"), sideOnly: true },
-  { href: "/settings", labelKey: "more", icon: Ellipsis, match: (p) => p.startsWith("/settings") || p.startsWith("/tags") || p.startsWith("/rules") },
+const sidebarItems = [
+  ...APP_DESTINATIONS.filter((item) => item.sidebar),
+  MORE_DESTINATION,
+];
+const mobileItems = [
+  ...APP_DESTINATIONS.filter((item) => item.mobilePrimary),
+  MORE_DESTINATION,
 ];
 
 function itemClasses(active: boolean, layout: "bottom" | "side"): string {
@@ -61,7 +34,7 @@ export function BottomNav() {
   const t = useTranslations("nav");
   return (
     <nav className="fixed inset-x-0 bottom-0 z-10 flex border-t border-neutral-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden dark:border-neutral-800 dark:bg-neutral-950/95">
-      {items.filter((item) => !item.sideOnly).map((item) => {
+      {mobileItems.map((item) => {
         const active = item.match(pathname);
         const Icon = item.icon;
         return (
@@ -86,7 +59,7 @@ export function SideNav() {
   return (
     <nav className="min-h-0 flex-1 overflow-y-auto p-3">
       <div className="flex flex-col gap-1">
-      {items.map((item) => {
+      {sidebarItems.map((item) => {
         const active = item.match(pathname);
         const Icon = item.icon;
         return (

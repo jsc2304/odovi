@@ -1,6 +1,27 @@
 {
   "title": "More",
   "subtitle": "Settings and system status.",
+  "quickLinks": {
+    "title": "All areas",
+    "subtitle": "Plan, review, and configure on mobile without hidden features.",
+    "groups": {
+      "plan": "Plan",
+      "review": "Review",
+      "configure": "Configure"
+    },
+    "items": {
+      "planner": { "title": "Route Planner", "description": "Prepare a roadtrip and checkpoints" },
+      "journeys": { "title": "Journeys", "description": "Open saved journeys" },
+      "calendar": { "title": "Calendar", "description": "Explore drives by month" },
+      "charges": { "title": "Charging", "description": "Review sessions and costs" },
+      "reports": { "title": "Reports", "description": "Export mileage and records" },
+      "insights": { "title": "Insights", "description": "Recognize patterns in your driving data" },
+      "places": { "title": "Places", "description": "Manage destinations and charging places" },
+      "tags": { "title": "Tags", "description": "Organize drives and journeys" },
+      "rules": { "title": "Rules", "description": "Classify drives automatically" },
+      "settings": { "title": "System & account", "description": "Check sync, vehicle, and security" }
+    }
+  },
   "rulesLink": {
     "title": "Auto-classification rules",
     "subtitle": "Classify drives automatically using rules"

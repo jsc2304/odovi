@@ -1,6 +1,27 @@
 {
   "title": "Mehr",
   "subtitle": "Einstellungen und Systemstatus.",
+  "quickLinks": {
+    "title": "Alle Bereiche",
+    "subtitle": "Planen, auswerten und konfigurieren – auf Mobile ohne versteckte Funktionen.",
+    "groups": {
+      "plan": "Planen",
+      "review": "Auswerten",
+      "configure": "Konfigurieren"
+    },
+    "items": {
+      "planner": { "title": "Routenplaner", "description": "Roadtrip und Checkpoints vorbereiten" },
+      "journeys": { "title": "Reisen", "description": "Gespeicherte Journeys öffnen" },
+      "calendar": { "title": "Kalender", "description": "Fahrten nach Monat entdecken" },
+      "charges": { "title": "Laden", "description": "Ladevorgänge und Kosten prüfen" },
+      "reports": { "title": "Reports", "description": "Kilometer und Nachweise exportieren" },
+      "insights": { "title": "Insights", "description": "Muster in deinen Fahrdaten erkennen" },
+      "places": { "title": "Orte", "description": "Ziele und Ladeorte verwalten" },
+      "tags": { "title": "Tags", "description": "Fahrten und Reisen organisieren" },
+      "rules": { "title": "Regeln", "description": "Fahrten automatisch klassifizieren" },
+      "settings": { "title": "System & Konto", "description": "Sync, Fahrzeug und Sicherheit prüfen" }
+    }
+  },
   "rulesLink": {
     "title": "Auto-Klassifizierungs-Regeln",
     "subtitle": "Fahrten automatisch nach Regeln klassifizieren"
