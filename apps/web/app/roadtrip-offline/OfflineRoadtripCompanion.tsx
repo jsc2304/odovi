@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Check, ChevronLeft, ChevronRight, MapPin, Navigation, RotateCcw, Wifi, WifiOff } from "lucide-react";
+import { ArrowLeft, BatteryCharging, Check, ChevronLeft, ChevronRight, MapPin, Navigation, RotateCcw, Wifi, WifiOff } from "lucide-react";
 import type { OfflineRoadtrip } from "../(app)/journeys/[id]/OfflinePlanButton";
 import { OFFLINE_ROADTRIP_STORAGE_KEY } from "../(app)/journeys/[id]/OfflinePlanButton";
 import { buttonClasses } from "../../components/ui/Button";
@@ -11,6 +11,7 @@ const PROGRESS_KEY = "tripatlas:offline-roadtrip-progress:v1";
 type Labels = Record<
   | "title" | "emptyTitle" | "emptyHint" | "back" | "version" | "saved"
   | "nextStop" | "arrived" | "distance" | "duration" | "arrivalSoc"
+  | "chargeTarget" | "chargeEstimate"
   | "navigate" | "previous" | "next" | "complete" | "routeComplete"
   | "reset" | "offlineReady" | "online" | "offline",
   string
@@ -59,6 +60,9 @@ export function OfflineRoadtripCompanion({ labels }: { labels: Labels }) {
   const complete = trip != null && currentIndex >= trip.plan.stops.length;
   const stop = complete ? null : trip?.plan.stops[currentIndex];
   const leg = complete ? null : trip?.plan.legs[currentIndex - 1];
+  const charge = stop
+    ? trip?.plan.charging?.stops.find((candidate) => candidate.stopId === stop.id)
+    : null;
   const mapsUrl = useMemo(() => {
     if (!stop) return "#";
     return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${stop.lat},${stop.lon}`)}`;
@@ -113,6 +117,20 @@ export function OfflineRoadtripCompanion({ labels }: { labels: Labels }) {
                   <Metric label={labels.duration} value={formatDuration(leg.durationSeconds)} />
                   <Metric label={labels.arrivalSoc} value={`${Math.round(leg.arrivalSoc)} %`} />
                 </div>
+                {charge && (
+                  <div className="mt-3 rounded-xl border border-amber-400/30 bg-amber-950/50 p-3 text-amber-100">
+                    <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-amber-300">
+                      <BatteryCharging aria-hidden size={15} />
+                      {labels.chargeTarget}
+                    </p>
+                    <p className="mt-2 text-sm font-semibold tabular-nums">
+                      {Math.round(charge.arrivalSoc)} % → {Math.round(charge.targetSoc)} % · +{charge.energyAddedKwh.toFixed(1)} kWh
+                    </p>
+                    <p className="mt-1 text-xs text-amber-200/80">
+                      {labels.chargeEstimate}: {formatDuration(charge.durationSeconds)}
+                    </p>
+                  </div>
+                )}
                 <a href={mapsUrl} target="_blank" rel="noreferrer" className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 font-semibold text-sky-950">
                   <Navigation aria-hidden size={18} /> {labels.navigate}
                 </a>

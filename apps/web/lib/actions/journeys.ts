@@ -131,6 +131,22 @@ export async function autoAssignJourney(journeyId: number): Promise<void> {
   });
 }
 
+/**
+ * Ordnet neu synchronisierte Fahrten, Lade- und Parkvorgänge erneut anhand des
+ * Journey-Zeitraums zu. Gedacht für vorab gespeicherte Roadtrip-Pläne, deren
+ * Ist-Daten erst nach der Reise in Tripatlas eintreffen.
+ */
+export async function refreshJourneyAssignments(journeyId: number): Promise<void> {
+  const t = await getTranslations("journeys");
+  const user = await validateSession();
+  if (!user) throw new Error(t("errors.notAuthenticated"));
+
+  const parsedJourneyId = z.number().int().positive().parse(journeyId);
+  await autoAssignJourney(parsedJourneyId);
+  revalidatePath(`/journeys/${parsedJourneyId}`);
+  revalidatePath("/journeys");
+}
+
 async function pruneStaleAutoRows(
   tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
   journeyId: number,

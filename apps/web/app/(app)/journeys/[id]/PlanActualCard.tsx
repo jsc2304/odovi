@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CircleGauge, TriangleAlert } from "lucide-react";
+import { CircleGauge, RefreshCw, TriangleAlert } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import {
   compareRoadtripPlanToActual,
@@ -11,6 +11,8 @@ import {
   type RoadtripPlanSnapshot,
 } from "@tripatlas/core";
 import type { JourneyDriveItem } from "../../../../lib/journeys";
+import { refreshJourneyAssignments } from "../../../../lib/actions/journeys";
+import { buttonClasses } from "../../../../components/ui/Button";
 
 function sign(value: number): string {
   return value > 0 ? "+" : value < 0 ? "−" : "±";
@@ -146,9 +148,11 @@ function hasIncompleteCoverage(comparison: RoadtripPlanActualComparison): boolea
 }
 
 export async function PlanActualCard({
+  journeyId,
   plan,
   drives,
 }: {
+  journeyId: number;
   plan: RoadtripPlanSnapshot;
   drives: JourneyDriveItem[];
 }) {
@@ -177,7 +181,7 @@ export async function PlanActualCard({
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300">
             <CircleGauge aria-hidden size={20} />
           </span>
-          <div>
+          <div className="min-w-0 flex-1">
             <h2 className="font-semibold">{t("detail.planActual.title")}</h2>
             <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">
               {t("detail.planActual.emptyTitle")}
@@ -185,6 +189,15 @@ export async function PlanActualCard({
             <p className="mt-1 text-xs leading-5 text-neutral-500 dark:text-neutral-400">
               {t("detail.planActual.emptyHint")}
             </p>
+            <form
+              action={refreshJourneyAssignments.bind(null, journeyId)}
+              className="mt-3"
+            >
+              <button type="submit" className={buttonClasses("secondary", "sm")}>
+                <RefreshCw aria-hidden size={14} />
+                {t("detail.planActual.refresh")}
+              </button>
+            </form>
           </div>
         </div>
       </section>
@@ -212,11 +225,23 @@ export async function PlanActualCard({
             })}
           </p>
         </div>
-        {comparison.energyIsEstimated && (
-          <span className="rounded-full bg-amber-100 px-2 py-1 text-[10px] font-semibold text-amber-700 dark:bg-amber-950 dark:text-amber-300">
-            {t("detail.planActual.estimated")}
-          </span>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          {comparison.energyIsEstimated && (
+            <span className="rounded-full bg-amber-100 px-2 py-1 text-[10px] font-semibold text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+              {t("detail.planActual.estimated")}
+            </span>
+          )}
+          <form action={refreshJourneyAssignments.bind(null, journeyId)}>
+            <button
+              type="submit"
+              className={buttonClasses("ghost", "sm")}
+              title={t("detail.planActual.refreshHint")}
+            >
+              <RefreshCw aria-hidden size={14} />
+              {t("detail.planActual.refresh")}
+            </button>
+          </form>
+        </div>
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-4">

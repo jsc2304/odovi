@@ -35,6 +35,30 @@ export interface RoadtripPlanLeg {
   breakdown: ConsumptionBreakdown;
 }
 
+export interface RoadtripChargePowerBin {
+  minSoc: number;
+  maxSoc: number;
+  powerKw: number;
+  sampleCount: number;
+}
+
+export interface RoadtripChargeModel {
+  fallbackPowerKw: number;
+  bins: RoadtripChargePowerBin[];
+}
+
+export interface RoadtripChargeStopPlan {
+  stopId: string;
+  stopIndex: number;
+  arrivalSoc: number;
+  targetSoc: number;
+  energyAddedKwh: number;
+  durationSeconds: number;
+  effectivePowerKw: number;
+}
+
+export const DEFAULT_EFFECTIVE_DC_POWER_KW = 80;
+
 export interface BuildRoadtripLegsInput {
   stops: RoadtripStop[];
   routeLegs: RoadtripRouteLegInput[];
@@ -45,6 +69,7 @@ export interface BuildRoadtripLegsInput {
   referenceSpeedKmh: number;
   totalAscentM: number;
   totalDescentM: number;
+  chargeModel?: RoadtripChargeModel;
 }
 
 export interface RoadtripTotals {
@@ -53,6 +78,64 @@ export interface RoadtripTotals {
   energyKwh: number;
   whPerKm: number;
   arrivalSoc: number;
+}
+
+export interface RoadtripChargingPlan {
+  stops: RoadtripChargeStopPlan[];
+  durationSeconds: number;
+  energyAddedKwh: number;
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
+function powerAtSoc(model: RoadtripChargeModel, soc: number): number {
+  const matched = model.bins.find(
+    (bin) => soc >= bin.minSoc && soc < bin.maxSoc && bin.powerKw > 0,
+  );
+  return matched?.powerKw ?? Math.max(1, model.fallbackPowerKw);
+}
+
+export function estimateChargeStop(params: {
+  stopId: string;
+  stopIndex: number;
+  arrivalSoc: number;
+  targetSoc: number;
+  capacityKwh: number;
+  model?: RoadtripChargeModel;
+}): RoadtripChargeStopPlan {
+  const model = params.model ?? {
+    fallbackPowerKw: DEFAULT_EFFECTIVE_DC_POWER_KW,
+    bins: [],
+  };
+  const fromSoc = clamp(params.arrivalSoc, 0, 100);
+  const targetSoc = clamp(params.targetSoc, 0, 100);
+  const energyAddedKwh =
+    Math.max(0, targetSoc - fromSoc) * (params.capacityKwh / 100);
+
+  let durationSeconds = 0;
+  let soc = fromSoc;
+  while (soc < targetSoc) {
+    const nextSoc = Math.min(targetSoc, Math.floor(soc) + 1);
+    const step = Math.max(0, nextSoc - soc);
+    const stepEnergyKwh = step * (params.capacityKwh / 100);
+    durationSeconds +=
+      (stepEnergyKwh / powerAtSoc(model, soc + step / 2)) * 3600;
+    soc = nextSoc;
+  }
+  const effectivePowerKw =
+    durationSeconds > 0 ? energyAddedKwh / (durationSeconds / 3600) : 0;
+
+  return {
+    stopId: params.stopId,
+    stopIndex: params.stopIndex,
+    arrivalSoc: params.arrivalSoc,
+    targetSoc,
+    energyAddedKwh,
+    durationSeconds,
+    effectivePowerKw,
+  };
 }
 
 /**
@@ -64,7 +147,11 @@ export interface RoadtripTotals {
  */
 export function buildRoadtripLegs(
   input: BuildRoadtripLegsInput,
-): { legs: RoadtripPlanLeg[]; totals: RoadtripTotals } {
+): {
+  legs: RoadtripPlanLeg[];
+  totals: RoadtripTotals;
+  charging: RoadtripChargingPlan;
+} {
   if (input.stops.length < 2) {
     throw new Error("A roadtrip requires at least two stops");
   }
@@ -78,6 +165,7 @@ export function buildRoadtripLegs(
   );
   let currentSoc = input.startSoc;
   let totalEnergyKwh = 0;
+  const chargingStops: RoadtripChargeStopPlan[] = [];
 
   const legs = input.routeLegs.map((routeLeg, index): RoadtripPlanLeg => {
     const distanceKm = Math.max(0, routeLeg.distanceKm);
@@ -113,7 +201,25 @@ export function buildRoadtripLegs(
       arrivalSoc,
       breakdown: prediction.breakdown,
     };
-    currentSoc = arrivalSoc;
+    const arrivalStop = input.stops[index + 1]!;
+    if (
+      arrivalStop.kind === "charge" &&
+      arrivalStop.targetSoc != null &&
+      index + 1 < input.stops.length - 1
+    ) {
+      const charge = estimateChargeStop({
+        stopId: arrivalStop.id,
+        stopIndex: index + 1,
+        arrivalSoc,
+        targetSoc: arrivalStop.targetSoc,
+        capacityKwh: input.capacityKwh,
+        model: input.chargeModel,
+      });
+      chargingStops.push(charge);
+      currentSoc = Math.max(arrivalSoc, charge.targetSoc);
+    } else {
+      currentSoc = arrivalSoc;
+    }
     totalEnergyKwh += prediction.energyKwh;
     return leg;
   });
@@ -131,6 +237,17 @@ export function buildRoadtripLegs(
       whPerKm: distanceTotal > 0 ? (totalEnergyKwh * 1000) / distanceTotal : 0,
       arrivalSoc: currentSoc,
     },
+    charging: {
+      stops: chargingStops,
+      durationSeconds: chargingStops.reduce(
+        (sum, stop) => sum + stop.durationSeconds,
+        0,
+      ),
+      energyAddedKwh: chargingStops.reduce(
+        (sum, stop) => sum + stop.energyAddedKwh,
+        0,
+      ),
+    },
   };
 }
 
@@ -145,6 +262,8 @@ export interface RoadtripPlanSnapshot {
   stops: RoadtripStop[];
   legs: RoadtripPlanLeg[];
   totals: RoadtripTotals;
+  /** Added to schema v1 compatibly; older saved snapshots may omit it. */
+  charging?: RoadtripChargingPlan;
   geometry: [number, number][];
   assumptions: {
     baseWhPerKm: number;
@@ -158,5 +277,11 @@ export interface RoadtripPlanSnapshot {
     elevationAllocation: "distance-proportional";
     routeProvider: "osrm";
     routeProviderIsDefault: boolean;
+    charging?: {
+      source: "history-dc-curve" | "history-dc-average" | "default";
+      sessionCount: number;
+      fallbackPowerKw: number;
+      bins: RoadtripChargePowerBin[];
+    };
   };
 }

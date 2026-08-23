@@ -233,7 +233,11 @@ export default async function JourneyDetailPage({
             journeyName={journey.name}
             t={t}
           />
-          <PlanActualCard plan={storedPlan.snapshot} drives={driveItems} />
+          <PlanActualCard
+            journeyId={journey.id}
+            plan={storedPlan.snapshot}
+            drives={driveItems}
+          />
         </>
       )}
 
@@ -384,6 +388,10 @@ function PlannedRoadtripCard({
   journeyName: string;
   t: Awaited<ReturnType<typeof getTranslations>>;
 }) {
+  const chargeByStopId = new Map(
+    (plan.charging?.stops ?? []).map((stop) => [stop.stopId, stop]),
+  );
+  const chargingDuration = plan.charging?.durationSeconds ?? 0;
   return (
     <section className="mt-5 rounded-2xl border border-sky-200 bg-sky-50/70 p-4 dark:border-sky-900/60 dark:bg-sky-950/20">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -396,11 +404,17 @@ function PlannedRoadtripCard({
             </span>
           </div>
           <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-            {t("detail.plan.summary", {
-              stops: plan.stops.length,
-              distance: formatKm(plan.totals.distanceKm),
-              duration: formatDuration(plan.totals.durationSeconds),
-            })}
+            {t(
+              chargingDuration > 0
+                ? "detail.plan.summaryWithCharging"
+                : "detail.plan.summary",
+              {
+                stops: plan.stops.length,
+                distance: formatKm(plan.totals.distanceKm),
+                duration: formatDuration(plan.totals.durationSeconds),
+                charging: formatDuration(chargingDuration),
+              },
+            )}
           </p>
         </div>
         <Link
@@ -415,6 +429,7 @@ function PlannedRoadtripCard({
       <ol className="mt-4 flex flex-col gap-2">
         {plan.stops.map((stop, index) => {
           const leg = index > 0 ? plan.legs[index - 1] : null;
+          const charge = chargeByStopId.get(stop.id);
           return (
             <li key={stop.id} className="flex items-start gap-3 text-sm">
               <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-xs font-semibold text-sky-700 shadow-sm dark:bg-neutral-900 dark:text-sky-300">
@@ -425,6 +440,16 @@ function PlannedRoadtripCard({
                 {leg && (
                   <p className="text-xs tabular-nums text-neutral-500 dark:text-neutral-400">
                     {formatKm(leg.distanceKm)} · {formatDuration(leg.durationSeconds)} · {Math.round(leg.arrivalSoc)}% {t("detail.plan.arrival")}
+                  </p>
+                )}
+                {charge && (
+                  <p className="mt-1 text-xs font-medium tabular-nums text-amber-700 dark:text-amber-300">
+                    {t("detail.plan.chargeSummary", {
+                      arrival: Math.round(charge.arrivalSoc),
+                      target: Math.round(charge.targetSoc),
+                      energy: formatKwh(charge.energyAddedKwh, { sign: true }),
+                      duration: formatDuration(charge.durationSeconds),
+                    })}
                   </p>
                 )}
               </div>

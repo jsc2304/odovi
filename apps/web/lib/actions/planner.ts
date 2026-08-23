@@ -9,9 +9,7 @@ import {
   type RoadtripStop,
 } from "@tripatlas/core";
 import { validateSession } from "../auth/session";
-import {
-  resolveBaseConsumption,
-} from "../planner";
+import { resolveBaseConsumption, resolveChargingProfile } from "../planner";
 
 /**
  * Server Action des Routenplaner-MVP („Reichweiten-Check"). Orchestriert
@@ -134,8 +132,11 @@ export async function planRoadtrip(
     ? summarizeElevation(elevations)
     : { ascentM: 0, descentM: 0 };
 
-  // 3) Persönlicher Basisverbrauch aus der Historie (Fallback-Kette in lib/planner).
-  const base = await resolveBaseConsumption(vehicleId, tempC);
+  // 3) Persönliche Fahr- und Schnellladeprofile aus der Historie.
+  const [base, chargingProfile] = await Promise.all([
+    resolveBaseConsumption(vehicleId, tempC),
+    resolveChargingProfile(vehicleId),
+  ]);
 
   // 4) Deterministische Verbrauchs- und SoC-Prognose je OSRM-Etappe.
   const prediction = buildRoadtripLegs({
@@ -151,6 +152,7 @@ export async function planRoadtrip(
     referenceSpeedKmh: base.referenceSpeedKmh,
     totalAscentM: ascentM,
     totalDescentM: descentM,
+    chargeModel: chargingProfile.model,
   });
 
   // Karten-Geometrie ausdünnen und auf [lat, lon] drehen.
@@ -172,6 +174,7 @@ export async function planRoadtrip(
       stops,
       legs: prediction.legs,
       totals: prediction.totals,
+      charging: prediction.charging,
       geometry,
       assumptions: {
         baseWhPerKm: base.baseWhPerKm,
@@ -185,6 +188,12 @@ export async function planRoadtrip(
         elevationAllocation: "distance-proportional",
         routeProvider: "osrm",
         routeProviderIsDefault: OSRM_IS_DEFAULT,
+        charging: {
+          source: chargingProfile.source,
+          sessionCount: chargingProfile.sessionCount,
+          fallbackPowerKw: chargingProfile.model.fallbackPowerKw,
+          bins: chargingProfile.model.bins,
+        },
       },
     },
   };

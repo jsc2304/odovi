@@ -19,6 +19,8 @@ export default async function OfflineRoadtripPage() {
         distance: t("offline.distance"),
         duration: t("offline.duration"),
         arrivalSoc: t("offline.arrivalSoc"),
+        chargeTarget: t("offline.chargeTarget"),
+        chargeEstimate: t("offline.chargeEstimate"),
         navigate: t("offline.navigate"),
         previous: t("offline.previous"),
         next: t("offline.next"),

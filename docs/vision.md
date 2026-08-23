@@ -1290,13 +1290,15 @@ Enthält:
 
 ## 23. Roadmap
 
-> **Stand 08.07.2026:** Phase 1–4 sind komplett umgesetzt und laufen produktiv
+> **Stand 23.08.2026:** Phase 1–4 sind komplett umgesetzt und laufen produktiv
 > (plus Start-Dashboard, Insights, Standzeit-Analytics, Ladekurven,
 > Update-/TPMS-Anzeige, Tessie-Import, Auto-Regeln, Bulk-Bearbeitung,
 > automatische Ladekosten, Journey-Exporte, i18n, Dark Mode und PWA).
 > Phase 5 ist teilweise erledigt (Tessie-Import ✓, TeslaMate ist ohnehin die
-> Datenbasis), Rest offen. Phase 6 ist als experimenteller Routenplaner-MVP
-> vorhanden; Ausbau zu echter Roadtrip-Planung bleibt Roadmap.
+> Datenbasis), Rest offen. Phase 6 umfasst reale Routen, persönliche Verbrauchs-
+> und DC-Ladeprofile, explizite Ladeziele, versionierte Journey-Pläne und einen
+> Plan-vs.-Ist-Vergleich. Automatische Ladesäulensuche und Routenoptimierung
+> bleiben Roadmap.
 
 ### Phase 1: Fahrtenarchiv ✅
 
@@ -1357,16 +1359,17 @@ Ziel: bessere Automatisierung und Datenportabilität.
 - API
 - Webhooks
 
-### Phase 6: Routenplanung (ABRP-inspiriert) — offen
+### Phase 6: Routenplanung (ABRP-inspiriert) — teilweise umgesetzt
 
 Ziel: Fahrten vorausplanen mit echten Fahrzeugdaten statt Schätzwerten.
 
-- Route planen mit Ladestopp-Vorschlägen
-- aktueller SoC des verbundenen Fahrzeugs als Startwert
-- realer Durchschnittsverbrauch aus der eigenen Fahrhistorie (statt generischer Modellwerte)
-- Verbrauchsprognose entlang der Route (Höhenprofil aus Phase 4 nutzen)
-- Ankunfts-SoC pro Etappe und Ladestopp
-- geplante Route mit tatsächlicher Fahrt vergleichen (Plan vs. Ist)
+- [ ] automatische Ladesäulensuche und optimierte Ladestopp-Vorschläge
+- [x] aktueller SoC des verbundenen Fahrzeugs als Startwert
+- [x] realer Durchschnittsverbrauch aus der eigenen Fahrhistorie (statt generischer Modellwerte)
+- [x] Verbrauchsprognose entlang der Route (Höhenprofil aus Phase 4 nutzen)
+- [x] Ankunfts-SoC pro Etappe und explizites Ziel-SoC pro Ladestopp
+- [x] Ladezeit aus eigener DC-Ladekurve mit ausgewiesenem Fallback schätzen
+- [x] geplante Route mit tatsächlicher Fahrt vergleichen (Plan vs. Ist)
 
 Motivation: A Better Route Planner ist kostenpflichtig geworden; die wertvollsten ABRP-Features (SoC-Anbindung, echter Verbrauch) lassen sich mit den in Tripatlas ohnehin vorhandenen Daten nachbauen.
 

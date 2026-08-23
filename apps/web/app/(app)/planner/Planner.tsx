@@ -65,6 +65,7 @@ interface EditableCheckpoint {
   kind: Exclude<RoadtripStopKind, "start">;
   query: string;
   point: SelectedPoint | null;
+  targetSoc: string;
 }
 
 const BASE_SOURCE_KEYS: Record<
@@ -76,6 +77,12 @@ const BASE_SOURCE_KEYS: Record<
   "vehicle-efficiency": "vehicleEfficiency",
   default: "default",
 };
+
+const CHARGING_SOURCE_KEYS = {
+  "history-dc-curve": "historyCurve",
+  "history-dc-average": "historyAverage",
+  default: "default",
+} as const;
 
 function localDateTimeValue(date: Date): string {
   const offsetMs = date.getTimezoneOffset() * 60_000;
@@ -91,6 +98,7 @@ function makeCheckpoint(
     kind,
     query: point?.label ?? "",
     point,
+    targetSoc: "80",
   };
 }
 
@@ -104,6 +112,7 @@ function initialCheckpoints(
       kind: stop.kind === "start" ? "waypoint" : stop.kind,
       query: stop.label,
       point: { label: stop.label, lat: stop.lat, lon: stop.lon },
+      targetSoc: String(stop.targetSoc ?? 80),
     }));
   }
   const first = places[0];
@@ -115,6 +124,7 @@ function initialCheckpoints(
       point: first
         ? { label: first.name, lat: first.lat, lon: first.lon }
         : null,
+      targetSoc: "80",
     },
   ];
 }
@@ -255,12 +265,28 @@ export function Planner({
           index === checkpoints.length - 1
             ? ("destination" as const)
             : checkpoint.kind,
+        targetSoc:
+          checkpoint.kind === "charge" && index < checkpoints.length - 1
+            ? Number(checkpoint.targetSoc)
+            : null,
       })),
     ];
   }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+    const invalidChargeTarget = checkpoints.some(
+      (checkpoint, index) =>
+        checkpoint.kind === "charge" &&
+        index < checkpoints.length - 1 &&
+        (!Number.isFinite(Number(checkpoint.targetSoc)) ||
+          Number(checkpoint.targetSoc) < 1 ||
+          Number(checkpoint.targetSoc) > 100),
+    );
+    if (invalidChargeTarget) {
+      setError(t("errors.chargeTargetRange"));
+      return;
+    }
     const stops = buildStops();
     if (!stops) {
       setError(t("errors.missingCheckpoints"));
@@ -601,6 +627,34 @@ export function Planner({
                       })
                     }
                   />
+                  {!isDestination && checkpoint.kind === "charge" && (
+                    <label className="mt-3 block rounded-lg bg-amber-50 p-3 dark:bg-amber-950/25">
+                      <span className={labelClasses}>
+                        {t("checkpoints.targetSoc")}
+                      </span>
+                      <span className="mt-1 flex items-center gap-2">
+                        <input
+                          type="number"
+                          inputMode="numeric"
+                          min={1}
+                          max={100}
+                          value={checkpoint.targetSoc}
+                          onChange={(event) =>
+                            updateCheckpoint(checkpoint.id, {
+                              targetSoc: event.target.value,
+                            })
+                          }
+                          className={`${inputClasses} max-w-28`}
+                        />
+                        <span className="text-sm font-medium text-amber-700 dark:text-amber-300">
+                          %
+                        </span>
+                      </span>
+                      <span className="mt-1 block text-xs leading-5 text-amber-700/80 dark:text-amber-300/80">
+                        {t("checkpoints.targetSocHint")}
+                      </span>
+                    </label>
+                  )}
                 </li>
               );
             })}
@@ -660,12 +714,28 @@ function Result({
 }) {
   const t = useTranslations("planner");
   const stopById = new Map(plan.stops.map((stop) => [stop.id, stop]));
+  const chargeByStopId = new Map(
+    (plan.charging?.stops ?? []).map((stop) => [stop.stopId, stop]),
+  );
+  const chargeDuration = plan.charging?.durationSeconds ?? 0;
+  const totalDuration = plan.totals.durationSeconds + chargeDuration;
   return (
     <div className="flex flex-col gap-4">
       <PlannerMapLoader geometry={plan.geometry} />
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Metric label={t("result.distance")} value={formatKm(plan.totals.distanceKm)} />
-        <Metric label={t("result.duration")} value={formatDuration(plan.totals.durationSeconds)} />
+        <Metric
+          label={chargeDuration > 0 ? t("result.tripDuration") : t("result.duration")}
+          value={formatDuration(totalDuration)}
+          sub={
+            chargeDuration > 0
+              ? t("result.durationBreakdown", {
+                  drive: formatDuration(plan.totals.durationSeconds),
+                  charge: formatDuration(chargeDuration),
+                })
+              : undefined
+          }
+        />
         <Metric
           label={t("result.consumption")}
           value={`${plan.totals.energyKwh.toFixed(1)} kWh`}
@@ -689,6 +759,7 @@ function Result({
           {plan.legs.map((leg) => {
             const from = stopById.get(leg.fromStopId);
             const to = stopById.get(leg.toStopId);
+            const charge = to ? chargeByStopId.get(to.id) : null;
             const warning = leg.arrivalSoc < plan.reserveSoc;
             return (
               <li key={leg.index} className="rounded-xl bg-neutral-50 p-3 dark:bg-neutral-950">
@@ -706,6 +777,23 @@ function Result({
                     <p className="text-[10px] uppercase tracking-wide">{t("result.arrival")}</p>
                   </div>
                 </div>
+                {charge && (
+                  <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300">
+                    <span className="inline-flex items-center gap-1.5 font-semibold">
+                      <BatteryCharging aria-hidden size={15} />
+                      {t("result.chargeStop")}
+                    </span>
+                    <span className="tabular-nums">
+                      {Math.round(charge.arrivalSoc)} % → {Math.round(charge.targetSoc)} %
+                    </span>
+                    <span className="tabular-nums">
+                      +{charge.energyAddedKwh.toFixed(1)} kWh
+                    </span>
+                    <span className="tabular-nums">
+                      ≈ {formatDuration(charge.durationSeconds)}
+                    </span>
+                  </div>
+                )}
               </li>
             );
           })}
@@ -757,6 +845,7 @@ function Assumptions({ plan }: { plan: RoadtripPlanSnapshot }) {
   const t = useTranslations("planner");
   const assumptions = plan.assumptions;
   const baseLabel = t(`baseSource.${BASE_SOURCE_KEYS[assumptions.baseSource]}`);
+  const charging = assumptions.charging;
   return (
     <details className="rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
       <summary className="cursor-pointer text-sm font-medium">{t("assumptions.summary")}</summary>
@@ -768,6 +857,18 @@ function Assumptions({ plan }: { plan: RoadtripPlanSnapshot }) {
           desc={assumptions.elevationOk ? `↑ ${Math.round(assumptions.ascentM)} m · ↓ ${Math.round(assumptions.descentM)} m` : t("assumptions.elevationUnavailable")}
         />
         <Row term={t("assumptions.capacity")} desc={`${Math.round(plan.capacityKwh)} kWh`} />
+        {charging && (
+          <Row
+            term={t("assumptions.charging")}
+            desc={t(
+              `assumptions.chargingSource.${CHARGING_SOURCE_KEYS[charging.source]}`,
+              {
+                power: Math.round(charging.fallbackPowerKw),
+                sessions: charging.sessionCount,
+              },
+            )}
+          />
+        )}
         <Row term={t("assumptions.routing")} desc={assumptions.routeProviderIsDefault ? t("assumptions.routingPublic") : t("assumptions.routingCustom")} />
       </dl>
       <p className="mt-3 flex items-start gap-2 text-xs text-neutral-400 dark:text-neutral-500">

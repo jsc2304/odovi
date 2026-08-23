@@ -1,7 +1,18 @@
 import "server-only";
-import { eq } from "drizzle-orm";
-import { places, vehicleStatus, vehicles } from "@tripatlas/db";
-import { DEFAULT_REFERENCE_SPEED_KMH, binByNumeric } from "@tripatlas/core";
+import { and, desc, eq } from "drizzle-orm";
+import {
+  chargePoints,
+  chargeSessions,
+  places,
+  vehicleStatus,
+  vehicles,
+} from "@tripatlas/db";
+import {
+  DEFAULT_EFFECTIVE_DC_POWER_KW,
+  DEFAULT_REFERENCE_SPEED_KMH,
+  binByNumeric,
+  type RoadtripChargeModel,
+} from "@tripatlas/core";
 import { db } from "./db";
 import { getInsightsData } from "./insights";
 
@@ -53,6 +64,128 @@ export interface BaseConsumptionResult {
   tempBinCenterC: number | null;
   /** Anzahl auswertbarer Fahrten in der Historie. */
   historyDriveCount: number;
+}
+
+export interface ChargingProfileResult {
+  model: RoadtripChargeModel;
+  source: "history-dc-curve" | "history-dc-average" | "default";
+  sessionCount: number;
+}
+
+function median(values: number[]): number | null {
+  if (values.length === 0) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 0
+    ? (sorted[middle - 1]! + sorted[middle]!) / 2
+    : sorted[middle]!;
+}
+
+/**
+ * Builds a local fast-charging model from the vehicle's own TeslaMate data.
+ * Ten-percent SoC bins preserve taper behavior; a median session-average or a
+ * conservative default fills sparsely sampled sections.
+ */
+export async function resolveChargingProfile(
+  vehicleId: number,
+): Promise<ChargingProfileResult> {
+  const [pointRows, sessionRows] = await Promise.all([
+    db
+      .select({
+        sessionId: chargePoints.chargeSessionId,
+        soc: chargePoints.soc,
+        powerKw: chargePoints.powerKw,
+      })
+      .from(chargePoints)
+      .innerJoin(
+        chargeSessions,
+        eq(chargePoints.chargeSessionId, chargeSessions.id),
+      )
+      .where(
+        and(
+          eq(chargeSessions.vehicleId, vehicleId),
+          eq(chargeSessions.chargerType, "dc"),
+        ),
+      )
+      .orderBy(desc(chargePoints.ts))
+      .limit(5000),
+    db
+      .select({
+        id: chargeSessions.id,
+        energyAddedKwh: chargeSessions.energyAddedKwh,
+        durationSeconds: chargeSessions.durationSeconds,
+      })
+      .from(chargeSessions)
+      .where(
+        and(
+          eq(chargeSessions.vehicleId, vehicleId),
+          eq(chargeSessions.chargerType, "dc"),
+        ),
+      )
+      .orderBy(desc(chargeSessions.startTime))
+      .limit(50),
+  ]);
+
+  const effectiveSessionPowers = sessionRows
+    .map((session) => {
+      if (
+        session.energyAddedKwh == null ||
+        session.durationSeconds == null ||
+        session.energyAddedKwh < 1 ||
+        session.durationSeconds < 5 * 60
+      ) {
+        return null;
+      }
+      const power = session.energyAddedKwh / (session.durationSeconds / 3600);
+      return power >= 5 && power <= 300 ? power : null;
+    })
+    .filter((power): power is number => power != null);
+
+  const usablePoints = pointRows.filter(
+    (point): point is typeof point & { soc: number; powerKw: number } =>
+      point.soc != null &&
+      point.powerKw != null &&
+      point.soc >= 0 &&
+      point.soc <= 100 &&
+      point.powerKw >= 5 &&
+      point.powerKw <= 350,
+  );
+  const powersByBin = new Map<number, number[]>();
+  for (const point of usablePoints) {
+    const minSoc = Math.min(90, Math.floor(point.soc / 10) * 10);
+    const values = powersByBin.get(minSoc) ?? [];
+    values.push(point.powerKw);
+    powersByBin.set(minSoc, values);
+  }
+  const bins = [...powersByBin.entries()]
+    .map(([minSoc, values]) => ({
+      minSoc,
+      maxSoc: minSoc + 10,
+      powerKw: median(values)!,
+      sampleCount: values.length,
+    }))
+    .filter((bin) => bin.sampleCount >= 3)
+    .sort((a, b) => a.minSoc - b.minSoc);
+
+  const pointMedian = median(usablePoints.map((point) => point.powerKw));
+  const sessionMedian = median(effectiveSessionPowers);
+  const fallbackPowerKw =
+    sessionMedian ?? pointMedian ?? DEFAULT_EFFECTIVE_DC_POWER_KW;
+  const sessionCount = new Set([
+    ...pointRows.map((point) => point.sessionId),
+    ...sessionRows.map((session) => session.id),
+  ]).size;
+
+  return {
+    model: { fallbackPowerKw, bins },
+    source:
+      bins.length > 0
+        ? "history-dc-curve"
+        : sessionMedian != null
+          ? "history-dc-average"
+          : "default",
+    sessionCount,
+  };
 }
 
 /** Fahrzeug-Effizienz in Wh/km (efficiency mit Override-Fallback), oder null. */

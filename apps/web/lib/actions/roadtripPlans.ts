@@ -12,6 +12,7 @@ import {
 import type { RoadtripPlanSnapshot } from "@tripatlas/core";
 import { db } from "../db";
 import { validateSession } from "../auth/session";
+import { autoAssignJourney } from "./journeys";
 
 const pointSchema = z.tuple([
   z.number().gte(-90).lte(90),
@@ -23,7 +24,25 @@ const breakdownSchema = z.object({
   speedAdjustmentKwh: z.number().finite(),
   ascentKwh: z.number().finite(),
   descentCreditKwh: z.number().finite(),
+  referenceSpeedKmh: z.number().finite().optional(),
   speedFactor: z.number().finite(),
+});
+
+const chargePowerBinSchema = z.object({
+  minSoc: z.number().min(0).max(100),
+  maxSoc: z.number().min(0).max(100),
+  powerKw: z.number().positive().finite(),
+  sampleCount: z.number().int().nonnegative(),
+});
+
+const chargeStopPlanSchema = z.object({
+  stopId: z.string().min(1).max(100),
+  stopIndex: z.number().int().nonnegative(),
+  arrivalSoc: z.number().finite(),
+  targetSoc: z.number().min(0).max(100),
+  energyAddedKwh: z.number().nonnegative().finite(),
+  durationSeconds: z.number().nonnegative().finite(),
+  effectivePowerKw: z.number().nonnegative().finite(),
 });
 
 const stopSchema = z.object({
@@ -69,6 +88,13 @@ const snapshotSchema = z
       whPerKm: z.number().finite(),
       arrivalSoc: z.number().finite(),
     }),
+    charging: z
+      .object({
+        stops: z.array(chargeStopPlanSchema).max(10),
+        durationSeconds: z.number().nonnegative().finite(),
+        energyAddedKwh: z.number().nonnegative().finite(),
+      })
+      .optional(),
     geometry: z.array(pointSchema).min(2).max(500),
     assumptions: z.object({
       baseWhPerKm: z.number().positive().finite(),
@@ -87,6 +113,18 @@ const snapshotSchema = z
       elevationAllocation: z.literal("distance-proportional"),
       routeProvider: z.literal("osrm"),
       routeProviderIsDefault: z.boolean(),
+      charging: z
+        .object({
+          source: z.enum([
+            "history-dc-curve",
+            "history-dc-average",
+            "default",
+          ]),
+          sessionCount: z.number().int().nonnegative(),
+          fallbackPowerKw: z.number().positive().finite(),
+          bins: z.array(chargePowerBinSchema).max(10),
+        })
+        .optional(),
     }),
   })
   .superRefine((snapshot, ctx) => {
@@ -154,8 +192,11 @@ export async function saveRoadtripPlan(
 
   const snapshot = parsed.data.snapshot as RoadtripPlanSnapshot;
   const departureAt = new Date(snapshot.departureAt);
+  const tripDurationSeconds =
+    snapshot.totals.durationSeconds +
+    (snapshot.charging?.durationSeconds ?? 0);
   const endTime = new Date(
-    departureAt.getTime() + snapshot.totals.durationSeconds * 1000,
+    departureAt.getTime() + tripDurationSeconds * 1000,
   );
 
   const vehicle = await db
@@ -224,6 +265,11 @@ export async function saveRoadtripPlan(
       });
       return { journeyId, version };
     });
+
+    // A plan saved after telemetry arrived should immediately expose its actual
+    // drives. Future telemetry stays source-owned and can be matched again by
+    // the existing Journey workflow without altering the saved plan snapshot.
+    await autoAssignJourney(saved.journeyId);
 
     revalidatePath("/journeys");
     revalidatePath(`/journeys/${saved.journeyId}`);

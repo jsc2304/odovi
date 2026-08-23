@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { buildRoadtripLegs, type RoadtripStop } from "./roadtrip.js";
+import {
+  buildRoadtripLegs,
+  estimateChargeStop,
+  type RoadtripStop,
+} from "./roadtrip.js";
 
 const stops: RoadtripStop[] = [
   { id: "start", label: "Home", lat: 47, lon: 8, kind: "start" },
@@ -72,5 +76,67 @@ describe("buildRoadtripLegs", () => {
         totalDescentM: 0,
       }),
     ).toThrow("Route legs must match adjacent stops");
+  });
+
+  it("charges to a target before predicting the following leg", () => {
+    const chargingStops: RoadtripStop[] = [
+      stops[0]!,
+      { ...stops[1]!, kind: "charge", targetSoc: 80 },
+      stops[2]!,
+    ];
+    const result = buildRoadtripLegs({
+      stops: chargingStops,
+      routeLegs: [
+        { distanceKm: 100, durationSeconds: 3600 },
+        { distanceKm: 80, durationSeconds: 3000 },
+      ],
+      startSoc: 70,
+      capacityKwh: 75,
+      tempC: 15,
+      baseWhPerKm: 180,
+      referenceSpeedKmh: 70,
+      totalAscentM: 0,
+      totalDescentM: 0,
+      chargeModel: { fallbackPowerKw: 100, bins: [] },
+    });
+
+    expect(result.charging.stops).toHaveLength(1);
+    expect(result.charging.stops[0]?.targetSoc).toBe(80);
+    expect(result.charging.stops[0]?.durationSeconds).toBeGreaterThan(0);
+    expect(result.legs[1]?.startSoc).toBe(80);
+  });
+
+  it("integrates a personal charge curve including taper", () => {
+    const charge = estimateChargeStop({
+      stopId: "charger",
+      stopIndex: 1,
+      arrivalSoc: 50,
+      targetSoc: 90,
+      capacityKwh: 100,
+      model: {
+        fallbackPowerKw: 80,
+        bins: [
+          { minSoc: 50, maxSoc: 80, powerKw: 100, sampleCount: 20 },
+          { minSoc: 80, maxSoc: 100, powerKw: 50, sampleCount: 20 },
+        ],
+      },
+    });
+
+    expect(charge.energyAddedKwh).toBe(40);
+    expect(charge.durationSeconds).toBeCloseTo(1800);
+    expect(charge.effectivePowerKw).toBeCloseTo(80);
+  });
+
+  it("does not add time or energy when the target is already reached", () => {
+    const charge = estimateChargeStop({
+      stopId: "charger",
+      stopIndex: 1,
+      arrivalSoc: 82,
+      targetSoc: 80,
+      capacityKwh: 75,
+    });
+
+    expect(charge.energyAddedKwh).toBe(0);
+    expect(charge.durationSeconds).toBe(0);
   });
 });

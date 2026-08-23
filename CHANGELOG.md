@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- A mobile "More" hub keeps the five-item bottom navigation focused while
+  exposing planning, analysis and configuration capabilities by intent.
+- Saved roadtrip plans now show a leg-by-leg plan-versus-actual comparison and
+  can refresh newly synchronized Journey items on demand.
+- Explicit charging checkpoints support target SoC values and estimated charge
+  times derived from the vehicle's own DC charging history.
+
+### Fixed
+
+- Vehicle-dependent pages now explain how to finish setup instead of showing an
+  incorrect not-found state on fresh installations.
+
 ### Changed
 
 - Start new `0.2.x` versions under FSL-1.1-ALv2. Previously published releases
