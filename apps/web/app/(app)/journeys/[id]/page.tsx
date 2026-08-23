@@ -16,6 +16,7 @@ import {
   getJourneyCandidates,
   getJourneyDetail,
   getJourneyRouteTracks,
+  type JourneyDriveItem,
   type JourneyTimelineItem,
 } from "../../../../lib/journeys";
 import { buttonClasses } from "../../../../components/ui/Button";
@@ -25,6 +26,7 @@ import { AddItemButton, RemoveItemButton } from "./ItemButtons";
 import { JourneyMapLoader } from "./JourneyMapLoader";
 import { OfflinePlanButton } from "./OfflinePlanButton";
 import { TeslaSendButton } from "./TeslaSendButton";
+import { PlanActualCard } from "./PlanActualCard";
 
 export const dynamic = "force-dynamic";
 
@@ -92,7 +94,10 @@ export default async function JourneyDetailPage({
 
   const { journey, items, kpiDrives, kpiCharges } = detail;
   const kpis = buildJourneyKpis(kpiDrives, kpiCharges);
-  const driveIds = items.filter((i) => i.kind === "drive").map((i) => i.id);
+  const driveItems = items.filter(
+    (item): item is JourneyDriveItem => item.kind === "drive",
+  );
+  const driveIds = driveItems.map((item) => item.id);
   const [candidates, routeTracks, storedPlan] = await Promise.all([
     getJourneyCandidates(journeyId),
     getJourneyRouteTracks(driveIds),
@@ -220,13 +225,16 @@ export default async function JourneyDetailPage({
       </div>
 
       {storedPlan && (
-        <PlannedRoadtripCard
-          journeyId={journey.id}
-          version={storedPlan.version}
-          plan={storedPlan.snapshot}
-          journeyName={journey.name}
-          t={t}
-        />
+        <>
+          <PlannedRoadtripCard
+            journeyId={journey.id}
+            version={storedPlan.version}
+            plan={storedPlan.snapshot}
+            journeyName={journey.name}
+            t={t}
+          />
+          <PlanActualCard plan={storedPlan.snapshot} drives={driveItems} />
+        </>
       )}
 
       {hasRouteData && (

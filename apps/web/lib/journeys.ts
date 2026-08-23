@@ -154,6 +154,10 @@ export interface JourneyDriveItem {
   energyIsEstimated: boolean;
   startSoc: number | null;
   endSoc: number | null;
+  startLat: number | null;
+  startLon: number | null;
+  endLat: number | null;
+  endLon: number | null;
   ascentM: number | null;
   descentM: number | null;
   startPlaceName: string | null;
@@ -259,6 +263,10 @@ export async function getJourneyDetail(
             energyIsEstimated: drives.energyIsEstimated,
             startSoc: drives.startSoc,
             endSoc: drives.endSoc,
+            startLat: drives.startLat,
+            startLon: drives.startLon,
+            endLat: drives.endLat,
+            endLon: drives.endLon,
             ascentM: drives.ascentM,
             descentM: drives.descentM,
             startPlaceId: drives.startPlaceId,
@@ -323,6 +331,10 @@ export async function getJourneyDetail(
       energyIsEstimated: d.energyIsEstimated,
       startSoc: d.startSoc,
       endSoc: d.endSoc,
+      startLat: d.startLat,
+      startLon: d.startLon,
+      endLat: d.endLat,
+      endLon: d.endLon,
       ascentM: d.ascentM,
       descentM: d.descentM,
       startPlaceName:
