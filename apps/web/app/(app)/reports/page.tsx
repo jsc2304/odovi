@@ -12,6 +12,8 @@ import { isValidMonthParam } from "../../../lib/exports/params";
 import { todayInAppTz } from "../../../lib/day";
 import { buttonClasses } from "../../../components/ui/Button";
 import { ReportFilters } from "./ReportFilters";
+import { getVehicles } from "../../../lib/queries";
+import { VehicleRequiredState } from "../../../components/VehicleRequiredState";
 
 export const dynamic = "force-dynamic";
 
@@ -55,6 +57,17 @@ export default async function ReportsPage({
   const sp = await searchParams;
   const month = sp.month && isValidMonthParam(sp.month) ? sp.month : currentMonthInAppTz();
   const selected = parseSelected(sp.classification);
+
+  const vehicles = await getVehicles();
+  if (vehicles.length === 0) {
+    return (
+      <VehicleRequiredState
+        title={t("title")}
+        subtitle={t("subtitle")}
+        className="mx-auto max-w-4xl"
+      />
+    );
+  }
 
   const data = await loadMonthReportData(month, selected);
   const report = buildMonthReport(data.drives, month, data.meta, selected);

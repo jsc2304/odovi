@@ -20,5 +20,10 @@
     "loading": "Loading …",
     "error": "Something went wrong",
     "none": "—"
+  },
+  "vehicleRequired": {
+    "title": "No vehicle available yet",
+    "hint": "Tripatlas has not synced a vehicle from TeslaMate yet. Check the connection and sync under More.",
+    "action": "Check setup"
   }
 }

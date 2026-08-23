@@ -6,6 +6,7 @@ import { getJourneyById } from "../../../lib/journeys";
 import { getLatestJourneyPlan } from "../../../lib/roadtripPlans";
 import { getCurrentWeather } from "../../../lib/weather";
 import { Planner } from "./Planner";
+import { VehicleRequiredState } from "../../../components/VehicleRequiredState";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,14 @@ export default async function PlannerPage({
 }) {
   const t = await getTranslations("planner");
   const vehicles = await getVehicles();
-  if (vehicles.length === 0) notFound();
+  if (vehicles.length === 0) {
+    return (
+      <VehicleRequiredState
+        title={t("title")}
+        subtitle={t("subtitle")}
+      />
+    );
+  }
   const params = await searchParams;
   const requestedJourneyId = Number(params.journey);
   const editJourneyId =

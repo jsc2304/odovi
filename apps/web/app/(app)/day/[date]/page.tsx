@@ -20,6 +20,7 @@ import { getAllTags, getDayTimeline, getVehicles } from "../../../../lib/queries
 import { getParkLossForSessions } from "../../../../lib/parkAnalytics";
 import { buttonClasses } from "../../../../components/ui/Button";
 import { EmptyState } from "../../../../components/ui/EmptyState";
+import { VehicleRequiredState } from "../../../../components/VehicleRequiredState";
 import {
   BulkSelectionProvider,
   SelectionToggle,
@@ -46,7 +47,22 @@ export default async function DayPage({
 
   const { vehicle } = await searchParams;
   const vehicles = await getVehicles();
-  if (vehicles.length === 0) notFound();
+  if (vehicles.length === 0) {
+    const today = todayInAppTz();
+    return (
+      <div className="mx-auto max-w-2xl">
+        <DateNav
+          date={date}
+          longLabel={formatLongDate(date, locale)}
+          prevDate={shiftDate(date, -1)}
+          nextDate={shiftDate(date, 1)}
+          today={today}
+          vehicleQuery=""
+        />
+        <VehicleRequiredState className="max-w-2xl" />
+      </div>
+    );
+  }
 
   const requested = vehicle ? Number(vehicle) : NaN;
   const current =

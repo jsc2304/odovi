@@ -1,4 +1,3 @@
-import { notFound } from "next/navigation";
 import { Lightbulb } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import {
@@ -23,6 +22,7 @@ import {
   type WeekdayDatum,
 } from "./InsightCharts";
 import { InsightsVehicleSwitcher } from "./InsightsVehicleSwitcher";
+import { VehicleRequiredState } from "../../../components/VehicleRequiredState";
 
 export const dynamic = "force-dynamic";
 
@@ -124,7 +124,14 @@ export default async function InsightsPage({
   const { vehicle } = await searchParams;
 
   const vehicles = await getVehicles();
-  if (vehicles.length === 0) notFound();
+  if (vehicles.length === 0) {
+    return (
+      <VehicleRequiredState
+        title={t("title")}
+        subtitle={t("subtitleNoData")}
+      />
+    );
+  }
 
   const requested = vehicle ? Number(vehicle) : NaN;
   const current = vehicles.find((v) => v.id === requested) ?? vehicles[0]!;

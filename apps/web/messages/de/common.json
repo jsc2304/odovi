@@ -20,5 +20,10 @@
     "loading": "Lädt …",
     "error": "Etwas ist schiefgelaufen",
     "none": "—"
+  },
+  "vehicleRequired": {
+    "title": "Noch kein Fahrzeug verfügbar",
+    "hint": "Tripatlas konnte noch kein Fahrzeug aus TeslaMate synchronisieren. Prüfe die Verbindung und den Sync unter Mehr.",
+    "action": "Einrichtung prüfen"
   }
 }
