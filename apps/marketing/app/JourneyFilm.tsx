@@ -216,12 +216,12 @@ export function JourneyFilm() {
           <div className="journey-film-copy">
             <p className="section-kicker">Journey 01 · Über die Alpen</p>
             <h2
-              aria-label="Aus Fahrten wird deine Geschichte. Etappe für Etappe wieder lebendig."
+              aria-label="Aus Fahrten wird deine Geschichte. Etappe für Etappe wieder lebendig. Deine Reise bis ins Detail."
               id="journey-film-title"
             >
               <span aria-hidden="true" className="journey-title-transition">Aus Fahrten wird deine Geschichte.</span>
               <span aria-hidden="true" className="journey-title-progress">Etappe für Etappe. Wieder lebendig.</span>
-              <span aria-hidden="true" className="journey-title-arrived">Deine Reise. Immer wieder da.</span>
+              <span aria-hidden="true" className="journey-title-arrived">Deine Reise. Bis ins Detail.</span>
             </h2>
             <p className="journey-copy-transition">
               Tripatlas verwandelt Telemetrie in deinen visuellen Reiserückblick.

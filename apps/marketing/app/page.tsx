@@ -86,7 +86,7 @@ export default function Home() {
         <div className="shell">
           <div className="section-heading story-heading reveal">
             <p className="section-kicker">Echte Oberfläche</p>
-            <h2>So sieht Tripatlas im Alltag aus.</h2>
+            <h2>Deine Route. Deine Etappen. Dein Rückblick.</h2>
             <p>
               Keine Konzeptgrafiken: Diese Ansichten stammen aus der laufenden
               Tripatlas-Demo mit synthetischen Fahrdaten aus dem Raum Zürich.
