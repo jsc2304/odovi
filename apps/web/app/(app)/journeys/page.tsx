@@ -64,7 +64,7 @@ export default async function JourneysPage() {
                 <span
                   aria-hidden
                   className="mt-1 h-3 w-3 shrink-0 rounded-full"
-                  style={{ backgroundColor: j.color ?? "#94a3b8" }}
+                  style={{ backgroundColor: j.color ?? "#a78bfa" }}
                 />
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">

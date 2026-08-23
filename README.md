@@ -1,11 +1,11 @@
 # Tripatlas
 
 [![CI](https://github.com/jsc2304/tripatlas/actions/workflows/ci.yml/badge.svg)](https://github.com/jsc2304/tripatlas/actions/workflows/ci.yml)
-[![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL%203.0-blue.svg)](LICENSE)
+[![License: FSL-1.1-ALv2](https://img.shields.io/badge/License-FSL--1.1--ALv2-6f42c1.svg)](LICENSE)
 
 **Self-hosted trip archive and analytics for Tesla.** Pick a date, review every trip of the day, classify it, export it - your movement data stays on your server.
 
-Tripatlas reads the database of an existing [TeslaMate](https://github.com/teslamate-org/teslamate) installation in read-only mode and turns it into a searchable trip, parking, and charging archive with a daily timeline, places, tags, auto-classification, and business exports (CSV/PDF/GPX). No subscription, no cloud, no tracking.
+Tripatlas reads the database of an existing [TeslaMate](https://github.com/teslamate-org/teslamate) installation in read-only mode and turns it into a searchable trip, parking, and charging archive with a daily timeline, places, tags, auto-classification, and business exports (CSV/PDF/GPX). Self-hosting requires no subscription or cloud service, and Tripatlas adds no product tracking.
 
 ## Why?
 
@@ -25,7 +25,7 @@ Tessie and similar services are good, but they come with subscription costs, ove
 - **Trip detail** - Route on the map, combined history chart (elevation/SoC/speed), temperatures, max speed/power/recuperation, historical weather at trip time, GPX export
 - **Charging overview** - Charging curve (kW over SoC), AC/DC, cost, location map
 - **Automatic charging costs** - Store an electricity price per place (for example home at EUR 0.32/kWh) -> sessions without a known price are calculated automatically, while manual and synced costs remain untouched
-- **Journeys** - Vacations/trips as a wrapper around drives and charging stops, with KPI dashboard, map of all stages, and export as CSV, PDF, and GPX
+- **Journeys** - Vacations/trips as a wrapper around drives and charging stops, with KPI dashboard, map of all stages, an [immersive scroll-controlled 3D recap](docs/journey-recap.md), and export as CSV, PDF, and GPX
 - **Insights** - Personal consumption curve: consumption vs. outside temperature and speed, seasonal patterns, share of short trips
 - **Parking analytics** - Vampire drain per parking session, parking durations by place
 - **Roadtrip planner** - Ordered checkpoints, versioned journey plans, real routes (OSRM), elevation profile and your personal consumption profile
@@ -212,4 +212,15 @@ Idempotent (safe to run multiple times), does not collide with TeslaMate data.
 
 ## License
 
-[AGPL-3.0](LICENSE) © 2026 Jan Schultheiss
+The current `0.2.x` development line is available under
+[FSL-1.1-ALv2](LICENSE) © 2026 Jan Schultheiss. This is a Fair Source /
+source-available license: self-hosting, source inspection and modifications for
+non-competing purposes are permitted, while a competing commercial product or
+service is not. Each version automatically also becomes available under
+Apache-2.0 after two years.
+
+Previously published releases `v0.1.0`, `v0.1.1` and earlier public branch
+commits remain available under AGPL-3.0 for copies received under those terms.
+The marketing site and brand assets have separate terms. See
+[LICENSING.md](LICENSING.md) and [TRADEMARKS.md](TRADEMARKS.md) for the exact
+scope. The license text controls over this summary.

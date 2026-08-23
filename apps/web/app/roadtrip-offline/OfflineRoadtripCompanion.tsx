@@ -89,7 +89,7 @@ export function OfflineRoadtripCompanion({ labels }: { labels: Labels }) {
             <section className="mt-4 rounded-2xl border border-neutral-800 bg-neutral-900 p-4">
               <p className="text-lg font-semibold">{trip.journeyName}</p>
               <p className="mt-1 text-xs text-neutral-400">
-                {labels.version.replace("{version}", String(trip.version))} · {labels.saved.replace("{date}", new Date(trip.savedAt).toLocaleString())}
+                {labels.version} {trip.version} · {labels.saved} {new Date(trip.savedAt).toLocaleString()}
               </p>
               <p className="mt-3 inline-flex items-center gap-1 text-xs text-emerald-300">
                 <Check aria-hidden size={14} /> {labels.offlineReady}

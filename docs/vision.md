@@ -149,6 +149,12 @@ Eine Journey ist eine Gruppierung. Sie darf die darunterliegenden Einzelfahrten 
 
 Tripatlas soll lokal oder auf eigener Infrastruktur laufen.
 
+Zusätzlich kann Tripatlas als betreute Hosted-Instanz angeboten werden, um die
+Einstiegshürde für Nutzer ohne Docker-, Server- oder TeslaMate-Erfahrung zu
+senken. Der Self-hosted-Core bleibt dabei vollständig nutzbar und kostenlos.
+Hosted darf keinen Lock-in erzeugen: Exporte und ein späterer Wechsel auf die
+eigene Infrastruktur bleiben Teil des Produktversprechens.
+
 Die Daten gehören dem Nutzer. Deshalb müssen Exporte und Backups ein Kernfeature sein.
 
 Pflichtformate:
@@ -1392,6 +1398,8 @@ Getroffen am 04.07.2026 (MVP-Planung):
 | Stack | TypeScript-Monorepo (pnpm): Next.js + Node-Worker, Drizzle ORM, PostgreSQL, Docker Compose. Kein Redis/Queue im MVP. |
 | Scope | 1 Nutzer (einfaches Passwort-Login), Datenmodell multi-vehicle-ready, kein Multi-Tenant. |
 | Deployment | Home Server (Raspberry Pi, ARM64), nur LAN/VPN via Tailscale — kein öffentlicher Endpoint. |
+| Betriebsmodelle (22.08.2026) | Neue Core-Versionen unter FSL-1.1-ALv2 für kostenloses Self-hosting plus Validierung einer privaten, betreuten Hosted-Variante. Kommerzielle Konkurrenzangebote auf Basis dieser neuen Versionen sind ausgeschlossen; jede Version wechselt nach zwei Jahren zu Apache-2.0. Bereits unter AGPL veröffentlichte Releases und Branch-Commits bleiben für erhaltene Kopien AGPL-3.0. Hosted ist eine zusätzliche Komfortoption und ersetzt weder Datenportabilität noch den Self-hosted-Core. |
+| Vermarktung (22.08.2026) | Journey-first: Planung, automatische Dokumentation, Wiederfinden und visueller Rückblick als emotionale Differenzierung; Nachweis- und Fahrtenbuchnutzen als rationaler Zahlungsanlass. |
 | Energie | Verbrauch/Fahrt als Schätzung (Rated-Range-Delta × Effizienz, wie TeslaMate); überall als „geschätzt" gekennzeichnet. |
 | Trackdaten | `route_points` ab Tag 1 downsampled (~1 Punkt/15 s) aus TeslaMate kopieren — Versicherung + Basis für Phase 4. |
 | UI-Sprache | Nur Deutsch im MVP, kein i18n-Framework. |

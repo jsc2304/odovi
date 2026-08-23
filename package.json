@@ -1,7 +1,8 @@
 {
   "name": "tripatlas",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.2.0",
+  "license": "SEE LICENSE IN LICENSE",
   "packageManager": "pnpm@9.15.9",
   "scripts": {
     "dev": "echo \"Run pnpm --filter @tripatlas/web dev (or worker/db) — no root dev process\"",

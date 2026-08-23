@@ -10,6 +10,7 @@ import {
   getUnclassifiedCount,
 } from "../../lib/dashboard";
 import { getCurrentWeather, type WeatherResult } from "../../lib/weather";
+import { getDashboardParkDrain } from "../../lib/parkAnalytics";
 import { getDefaultVehicleId } from "../../lib/search";
 import { VehicleCard } from "./VehicleCard";
 import { WeatherCard } from "./WeatherCard";
@@ -102,10 +103,11 @@ export default async function DashboardPage() {
     return <OnboardingCard />;
   }
 
-  const [status, openSession, recentDrives, today, week, lastCharge, unclassifiedCount] =
+  const [status, openSession, parkDrain, recentDrives, today, week, lastCharge, unclassifiedCount] =
     await Promise.all([
       getVehicleStatus(vehicleId),
       getOpenSessionStatus(vehicleId),
+      getDashboardParkDrain(vehicleId),
       getRecentDrives(vehicleId, 5),
       getTodayStats(vehicleId),
       getWeekStats(vehicleId),
@@ -133,7 +135,7 @@ export default async function DashboardPage() {
     <div className="flex flex-col gap-4 md:grid md:grid-cols-3 md:gap-4">
       <div className="md:col-span-2">
         {status ? (
-          <VehicleCard status={status} openSession={openSession} />
+          <VehicleCard status={status} openSession={openSession} parkDrain={parkDrain} />
         ) : (
           <EmptyState icon={Car} title={t("vehicleStatusEmpty")} />
         )}

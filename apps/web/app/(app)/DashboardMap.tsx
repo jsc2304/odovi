@@ -18,7 +18,7 @@ export interface DashboardMapProps {
 function carIcon(): L.DivIcon {
   return L.divIcon({
     className: "",
-    html: '<span style="display:block;width:16px;height:16px;border-radius:9999px;background:#171717;border:2px solid white;box-shadow:0 0 0 3px rgba(23,23,23,0.25);"></span>',
+    html: '<span style="display:block;width:16px;height:16px;border-radius:9999px;background:#7c3aed;border:2px solid #f7f8fb;box-shadow:0 0 0 4px rgba(124,58,237,0.24);"></span>',
     iconSize: [16, 16],
     iconAnchor: [8, 8],
   });
@@ -27,7 +27,7 @@ function carIcon(): L.DivIcon {
 function endDotIcon(): L.DivIcon {
   return L.divIcon({
     className: "",
-    html: '<span style="display:block;width:10px;height:10px;border-radius:9999px;background:#2563eb;border:2px solid white;box-shadow:0 0 0 1px rgba(0,0,0,0.4);"></span>',
+    html: '<span style="display:block;width:10px;height:10px;border-radius:9999px;background:#67e8f9;border:2px solid #f7f8fb;box-shadow:0 0 0 3px rgba(124,58,237,0.28);"></span>',
     iconSize: [10, 10],
     iconAnchor: [5, 5],
   });
@@ -84,7 +84,7 @@ export function DashboardMap({ tracks, car, onSelectDrive }: DashboardMapProps) 
     if (newest && newest.points.length >= 2) {
       const latLngs: L.LatLngTuple[] = newest.points.map((p) => [p[0], p[1]]);
       const line = L.polyline(latLngs, {
-        color: "#2563eb", // blue-600
+        color: "#7c3aed", // Tripatlas Route Violet
         weight: 4,
         opacity: 0.9,
       }).addTo(map);

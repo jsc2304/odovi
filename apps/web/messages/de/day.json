@@ -13,6 +13,17 @@
   "today": "Heute",
   "dateSelectLabel": "Datum wählen",
   "openCalendar": "Kalender öffnen",
+  "recap": {
+    "open": "Tagesrückblick ansehen",
+    "preview": "{count} Fahrten als animierte Route erleben",
+    "title": "Dein Tag unterwegs",
+    "eyebrow": "Dein Tagesrückblick",
+    "back": "Zur Tagesansicht",
+    "finaleEyebrow": "Der Tag in Zahlen",
+    "finaleTitle": "So warst du unterwegs.",
+    "scrollHint": "Scrollen, um den Tag zu steuern",
+    "chaptersLabel": "Kapitel des Tagesrückblicks"
+  },
   "parkedAt": "Geparkt: {place}",
   "chargedAt": "Geladen: {place}",
   "chargedShort": "⚡ geladen",

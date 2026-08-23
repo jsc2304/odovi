@@ -22,7 +22,7 @@ interface NavItem {
   labelKey: string;
   icon: LucideIcon;
   match: (path: string) => boolean;
-  /** Nur in der Desktop-Sidebar — die Bottom-Bar bleibt bei 5 Slots. */
+  /** Nur in der Desktop-Sidebar. */
   sideOnly?: boolean;
 }
 
@@ -31,7 +31,7 @@ const items: NavItem[] = [
   { href: "/day", labelKey: "day", icon: CalendarDays, match: (p) => p.startsWith("/day") || p.startsWith("/drives") },
   { href: "/calendar", labelKey: "calendar", icon: CalendarRange, match: (p) => p.startsWith("/calendar"), sideOnly: true },
   { href: "/search", labelKey: "search", icon: Search, match: (p) => p.startsWith("/search") },
-  { href: "/journeys", labelKey: "journeys", icon: Route, match: (p) => p.startsWith("/journeys"), sideOnly: true },
+  { href: "/journeys", labelKey: "journeys", icon: Route, match: (p) => p.startsWith("/journeys") },
   { href: "/charges", labelKey: "charges", icon: Zap, match: (p) => p.startsWith("/charges") },
   { href: "/places", labelKey: "places", icon: MapPin, match: (p) => p.startsWith("/places"), sideOnly: true },
   { href: "/reports", labelKey: "reports", icon: FileBarChart, match: (p) => p.startsWith("/reports"), sideOnly: true },
@@ -46,13 +46,13 @@ function itemClasses(active: boolean, layout: "bottom" | "side"): string {
       ? "flex flex-1 flex-col items-center gap-0.5 py-2 text-xs"
       : "flex items-center gap-3 rounded-lg px-3 py-2 text-sm";
   const state = active
-    ? "text-neutral-900 dark:text-white font-medium"
+    ? "font-medium text-violet-700 dark:text-violet-300"
     : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white";
   const motion = "transition-colors";
   const sideActiveBg =
-    layout === "side" && active ? "bg-neutral-100 dark:bg-neutral-800" : "";
+    layout === "side" && active ? "bg-violet-100 dark:bg-violet-950" : "";
   const focus =
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-white dark:focus-visible:ring-offset-neutral-950";
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-cyan-300 dark:focus-visible:ring-offset-neutral-950";
   return `${base} ${state} ${sideActiveBg} ${motion} ${focus}`.trim();
 }
 
@@ -68,6 +68,7 @@ export function BottomNav() {
           <Link
             key={item.href}
             href={item.href}
+            aria-current={active ? "page" : undefined}
             className={itemClasses(active, "bottom")}
           >
             <Icon aria-hidden size={20} strokeWidth={active ? 2.25 : 2} />
@@ -92,6 +93,7 @@ export function SideNav() {
           <Link
             key={item.href}
             href={item.href}
+            aria-current={active ? "page" : undefined}
             className={itemClasses(active, "side")}
           >
             <Icon aria-hidden size={20} strokeWidth={active ? 2.25 : 2} className="shrink-0" />
