@@ -70,6 +70,7 @@ export const APP_DESTINATIONS: AppDestination[] = [
     labelKey: "calendar",
     icon: CalendarRange,
     match: (path) => path.startsWith("/calendar"),
+    mobilePrimary: true,
     sidebar: true,
     moreGroup: "plan",
   },
@@ -79,7 +80,6 @@ export const APP_DESTINATIONS: AppDestination[] = [
     labelKey: "search",
     icon: Search,
     match: (path) => path.startsWith("/search"),
-    mobilePrimary: true,
     sidebar: true,
   },
   {

@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { getLocale } from "next-intl/server";
 import { validateSession } from "../../lib/auth/session";
 import { getVehicles } from "../../lib/queries";
-import { BottomNav, SideNav } from "../../components/Nav";
+import { BottomNav, HeaderSearch, SideNav } from "../../components/Nav";
 import { ThemeToggle, type ThemeChoice } from "../../components/ThemeToggle";
 import { LocaleSwitcher } from "../../components/LocaleSwitcher";
 import { BrandWordmark } from "../../components/BrandWordmark";
@@ -60,16 +60,19 @@ export default async function AppLayout({
 
         <div className="flex min-w-0 flex-1 flex-col">
           {/* Mobile header */}
-          <header className="flex items-center justify-between border-b border-neutral-200 bg-white/82 px-4 py-3 backdrop-blur-xl md:hidden dark:border-neutral-800 dark:bg-neutral-950/88">
-            <Link href="/" aria-label="Odovi start">
+          <header className="flex items-center gap-2 border-b border-neutral-200 bg-white/82 px-4 py-3 backdrop-blur-xl md:hidden dark:border-neutral-800 dark:bg-neutral-950/88">
+            <Link href="/" aria-label="Odovi start" className="shrink-0">
               <BrandWordmark size="sm" />
             </Link>
-            <div className="flex items-center gap-3">
-              <p className="text-sm text-neutral-500 dark:text-neutral-400">
+            <HeaderSearch />
+            <div className="flex min-w-0 flex-1 items-center justify-end gap-1 sm:gap-3">
+              <p title={vehicleName} className="hidden min-w-0 truncate text-sm text-neutral-500 min-[360px]:block dark:text-neutral-400">
                 {vehicleName}
               </p>
-              <LocaleSwitcher initial={locale} variant="compact" />
-              <ThemeToggle initial={theme} variant="compact" />
+              <div className="flex shrink-0 items-center gap-1 sm:gap-3">
+                <LocaleSwitcher initial={locale} variant="compact" />
+                <ThemeToggle initial={theme} variant="compact" />
+              </div>
             </div>
           </header>
 

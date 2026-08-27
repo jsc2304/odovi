@@ -1,7 +1,9 @@
 "use client";
+import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { Search } from "lucide-react";
 import { APP_DESTINATIONS, MORE_DESTINATION } from "./navigation";
 
 const sidebarItems = [
@@ -13,11 +15,13 @@ const mobileItems = [
   MORE_DESTINATION,
 ];
 
-function itemClasses(active: boolean, layout: "bottom" | "side"): string {
+function itemClasses(active: boolean, layout: "bottom" | "side" | "header"): string {
   const base =
     layout === "bottom"
       ? "flex flex-1 flex-col items-center gap-0.5 py-2 text-xs"
-      : "flex items-center gap-3 rounded-lg px-3 py-2 text-sm";
+      : layout === "header"
+        ? "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg"
+        : "flex items-center gap-3 rounded-lg px-3 py-2 text-sm";
   const state = active
     ? "font-medium text-violet-700 dark:text-violet-300"
     : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white";
@@ -27,6 +31,25 @@ function itemClasses(active: boolean, layout: "bottom" | "side"): string {
   const focus =
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-cyan-300 dark:focus-visible:ring-offset-neutral-950";
   return `${base} ${state} ${sideActiveBg} ${motion} ${focus}`.trim();
+}
+
+export function HeaderSearch() {
+  const pathname = usePathname();
+  const t = useTranslations("nav");
+  const destination = APP_DESTINATIONS.find((item) => item.id === "search")!;
+  const active = destination.match(pathname);
+
+  return (
+    <Link
+      href={destination.href}
+      aria-label={t(destination.labelKey)}
+      title={t(destination.labelKey)}
+      aria-current={active ? "page" : undefined}
+      className={itemClasses(active, "header")}
+    >
+      <Search aria-hidden size={20} strokeWidth={active ? 2.25 : 2} />
+    </Link>
+  );
 }
 
 export function BottomNav() {
