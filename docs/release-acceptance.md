@@ -46,6 +46,11 @@ Useful controls:
 - `ODOVI_ACCEPTANCE_PORT`: fixed loopback port instead of an automatically
   selected free port.
 - `ODOVI_ACCEPTANCE_RUN_ID`: stable evidence-directory name.
+- `ODOVI_ACCEPTANCE_CHROMIUM_EXECUTABLE`: explicitly select an installed
+  Chromium executable, such as `/usr/bin/chromium`, when the managed Playwright
+  browser is unavailable on a native host. The default remains Playwright's
+  managed browser. Record the selected browser's version with the run evidence;
+  the manifest records the executable choice, not its version.
 - `ODOVI_ACCEPTANCE_KEEP_STACK=1`: retain the disposable stack for debugging;
   remove it later with the exact project name in `manifest.json`.
 - `ODOVI_ACCEPTANCE_SETUP_TOKEN`: override the generated, short-lived setup
@@ -84,7 +89,8 @@ The current baseline performs:
 Each run writes `acceptance-results/<timestamp>-<commit>/`:
 
 - `manifest.json`: schema version, result, commit, release version, exact image
-  tags, fixture day, Compose project, readiness path, and acceptance gates;
+  tags, fixture day, Compose project, browser executable choice, readiness path,
+  and acceptance gates;
 - `compose-config.yml`, `compose-ps.json`, `compose.log`, `compose-down.log`,
   `image-inspect.json` (local image IDs and repository digests when available);
 - `container-egress.ndjson`, `browser-egress.ndjson`, `egress-summary.json`;
