@@ -11,6 +11,7 @@ export const dynamic = "force-dynamic";
 
 export default async function PlacesPage() {
   const t = await getTranslations("places");
+  const tYearly = await getTranslations("yearly");
   const placeRows = await getAllPlacesWithUsage();
   const dwellStatsByPlaceId = await getPlaceDwellStats();
 
@@ -32,6 +33,10 @@ export default async function PlacesPage() {
           {t("newPlace")}
         </Button>
       </div>
+
+      <Link href="/places/heatmap" className="mt-3 inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-emerald-700 underline-offset-4 hover:underline dark:text-emerald-400">
+        <MapPin aria-hidden size={16} />{tYearly("heatmap.entry")}
+      </Link>
 
       <div className="mt-6 flex flex-col gap-2">
         {placeRows.length === 0 && (

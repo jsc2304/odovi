@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   CalendarRange,
   Gauge,
@@ -150,6 +151,7 @@ export default async function InsightsPage({
     getTranslations("insights"),
     getLocale(),
   ]);
+  const tYearly = await getTranslations("yearly");
   const { vehicle } = await searchParams;
 
   const vehicles = await getVehicles();
@@ -269,6 +271,7 @@ export default async function InsightsPage({
         <div className={styles.heroCopy}>
           <h1>{t("hero.title")}</h1>
           <p>{basisLabel}</p>
+          <Link href="/wrapped" className="mt-3 inline-flex min-h-11 items-center text-sm font-medium underline-offset-4 hover:underline">{tYearly("wrapped.entry")}</Link>
         </div>
         <dl className={styles.heroMetrics}>
           <HeroMetric

@@ -124,7 +124,7 @@ export const APP_DESTINATIONS: AppDestination[] = [
     href: "/insights",
     labelKey: "insights",
     icon: Lightbulb,
-    match: (path) => path.startsWith("/insights"),
+    match: (path) => path.startsWith("/insights") || path === "/wrapped",
     sidebar: true,
     moreGroup: "review",
   },

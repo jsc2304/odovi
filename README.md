@@ -31,6 +31,7 @@ Tessie and similar services are good, but they come with subscription costs, ove
 - **Automatic charging costs** - Store an electricity price per place (for example home at EUR 0.32/kWh) -> sessions without a known price are calculated automatically, while manual and synced costs remain untouched
 - **Journeys** - Vacations/trips as a wrapper around drives and charging stops, with KPI dashboard, map of all stages, an [immersive scroll-controlled 3D recap](docs/journey-recap.md), and export as CSV, PDF, and GPX
 - **Insights** - Personal consumption curve: consumption vs. outside temperature and speed, seasonal patterns, share of short trips
+- **Yearly destinations and Wrapped** - Visit heatmap and top destinations from completed drives, annual driving and charging summaries, and browser Print/Save as PDF
 - **Parking analytics** - Vampire drain per parking session, parking durations by place
 - **Roadtrip planner** - Ordered checkpoints, versioned journey plans, real routes (OSRM), elevation profile, your personal consumption profile, explicit charge targets, and charge-time estimates from your own DC history
 - **Mobile roadtrip companion** - Store a plan on the phone, follow the next stop and key leg metrics even when reception drops
@@ -78,6 +79,36 @@ excluded. Sessions with missing samples remain visible with an explanation.
 
 The comparison reads the existing Odovi archive and requires no new provider,
 vehicle contact, tracking, or database migration.
+
+### Yearly destinations and Wrapped
+
+Open **Places → Explore destination visits** for `/places/heatmap`, or
+**Insights → Open yearly Wrapped** for `/wrapped`. Both views share the year
+and drive-classification filters, destination counts and measurement coverage.
+
+- A completed drive belongs to the year and month in which it **started** in
+  `APP_TIMEZONE`, including drives that end after New Year's midnight. Open,
+  invalid-duration and future-ending records are excluded.
+- The heatmap counts **drive destinations**, not route points or road density.
+  Saved destinations are grouped by place ID, using that place's coordinates.
+  Unsaved destinations are grouped by independently rounding latitude and
+  longitude to the nearest `0.001°` (about 111 m north/south; east/west size
+  varies by latitude). Halfway values round toward positive infinity. Nearby
+  points across a cell boundary may remain separate. Missing locations are
+  counted explicitly and never assigned invented coordinates.
+- The favorite destination excludes saved places of type **Home** when another
+  destination exists. The farthest destination uses straight-line distance from
+  the lowest-ID saved Home with valid coordinates; it is not driving distance.
+  No Home is inferred from a place's name or visit frequency.
+- Wrapped includes twelve months, classification totals, longest drive,
+  destinations, charging counts, energy and recorded costs. Missing measurements
+  and estimated drive energy remain visible. Charging totals cover the **whole
+  selected year**, independently of the drive-classification filter, because
+  charging sessions have no classification. Currency totals remain separate;
+  amounts without a known currency are shown separately without conversion.
+- Maps retain the existing Provider Review gate. Counts and reports work with
+  map tiles disabled. **Print / Save as PDF** uses the browser's print dialog,
+  retains the year/filter context and removes application navigation.
 
 ## Demo without a car
 

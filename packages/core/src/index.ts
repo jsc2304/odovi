@@ -15,6 +15,7 @@ export * from "./journeys/kpis.js";
 export * from "./journeys/types.js";
 export * from "./journeys/report.js";
 export * from "./insights/insights.js";
+export * from "./insights/yearly.js";
 export * from "./planner/index.js";
 export * from "./summaries.js";
 export * from "./locationProviders/policy.js";

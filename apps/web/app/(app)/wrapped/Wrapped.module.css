@@ -1,0 +1,132 @@
+.report {
+  width: 100%;
+}
+
+.section {
+  break-inside: avoid;
+}
+
+/* Browser print is user initiated: https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Media_queries/Printing */
+@media print {
+  @page {
+    margin: 14mm;
+  }
+
+  :global(html):has(.report) {
+    background: white !important;
+    color-scheme: light !important;
+  }
+
+  :global(body):has(.report),
+  :global(body):has(.report) :global(div):has(.report),
+  :global(body):has(.report) :global(main),
+  .report {
+    background: white !important;
+    color: #171717 !important;
+  }
+
+  :global(body):has(.report) :global(aside),
+  :global(body):has(.report) :global(header),
+  :global(body):has(.report) :global(nav),
+  :global(body):has(.report) :global(main) > :not(.report),
+  .report [data-yearly-filters],
+  .report [data-wrapped-screen-only],
+  .report [data-wrapped-print],
+  .report [data-testid="map-tiles-disabled"] :global(a),
+  .report :global(.leaflet-control-zoom) {
+    display: none !important;
+  }
+
+  :global(body):has(.report) :global(main) {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+
+  .report {
+    max-width: none !important;
+    color: #171717 !important;
+    font-size: 10pt;
+  }
+
+  .report :global(h1),
+  .report :global(h2),
+  .report :global(h3) {
+    color: #171717 !important;
+    break-after: avoid;
+  }
+
+  .report :global(p),
+  .report :global(dt),
+  .report :global(dd),
+  .report :global(td),
+  .report :global(th),
+  .report :global(a),
+  .report :global(span),
+  .report :global(li) {
+    color: #262626 !important;
+  }
+
+  .report :global(a) {
+    text-decoration: none !important;
+  }
+
+  .report :global(tr),
+  .report :global(li),
+  .report [data-yearly-metric] {
+    break-inside: avoid;
+  }
+
+  .report [data-yearly-card],
+  .report [data-testid="map-tiles-disabled"] {
+    background: white !important;
+    border-color: #d4d4d4 !important;
+    box-shadow: none !important;
+  }
+
+  .report [data-testid="map-tiles-disabled"] {
+    height: auto !important;
+    min-height: 30mm;
+    padding: 10pt !important;
+  }
+
+  .report [data-month-bar] {
+    background: #047857 !important;
+    print-color-adjust: exact;
+  }
+
+  .report [data-yearly-card]:has(> [data-yearly-destinations]),
+  .report [data-yearly-destinations] {
+    break-inside: avoid;
+  }
+
+  .report [data-yearly-destinations] :global(li) {
+    padding-top: 4pt !important;
+    padding-bottom: 4pt !important;
+    line-height: 1.3;
+  }
+
+  .report [data-yearly-destinations] :global(li a) {
+    display: inline !important;
+    min-height: 0 !important;
+  }
+
+  .report [data-yearly-destinations] > :global(h3) {
+    margin-top: 10pt !important;
+  }
+
+  .report [data-yearly-destinations] > :global(div):first-of-type {
+    break-inside: avoid;
+  }
+
+  .report [data-destination-print-map] > :global(svg) {
+    max-height: 70mm;
+    break-inside: avoid;
+    print-color-adjust: exact;
+  }
+
+  .section {
+    margin-top: 12pt !important;
+    padding: 10pt !important;
+  }
+}

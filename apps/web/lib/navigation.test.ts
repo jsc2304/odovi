@@ -6,6 +6,11 @@ import {
 } from "../components/navigation";
 
 describe("navigation registry", () => {
+  it("keeps Insights active for the annual Wrapped view", () => {
+    expect(APP_DESTINATIONS.filter((destination) => destination.match("/wrapped")).map((destination) => destination.id)).toEqual(["insights"]);
+    expect(APP_DESTINATIONS.find((destination) => destination.id === "insights")?.match("/insights")).toBe(true);
+  });
+
   it("keeps the mobile bar at five stable destinations", () => {
     const mobile = [
       ...APP_DESTINATIONS.filter((destination) => destination.mobilePrimary),
