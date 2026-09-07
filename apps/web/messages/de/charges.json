@@ -108,5 +108,89 @@
     "currencyRequired": "Bitte eine Währung angeben, wenn Kosten erfasst werden.",
     "sessionNotFound": "Ladevorgang nicht gefunden.",
     "tagCreateFailed": "Tag konnte nicht angelegt werden."
+  },
+  "analysis": {
+    "entry": "DC-Ladungen vergleichen",
+    "back": "Ladeübersicht",
+    "title": "DC-Ladeanalyse",
+    "subtitle": "Vergleiche deine zuletzt abgeschlossenen Schnellladungen über alle Monate hinweg.",
+    "selectorLabel": "Anzahl der Ladevorgänge",
+    "lastSessions": "Letzte {count}",
+    "selectedCount": "{count, plural, one {# abgeschlossene DC-Ladung} other {# abgeschlossene DC-Ladungen}}",
+    "minutes": "{value} min",
+    "unavailable": "Nicht verfügbar",
+    "unknownLocation": "Unbekannter Ort",
+    "sessionNumber": "Ladevorgang {count}",
+    "completeTimings": "{count, plural, one {# vollständige 10–80-%-Zeit} other {# vollständige 10–80-%-Zeiten}}",
+    "empty": {
+      "title": "Noch keine abgeschlossenen DC-Ladevorgänge.",
+      "hint": "Abgeschlossene Schnellladungen erscheinen nach der Synchronisierung. AC-Ladungen und laufende Ladevorgänge werden nicht berücksichtigt."
+    },
+    "summary": {
+      "timing": "Median der 10–80-%-Zeit",
+      "averagePower": "Median der erfassten Ø-Leistung",
+      "powerCount": "Zeitgewichtet · {count, plural, one {# Ladevorgang} other {# Ladevorgänge}}",
+      "peakPower": "Höchste erfasste Leistung",
+      "peakDetail": "Spitzenwert der ausgewählten Ladevorgänge"
+    },
+    "curves": {
+      "title": "Ladekurven vergleichen",
+      "subtitle": "Leistung bei gleichem Ladestand. Nummern und Linienmuster kennzeichnen die Ladevorgänge.",
+      "chartTitle": "Ladeleistung nach Ladestand",
+      "chartDescription": "Erfasste Ladeleistung in Kilowatt auf der senkrechten Achse und Ladestand von 0 bis 100 Prozent auf der waagerechten Achse. Jede Linie entspricht einem Muster in der nummerierten Legende. Lücken bleiben offen. Die Details darunter enthalten ausgewählte Messwerte als Tabelle.",
+      "socAxis": "Ladestand (%)",
+      "powerAxis": "Leistung (kW)",
+      "noData": "Es gibt nicht genug zusammenhängende Messungen von Leistung und Ladestand für eine Kurve.",
+      "sessionUnavailable": "Keine auswertbare Kurve",
+      "legend": "Ladevorgänge im Diagramm",
+      "availableCount": "{count} von {total} Ladevorgängen haben eine auswertbare Kurve. Lücken bleiben offen; Messwerte findest du in den Details."
+    },
+    "sessions": {
+      "title": "Details der Ladevorgänge",
+      "timing": "10–80-%-Zeit",
+      "averagePower": "Erfasste Ø-Leistung",
+      "peakPower": "Erfasste Spitze",
+      "outsideTemperature": "Ø-Außentemperatur",
+      "noPower": "Nicht genug zusammenhängende Leistungsmessungen für einen erfassten Mittelwert.",
+      "coverage": "Mittelwert aus {minutes} erfassten Minuten ({percent} % der Ladedauer)."
+    },
+    "timingReasons": {
+      "missing-points": "10–80-%-Zeit nicht verfügbar: zu wenige auswertbare Messungen des Ladestands.",
+      "partial-session": "10–80-%-Zeit nicht verfügbar: der erfasste Bereich deckt 10 % und 80 % nicht vollständig ab.",
+      "data-gap": "10–80-%-Zeit nicht verfügbar: fehlende Messungen oder eine Lücke von mehr als zwei Minuten im benötigten Bereich.",
+      "soc-regression": "10–80-%-Zeit nicht verfügbar: der erfasste Ladestand sinkt im benötigten Bereich.",
+      "conflicting-points": "10–80-%-Zeit nicht verfügbar: widersprüchliche Ladestände zum selben Zeitpunkt."
+    },
+    "slow": {
+      "title": "Länger als vergleichbare letzte Ladungen",
+      "comparison": "{minutes} länger ({percent} %) als der Median von {count} anderen vollständigen 10–80-%-Ladungen ({median}).",
+      "temperatureMatched": "Die durchschnittlichen Außentemperaturen dieser Vergleichsladungen liegen höchstens 5 °C von diesem Ladevorgang entfernt.",
+      "temperatureUnused": "Für einen Temperaturabgleich gab es nicht genug Vergleichsladungen bei ähnlicher Außentemperatur.",
+      "qualification": "Dieser Vergleich erklärt keine Ursache. Akkutemperatur, Vorkonditionierung und Grenzen der Ladesäule sind nicht bekannt."
+    },
+    "samples": {
+      "title": "Erfasste Kurvenwerte",
+      "description": "{count} ausgewählte Messpunkte von {total}. Die Werte sind nicht interpoliert; die verstrichene Zeit zählt ab Beginn des Ladevorgangs.",
+      "caption": "Ausgewählte Lademesswerte für {session}",
+      "elapsed": "Verstrichene Zeit"
+    },
+    "locations": {
+      "title": "Standortvergleich",
+      "description": "Standorte nach dem Median ihrer 10–80-%-Zeiten, kürzeste zuerst. Ein Standort benötigt mindestens zwei vollständige Zeiten für einen Rang. Es zählen nur die ausgewählten Ladevorgänge; Bedingungen können abweichen.",
+      "empty": "Keine Standorte verfügbar.",
+      "samples": "{sessions, plural, one {# Ladevorgang} other {# Ladevorgänge}} · {timings, plural, one {# vollständige Zeit} other {# vollständige Zeiten}}",
+      "median": "Median 10–80 %",
+      "unranked": "Ohne Rang · weniger als 2 Zeiten",
+      "unknown": "Ohne Rang · Standort unbekannt"
+    },
+    "method": {
+      "title": "So liest du die Vergleiche",
+      "selection": "Die letzten 5 oder 10 abgeschlossenen DC-Ladevorgänge werden nach Beginn ausgewählt. Vorgänge mit fehlenden Messwerten bleiben in der Auswahl, damit Lücken sichtbar bleiben.",
+      "timing": "Die 10–80-%-Zeit ist die verstrichene Zeit zwischen dem Erreichen von 10 % und 80 %. Die Grenzen nutzen erfasste Zeitpunkte oder lineare Interpolation zwischen benachbarten Messungen mit höchstens zwei Minuten Abstand. Fehlende Bereiche werden nicht hochgerechnet.",
+      "power": "Die erfasste Ø-Leistung gewichtet zusammenhängende Messungen nach ihrer Dauer über den gesamten Ladevorgang. Die Abdeckung zeigt, welcher Anteil der Ladedauer erfasst wurde. Die Spitzenleistung ist der höchste gültige Sitzungs- oder Messwert; sie kann auch ohne Kurve vorliegen.",
+      "median": "Der Median ist der mittlere Wert der verfügbaren Ergebnisse. Ø-Leistungen können unterschiedliche Ladestandsbereiche abdecken; vergleiche deshalb auch die Kurven bei gleichem Ladestand.",
+      "slow": "Ein Hinweis auf eine langsamere Ladung benötigt mindestens drei andere vollständige 10–80-%-Zeiten und eine Dauer von mindestens 25 % und fünf Minuten über deren Median. Ohne Hinweis sind diese Bedingungen nicht erfüllt; das bestätigt keine normale Leistung.",
+      "temperature": "Die Außentemperatur ist nicht die Akkutemperatur. Ein Temperaturabgleich erfolgt nur mit mindestens drei anderen vollständigen Zeiten bei durchschnittlichen Außentemperaturen innerhalb von 5 °C. Er belegt nicht, dass Kälte eine langsamere Ladung verursacht hat."
+    }
   }
 }

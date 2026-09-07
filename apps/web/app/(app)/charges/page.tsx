@@ -102,6 +102,13 @@ export default async function ChargesPage({
       <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
         {t("page.subtitle")}
       </p>
+      <Link
+        href="/charges/analysis"
+        className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-emerald-700 underline-offset-4 hover:underline dark:text-emerald-400"
+      >
+        <Zap aria-hidden size={16} />
+        {t("analysis.entry")}
+      </Link>
 
       <div className="mt-6">
         <ChargeMonthFilters month={month} />

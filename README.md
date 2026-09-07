@@ -27,6 +27,7 @@ Tessie and similar services are good, but they come with subscription costs, ove
 **Trip and charging analytics**
 - **Trip detail** - Route on the map, combined history chart (elevation/SoC/speed), temperatures, max speed/power/recuperation, historical weather at trip time, GPX export
 - **Charging overview** - Charging curve (kW over SoC), AC/DC, cost, location map
+- **DC charging comparison** - Compare the latest 5 or 10 completed fast-charging sessions, recorded curves, observed power, 10–80% times and charging locations
 - **Automatic charging costs** - Store an electricity price per place (for example home at EUR 0.32/kWh) -> sessions without a known price are calculated automatically, while manual and synced costs remain untouched
 - **Journeys** - Vacations/trips as a wrapper around drives and charging stops, with KPI dashboard, map of all stages, an [immersive scroll-controlled 3D recap](docs/journey-recap.md), and export as CSV, PDF, and GPX
 - **Insights** - Personal consumption curve: consumption vs. outside temperature and speed, seasonal patterns, share of short trips
@@ -49,6 +50,34 @@ Tessie and similar services are good, but they come with subscription costs, ove
 - **Data ownership** - Your own PostgreSQL database, source-agnostic schema (`source`/`source_id`), annotations structurally survive every re-sync
 - **Tessie import** - Reconstructs trips/charging sessions from a Tessie raw data export (`import-tessie` CLI), including real energy values from vehicle counters
 - **Honest energy data** - Real counter values where available, otherwise clearly marked estimates; efficiency fallback in settings until TeslaMate has learned the vehicle value
+
+### Compare DC charging sessions
+
+Open **Charging → Compare DC charging** to compare the latest 5 or 10 completed
+DC sessions for the installation's default vehicle. Ongoing and AC sessions are
+excluded. Sessions with missing samples remain visible with an explanation.
+
+- **10–80% time:** calculated between the first observed 10% and 80% crossings,
+  with linear interpolation between adjacent samples. Partial sessions are not
+  extrapolated; missing or conflicting SoC samples, falling SoC within the
+  measured window, or sample gaps over two minutes make the timing unavailable.
+- **Power:** average power is time-weighted over observed intervals across each
+  whole session, with the observed time coverage shown. The summary reports the
+  median of those session averages and the highest recorded peak across the
+  selected sessions. These averages may cover different SoC ranges.
+- **Locations:** saved places are grouped by place ID; otherwise an exact
+  address match ignoring case and repeated whitespace is used. A location needs
+  at least two valid 10–80% timings to enter the ranking. Unlocated sessions are
+  grouped separately and never ranked. Results describe this selected history,
+  not a charger's guaranteed performance.
+- **Slower sessions:** a hint requires at least three other valid 10–80% timings
+  and a duration at least 25% and five minutes above their median. Outside
+  temperature is matched within ±5°C only when three such peers exist. This
+  does not establish a cause: battery temperature, preconditioning, charger
+  limits and other conditions are not controlled.
+
+The comparison reads the existing Odovi archive and requires no new provider,
+vehicle contact, tracking, or database migration.
 
 ## Demo without a car
 

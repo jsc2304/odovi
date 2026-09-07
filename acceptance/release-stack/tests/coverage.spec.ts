@@ -142,3 +142,81 @@ test("viewport permits user zoom", async ({ page }) => {
   expect(viewport).not.toMatch(/user-scalable\s*=\s*no/i);
   expect(viewport).not.toMatch(/maximum-scale\s*=\s*1/i);
 });
+
+test("DC charging analysis requires sign-in", async ({ page }) => {
+  await page.goto("/charges/analysis");
+  await expect(page).toHaveURL(/\/login$/);
+  await expect(page.getByLabel(/Password|Passwort/i).first()).toBeVisible();
+});
+
+for (const copy of [
+  {
+    locale: "en",
+    languageButton: "EN",
+    entry: "Compare DC charging",
+    title: "DC charging analysis",
+    countNavigation: "Number of sessions",
+    five: "Last 5",
+    ten: "Last 10",
+    chart: "Charging power by state of charge",
+    details: "Session details",
+    samples: "Recorded curve values",
+  },
+  {
+    locale: "de",
+    languageButton: "DE",
+    entry: "DC-Ladungen vergleichen",
+    title: "DC-Ladeanalyse",
+    countNavigation: "Anzahl der Ladevorgänge",
+    five: "Letzte 5",
+    ten: "Letzte 10",
+    chart: "Ladeleistung nach Ladestand",
+    details: "Details der Ladevorgänge",
+    samples: "Erfasste Kurvenwerte",
+  },
+]) {
+  test(`DC charging analysis is usable in ${copy.locale} and preserves the selected count`, async ({ page }) => {
+    await page.goto("/login");
+    await page.getByRole("button", { name: copy.languageButton, exact: true }).click();
+    await expect(page.locator("html")).toHaveAttribute("lang", copy.locale);
+    await login(page);
+    await page.goto("/charges");
+    await page.getByRole("link", { name: copy.entry, exact: true }).click();
+
+    await expect(page).toHaveURL(/\/charges\/analysis$/);
+    await expect(page.getByRole("heading", { name: copy.title, level: 1 })).toBeVisible();
+    const countNavigation = page.getByRole("navigation", { name: copy.countNavigation });
+    const five = countNavigation.getByRole("link", { name: copy.five, exact: true });
+    const ten = countNavigation.getByRole("link", { name: copy.ten, exact: true });
+    await expect(five).toHaveAttribute("aria-current", "page");
+    await ten.click();
+    await expect(page).toHaveURL(/\/charges\/analysis\?count=10$/);
+    await expect(ten).toHaveAttribute("aria-current", "page");
+    await expect(five).not.toHaveAttribute("aria-current", "page");
+
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("lang", copy.locale);
+    await expect(ten).toHaveAttribute("aria-current", "page");
+    await expect(page.getByRole("img", { name: copy.chart, exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: copy.details, level: 2 })).toBeVisible();
+    const sessionLink = page.getByRole("heading", { level: 3 }).getByRole("link").first();
+    await expect(sessionLink).toBeVisible();
+    await expect(sessionLink).toHaveAttribute("href", /^\/charges\/\d+$/);
+
+    const curveDetails = page.locator("details").filter({
+      has: page.getByText(copy.samples, { exact: true }),
+    }).first();
+    await curveDetails.getByText(copy.samples, { exact: true }).click();
+    const recordedValues = curveDetails.getByRole("table");
+    await expect(recordedValues).toBeVisible();
+    await expect.poll(() => recordedValues.getByRole("row").count()).toBeGreaterThan(1);
+    await expect.poll(() => page.evaluate(() =>
+      document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    )).toBeLessThanOrEqual(1);
+
+    await five.click();
+    await expect(page).toHaveURL(/\/charges\/analysis\?count=5$/);
+    await expect(five).toHaveAttribute("aria-current", "page");
+    await expect(ten).not.toHaveAttribute("aria-current", "page");
+  });
+}

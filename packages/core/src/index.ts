@@ -7,6 +7,7 @@ export * from "./derive/elevation.js";
 export * from "./derive/tpms.js";
 export * from "./places/match.js";
 export * from "./charging/cost.js";
+export * from "./charging/analysis.js";
 export * from "./rules/rules.js";
 export * from "./tessie/index.js";
 export * from "./reports/index.js";
