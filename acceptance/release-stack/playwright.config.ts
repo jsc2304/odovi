@@ -21,6 +21,9 @@ export default defineConfig({
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
+    ...(process.env.ODOVI_ACCEPTANCE_CHROMIUM_EXECUTABLE
+      ? { launchOptions: { executablePath: process.env.ODOVI_ACCEPTANCE_CHROMIUM_EXECUTABLE } }
+      : {}),
   },
   projects: [
     {

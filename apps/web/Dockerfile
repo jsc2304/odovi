@@ -8,7 +8,7 @@
 # section for details.
 
 ARG NODE_IMAGE=node:22-bookworm-slim
-ARG ODOVI_VERSION=0.2.0
+ARG ODOVI_VERSION=0.3.0
 ARG ODOVI_COMMIT_SHA=dev
 
 # ---- base: corepack/pnpm ----------------------------------------------

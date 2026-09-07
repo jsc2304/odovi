@@ -185,6 +185,13 @@ for (const copy of [
 
     await expect(page).toHaveURL(/\/charges\/analysis$/);
     await expect(page.getByRole("heading", { name: copy.title, level: 1 })).toBeVisible();
+    const sessionDetails = page.getByRole("region", { name: copy.details, exact: true });
+    if (process.env.ODOVI_EXPECT_INSIGHTS_FIXTURE === "1") {
+      await expect(sessionDetails.getByRole("heading", { level: 3 })).toHaveCount(5);
+      for (const heading of await sessionDetails.getByRole("heading", { level: 3 }).all()) {
+        await expect(heading).toContainText(/Acceptance (Home|Lake)/);
+      }
+    }
     const countNavigation = page.getByRole("navigation", { name: copy.countNavigation });
     const five = countNavigation.getByRole("link", { name: copy.five, exact: true });
     const ten = countNavigation.getByRole("link", { name: copy.ten, exact: true });
@@ -197,6 +204,16 @@ for (const copy of [
     await page.reload();
     await expect(page.locator("html")).toHaveAttribute("lang", copy.locale);
     await expect(ten).toHaveAttribute("aria-current", "page");
+    if (process.env.ODOVI_EXPECT_INSIGHTS_FIXTURE === "1") {
+      await expect(sessionDetails.getByRole("heading", { level: 3 })).toHaveCount(10);
+      await expect(sessionDetails.locator("article").first()).toContainText(
+        copy.locale === "de" ? "zu wenige auswertbare Messungen" : "too few usable state-of-charge measurements",
+      );
+      await expect(sessionDetails.getByText(
+        copy.locale === "de" ? "Länger als vergleichbare letzte Ladungen" : "Longer than comparable recent sessions",
+        { exact: true },
+      )).toBeVisible();
+    }
     await expect(page.getByRole("img", { name: copy.chart, exact: true })).toBeVisible();
     await expect(page.getByRole("heading", { name: copy.details, level: 2 })).toBeVisible();
     const sessionLink = page.getByRole("heading", { level: 3 }).getByRole("link").first();
@@ -233,7 +250,7 @@ for (const copy of [
   { locale: "de", button: "DE", entry: "Zielbesuche entdecken", title: "Zielbesuche", year: "Jahr", classification: "Fahrtklassifikation", apply: "Filter anwenden", top: "Meistbesuchte Ziele", wrapped: "Jahres-Wrapped öffnen", print: "Drucken / Als PDF speichern", monthCaption: "Monatliche Fahrstrecke für", chargeScope: "unabhängig vom Filter der Fahrtklassifikation" },
 ]) {
   test(`yearly destinations and Wrapped preserve filters and print context in ${copy.locale}`, async ({ page, browserName }, testInfo) => {
-    const year = process.env.ODOVI_ACCEPTANCE_DAY!.slice(0, 4);
+    const year = process.env.ODOVI_ACCEPTANCE_INSIGHTS_YEAR ?? process.env.ODOVI_ACCEPTANCE_DAY!.slice(0, 4);
     await page.context().addCookies([{
       name: "odovi_theme", value: "dark", url: process.env.ODOVI_ACCEPTANCE_BASE_URL!, sameSite: "Lax",
     }]);
@@ -253,6 +270,14 @@ for (const copy of [
     await apply.click();
     await expect(page).toHaveURL(new RegExp(`/places/heatmap\\?year=${year}&classification=private$`));
     await expect(page.getByRole("heading", { name: copy.top })).toBeVisible();
+    if (process.env.ODOVI_EXPECT_INSIGHTS_FIXTURE === "1") {
+      const destinations = page.locator("[data-yearly-destinations] ol").getByRole("listitem");
+      await expect(destinations).toHaveCount(2);
+      await expect(destinations.nth(0)).toContainText("Acceptance Home");
+      await expect(destinations.nth(0)).toContainText(copy.locale === "de" ? "3 Besuche" : "3 visits");
+      await expect(destinations.nth(1)).toContainText("Acceptance Lake");
+      await expect(destinations.nth(1)).toContainText(copy.locale === "de" ? "1 Besuch" : "1 visit");
+    }
     await expect(page.getByRole("combobox", { name: copy.classification, exact: true })).toHaveValue("private");
     await page.getByRole("link", { name: copy.wrapped, exact: true }).click();
     await expect(page).toHaveURL(new RegExp(`/wrapped\\?year=${year}&classification=private$`));
@@ -263,6 +288,11 @@ for (const copy of [
     await expect(page.getByRole("combobox", { name: copy.classification, exact: true })).toHaveValue("private");
     await expect(page.getByRole("table", { name: `${copy.monthCaption} ${year}`, exact: true }).getByRole("row")).toHaveCount(13);
     await expect(page.locator("[data-wrapped-charge-scope]")).toContainText(copy.chargeScope);
+    if (process.env.ODOVI_EXPECT_INSIGHTS_FIXTURE === "1") {
+      const favorite = page.locator("dt").filter({ hasText: copy.locale === "de" ? /^Lieblingsziel$/ : /^Favorite destination$/ }).locator("..");
+      await expect(favorite.locator("dd").first()).toHaveText("Acceptance Lake");
+      await expect(page.getByRole("table", { name: `${copy.monthCaption} ${year}`, exact: true })).toContainText("100 km");
+    }
     const destinationMap = page.locator("[data-yearly-destinations] .leaflet-container");
     const destinationMarkers = destinationMap.locator('.leaflet-marker-pane [role="img"]');
     const printMap = page.locator("[data-destination-print-map] svg");

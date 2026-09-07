@@ -1,6 +1,6 @@
 # TeslaMate compatibility
 
-Odovi v0.2.0 supports TeslaMate **v4.0.1 through v4.2.0**. The lower and upper
+Odovi v0.3.0 retains support for TeslaMate **v4.0.1 through v4.2.0**. The lower and upper
 boundaries run in CI against schema fixtures generated from the official
 TeslaMate images. Each boundary test first probes the complete source-schema
 contract and then executes every SQL query used by synchronization.

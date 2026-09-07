@@ -6,7 +6,9 @@
 **Self-hosted trip archive and analytics for Tesla.** Pick a date, review every trip of the day, classify it, export it - your movement data stays on your server.
 
 Latest stable release: [Odovi 0.2.0](https://github.com/jsc2304/odovi/releases/tag/v0.2.0).
-[Install](#deployment) · [Upgrade from Tripatlas](docs/rename-to-odovi.md).
+This checkout prepares [Odovi 0.3.0](docs/releases/0.3.0.md), including the new
+DC charging and yearly destination analysis views below.
+[Install](#deployment) · [Upgrade Odovi](docs/upgrade-odovi.md) · [Upgrade from Tripatlas](docs/rename-to-odovi.md).
 
 Odovi reads the database of an existing [TeslaMate](https://github.com/teslamate-org/teslamate) installation in read-only mode and turns it into a searchable trip, parking, and charging archive with a daily timeline, places, tags, auto-classification, and business exports (CSV/PDF/GPX). Self-hosting requires no subscription or cloud service, and Odovi adds no product tracking.
 
@@ -83,7 +85,7 @@ vehicle contact, tracking, or database migration.
 ### Yearly destinations and Wrapped
 
 Open **Places → Explore destination visits** for `/places/heatmap`, or
-**Insights → Open yearly Wrapped** for `/wrapped`. Both views share the year
+**Insights → Your yearly Wrapped** for `/wrapped`. Both views share the year
 and drive-classification filters, destination counts and measurement coverage.
 
 - A completed drive belongs to the year and month in which it **started** in
@@ -308,6 +310,11 @@ for a trip.
 
 ### Update
 
+For an existing Odovi 0.2.0 installation, follow the
+[0.3.0 upgrade procedure](docs/upgrade-odovi.md) once the stable assets are
+published. The update retains the existing database schema, runtime settings
+and provider decisions; keep the project, volume and credentials unchanged.
+
 Existing v0.1.1 installations must follow the
 [Supported Rename Upgrade](docs/rename-to-odovi.md), including a tested backup,
 the existing database/volume identity, mandatory Provider Review and rollback.
@@ -340,7 +347,7 @@ Idempotent (safe to run multiple times), does not collide with TeslaMate data.
 
 - **Requires TeslaMate** as the tracking data source; optional Fleet API access is only used when explicitly sending a planned route
 - **One vehicle** per instance is the current focus
-- **Number formatting** is currently consistently de-DE (decimal comma), including in the English UI
+- **Number formatting** in some older views still uses German conventions; the new DC comparison and yearly views follow the selected language
 - **Charging stops are explicit checkpoints** - automatic charger discovery/optimization is not implemented yet; default routing uses the public OSRM demo server
 - **No tax/legal opinion**: exports are logbook-like with audit log, but acceptance by the tax office depends on the individual case
 
@@ -354,7 +361,7 @@ Idempotent (safe to run multiple times), does not collide with TeslaMate data.
 
 ## License
 
-The current `0.2.x` versions are available under
+Current Odovi versions are available under
 [FSL-1.1-ALv2](LICENSE) © 2026 Jan Schultheiss. This is a Fair Source /
 source-available license: self-hosting, source inspection and modifications for
 non-competing purposes are permitted, while a competing commercial product or

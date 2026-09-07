@@ -1,30 +1,18 @@
-# Odovi — production deployment (Docker Compose).
+# Odovi 0.3.0 immutable self-hosted release stack.
 #
-# Runs the odovi app stack (db, one-shot migration, web, sync worker)
-# against an EXISTING TeslaMate installation's Postgres, reached read-only.
-# See README.md "Deployment" for the full runbook.
-#
-# TeslaMate connectivity — two options for TESLAMATE_DATABASE_URL in .env:
-#   (a) Same Docker host, TeslaMate on a shared Docker network:
-#       set TESLAMATE_DATABASE_URL=postgres://odovi_ro:...@teslamate-db:5432/teslamate
-#       and uncomment the `networks:` stanzas below (external teslamate_default).
-#   (b) TeslaMate reachable over LAN/VPN (e.g. Tailscale) as a plain host:
-#       set TESLAMATE_DATABASE_URL=postgres://odovi_ro:...@teslamate-host.example:5432/teslamate
-#       — no extra network config needed, this is the default assumption below.
+# Supply ODOVI_WEB_DIGEST and ODOVI_WORKER_DIGEST from the accepted Release
+# Candidate record. Each value must be a sha256 digest; tags are intentionally
+# not accepted here. See docs/releases/pipeline.md.
+
+x-odovi-release:
+  version: "0.3.0"
+  candidate-record: "release-candidate.json"
 
 services:
   config-check:
-    build:
-      context: .
-      dockerfile: apps/worker/Dockerfile
-      args:
-        ODOVI_VERSION: ${ODOVI_VERSION:-0.3.0}
-        ODOVI_COMMIT_SHA: ${ODOVI_COMMIT_SHA:-dev}
-    image: odovi-worker:latest
+    image: ghcr.io/jsc2304/odovi-worker@${ODOVI_WORKER_DIGEST:?Set ODOVI_WORKER_DIGEST from the accepted candidate record}
     command: ["node", "../../packages/runtime-config/dist/check.js"]
     restart: "no"
-    # env_file lets the validator diagnose unknown keys as well as validate
-    # the effective values below. ODOVI_ENV_FILE supports acceptance fixtures.
     env_file:
       - ${ODOVI_ENV_FILE:-.env}
     environment:
@@ -65,20 +53,13 @@ services:
     volumes:
       - odovi-db-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U ${ODOVI_DB_USER:-odovi} -d ${ODOVI_DB_NAME:-odovi}"]
+      test: ["CMD-SHELL", "pg_isready -U ${ODOVI_DB_USER:-odovi} -d ${ODOVI_DB_NAME:-odovi}"]
       interval: 5s
       timeout: 5s
       retries: 5
-    # No published port — only reachable from other services on this network.
 
   migrate:
-    build:
-      context: .
-      dockerfile: apps/worker/Dockerfile
-      args:
-        ODOVI_VERSION: ${ODOVI_VERSION:-0.3.0}
-        ODOVI_COMMIT_SHA: ${ODOVI_COMMIT_SHA:-dev}
-    image: odovi-worker:latest
+    image: ghcr.io/jsc2304/odovi-worker@${ODOVI_WORKER_DIGEST:?Set ODOVI_WORKER_DIGEST from the accepted candidate record}
     command: ["node", "dist/migrate.js"]
     restart: "no"
     environment:
@@ -90,13 +71,7 @@ services:
         condition: service_healthy
 
   web:
-    build:
-      context: .
-      dockerfile: apps/web/Dockerfile
-      args:
-        ODOVI_VERSION: ${ODOVI_VERSION:-0.3.0}
-        ODOVI_COMMIT_SHA: ${ODOVI_COMMIT_SHA:-dev}
-    image: odovi-web:latest
+    image: ghcr.io/jsc2304/odovi-web@${ODOVI_WEB_DIGEST:?Set ODOVI_WEB_DIGEST from the accepted candidate record}
     restart: unless-stopped
     ports:
       - "${WEB_PORT:-3000}:3000"
@@ -105,9 +80,6 @@ services:
       APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Zurich}
       ODOVI_SETUP_TOKEN: ${ODOVI_SETUP_TOKEN:-}
       FORCE_SECURE_COOKIES: ${FORCE_SECURE_COOKIES:-false}
-      # Optional, nur für die Verbindungs-Diagnose in Settings (read-only
-      # Testquery). Im Normalbetrieb liest ausschließlich der Worker die
-      # TeslaMate-DB — dieser Wert kann leer bleiben.
       TESLAMATE_DATABASE_URL: ${TESLAMATE_DATABASE_URL:-}
       TESLA_CLIENT_ID: ${TESLA_CLIENT_ID:-}
       TESLA_CLIENT_SECRET: ${TESLA_CLIENT_SECRET:-}
@@ -133,13 +105,7 @@ services:
         condition: service_completed_successfully
 
   worker:
-    build:
-      context: .
-      dockerfile: apps/worker/Dockerfile
-      args:
-        ODOVI_VERSION: ${ODOVI_VERSION:-0.3.0}
-        ODOVI_COMMIT_SHA: ${ODOVI_COMMIT_SHA:-dev}
-    image: odovi-worker:latest
+    image: ghcr.io/jsc2304/odovi-worker@${ODOVI_WORKER_DIGEST:?Set ODOVI_WORKER_DIGEST from the accepted candidate record}
     restart: unless-stopped
     environment:
       DATABASE_URL: postgres://${ODOVI_DB_USER:-odovi}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/${ODOVI_DB_NAME:-odovi}
@@ -149,10 +115,6 @@ services:
       ELEVATION_MAX_POINTS_PER_CYCLE: ${ELEVATION_MAX_POINTS_PER_CYCLE:-}
       ODOVI_LOCATION_PROVIDER_WEATHER_CREDENTIAL: ${ODOVI_LOCATION_PROVIDER_WEATHER_CREDENTIAL:-}
       ODOVI_LOCATION_PROVIDER_ELEVATION_CREDENTIAL: ${ODOVI_LOCATION_PROVIDER_ELEVATION_CREDENTIAL:-}
-      ODOVI_LOCATION_PROVIDER_MAP_TILES_CREDENTIAL: ${ODOVI_LOCATION_PROVIDER_MAP_TILES_CREDENTIAL:-}
-      ODOVI_LOCATION_PROVIDER_ADDRESS_SEARCH_CREDENTIAL: ${ODOVI_LOCATION_PROVIDER_ADDRESS_SEARCH_CREDENTIAL:-}
-      ODOVI_LOCATION_PROVIDER_ROUTING_CREDENTIAL: ${ODOVI_LOCATION_PROVIDER_ROUTING_CREDENTIAL:-}
-      ODOVI_LOCATION_PROVIDER_EXTERNAL_NAVIGATION_CREDENTIAL: ${ODOVI_LOCATION_PROVIDER_EXTERNAL_NAVIGATION_CREDENTIAL:-}
     depends_on:
       config-check:
         condition: service_completed_successfully
@@ -160,24 +122,8 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
-    # No published port — sync loop only, no inbound traffic.
-    # A sync slice may contain bounded provider backfills; allow it to finish
-    # after SIGTERM before Docker escalates to SIGKILL.
     stop_grace_period: 10m
 
 volumes:
   odovi-db-data:
     name: ${ODOVI_DB_VOLUME_NAME:-odovi-db-data}
-
-# Uncomment if TeslaMate runs on this same Docker host and you want to reach
-# it via its Compose network instead of a LAN/Tailscale host address:
-#
-# networks:
-#   default:
-#     name: odovi_default
-#   teslamate:
-#     name: teslamate_default
-#     external: true
-#
-# ...and add `networks: [default, teslamate]` to the `worker` service so it
-# can resolve the TeslaMate db service by its Compose service name.

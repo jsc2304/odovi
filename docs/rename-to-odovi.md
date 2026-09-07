@@ -6,6 +6,12 @@ Do not use `git pull`, `latest` or a moving development branch. **Use the accept
 public v0.2.0 release artifacts before applying this to real data**, not an
 unaccepted candidate or a local development build.
 
+This document preserves the original rename path to 0.2.0. Once that version is
+running and verified, use the [0.2.0 → 0.3.0 procedure](upgrade-odovi.md) for the
+next update. Run the version-specific commands below from the accepted 0.2.0
+source archive; current repository defaults can target a newer release. Do not
+replace the version pins below to combine both steps.
+
 ## Pinned artifacts
 
 v0.1.1 was distributed as source, not published immutable containers:

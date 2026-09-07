@@ -4,7 +4,7 @@
 # Multi-stage, pnpm workspace-aware build. linux/arm64-compatible (Raspberry Pi).
 
 ARG NODE_IMAGE=node:22-bookworm-slim
-ARG ODOVI_VERSION=0.2.0
+ARG ODOVI_VERSION=0.3.0
 ARG ODOVI_COMMIT_SHA=dev
 
 # ---- base: corepack/pnpm ----------------------------------------------

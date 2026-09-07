@@ -6,7 +6,7 @@ compose_file="$repo_root/acceptance/release-stack/docker-compose.yml"
 started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 git_commit="$(git -C "$repo_root" rev-parse HEAD)"
 short_commit="$(git -C "$repo_root" rev-parse --short=12 HEAD)"
-version="${ODOVI_ACCEPTANCE_VERSION:-0.2.0-dev.${short_commit}}"
+version="${ODOVI_ACCEPTANCE_VERSION:-0.3.0-dev.${short_commit}}"
 tag_version="$(printf '%s' "$version" | tr '/+ ' '---' | tr -cd '[:alnum:]_.-')"
 project="${ODOVI_ACCEPTANCE_PROJECT:-odovi-acceptance-${short_commit}-$$}"
 port="${ODOVI_ACCEPTANCE_PORT:-$(node -e 'const n=require("node:net");const s=n.createServer();s.listen(0,"127.0.0.1",()=>{process.stdout.write(String(s.address().port));s.close()})')}"
@@ -212,6 +212,15 @@ export ODOVI_ACCEPTANCE_PHASE="journey"
 run_playwright \
   --project=setup-desktop \
   tests/release-journey.spec.ts
+
+# Exercise the analysis views with completed measurements and destinations,
+# after the setup journey has verified the original synchronized fixture.
+"${compose[@]}" exec -T db psql -X -qAt -v ON_ERROR_STOP=1 \
+  -v fixture_day="$ODOVI_ACCEPTANCE_DAY" -U odovi -d odovi \
+  < "$repo_root/acceptance/release-stack/insights-fixture.sql" \
+  > "$evidence_dir/insights-fixture.json"
+export ODOVI_ACCEPTANCE_INSIGHTS_YEAR="${ODOVI_ACCEPTANCE_DAY%%-*}"
+export ODOVI_EXPECT_INSIGHTS_FIXTURE=1
 
 export ODOVI_ACCEPTANCE_PHASE="coverage"
 run_playwright \

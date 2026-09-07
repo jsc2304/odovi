@@ -1,4 +1,5 @@
 import {
+  ODOVI_VERSION,
   PUBLIC_LOCATION_PROVIDERS,
   type ActiveProviderResolution,
   type DisabledProviderResolution,
@@ -17,7 +18,7 @@ const RESULT_LIMIT = 5;
 // no more than one request per second for the whole application.
 // Source: https://operations.osmfoundation.org/policies/nominatim/
 export const NOMINATIM_USER_AGENT =
-  "Odovi/0.2.0 (+https://github.com/jsc2304/odovi)";
+  `Odovi/${ODOVI_VERSION} (+https://github.com/jsc2304/odovi)`;
 
 export interface AddressSearchInput {
   query: string;
