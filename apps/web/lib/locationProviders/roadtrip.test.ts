@@ -67,7 +67,7 @@ describe("roadtrip location-provider adapters", () => {
   });
 
   it("uses the disclosed public OSRM request shape only after activation", async () => {
-    const controlledFetch = vi.fn(async () =>
+    const controlledFetch = vi.fn<typeof fetch>(async () =>
       Response.json(osrmResponse),
     );
     const policy = new LocationProviderPolicy([
@@ -89,7 +89,7 @@ describe("roadtrip location-provider adapters", () => {
   });
 
   it("uses a custom OSRM-compatible endpoint and runtime-only credential", async () => {
-    const controlledFetch = vi.fn(async () => Response.json(osrmResponse));
+    const controlledFetch = vi.fn<typeof fetch>(async () => Response.json(osrmResponse));
     const policy = new LocationProviderPolicy(
       [customDecision("routing", "http://router.internal:5000")],
       { ODOVI_LOCATION_PROVIDER_ROUTING_CREDENTIAL: "controlled-secret" },
@@ -157,7 +157,7 @@ describe("roadtrip location-provider adapters", () => {
   });
 
   it("uses the independent custom elevation endpoint and credential", async () => {
-    const controlledFetch = vi.fn(async () =>
+    const controlledFetch = vi.fn<typeof fetch>(async () =>
       Response.json({ elevation: [408, 542] }),
     );
     const policy = new LocationProviderPolicy(

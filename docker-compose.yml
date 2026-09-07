@@ -18,7 +18,7 @@ services:
       context: .
       dockerfile: apps/worker/Dockerfile
       args:
-        ODOVI_VERSION: ${ODOVI_VERSION:-0.2.0}
+        ODOVI_VERSION: ${ODOVI_VERSION:-0.3.0}
         ODOVI_COMMIT_SHA: ${ODOVI_COMMIT_SHA:-dev}
     image: odovi-worker:latest
     command: ["node", "../../packages/runtime-config/dist/check.js"]
@@ -76,7 +76,7 @@ services:
       context: .
       dockerfile: apps/worker/Dockerfile
       args:
-        ODOVI_VERSION: ${ODOVI_VERSION:-0.2.0}
+        ODOVI_VERSION: ${ODOVI_VERSION:-0.3.0}
         ODOVI_COMMIT_SHA: ${ODOVI_COMMIT_SHA:-dev}
     image: odovi-worker:latest
     command: ["node", "dist/migrate.js"]
@@ -94,7 +94,7 @@ services:
       context: .
       dockerfile: apps/web/Dockerfile
       args:
-        ODOVI_VERSION: ${ODOVI_VERSION:-0.2.0}
+        ODOVI_VERSION: ${ODOVI_VERSION:-0.3.0}
         ODOVI_COMMIT_SHA: ${ODOVI_COMMIT_SHA:-dev}
     image: odovi-web:latest
     restart: unless-stopped
@@ -137,7 +137,7 @@ services:
       context: .
       dockerfile: apps/worker/Dockerfile
       args:
-        ODOVI_VERSION: ${ODOVI_VERSION:-0.2.0}
+        ODOVI_VERSION: ${ODOVI_VERSION:-0.3.0}
         ODOVI_COMMIT_SHA: ${ODOVI_COMMIT_SHA:-dev}
     image: odovi-worker:latest
     restart: unless-stopped

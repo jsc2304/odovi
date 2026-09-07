@@ -23,6 +23,7 @@ export const MESSAGE_NAMESPACES = [
   "search",
   "reports",
   "insights",
+  "yearly",
   "settings",
   "rules",
   "planner",

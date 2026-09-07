@@ -1,0 +1,129 @@
+# Odovi 0.3.0 immutable self-hosted release stack.
+#
+# Supply ODOVI_WEB_DIGEST and ODOVI_WORKER_DIGEST from the accepted Release
+# Candidate record. Each value must be a sha256 digest; tags are intentionally
+# not accepted here. See docs/releases/pipeline.md.
+
+x-odovi-release:
+  version: "0.3.0"
+  candidate-record: "release-candidate.json"
+
+services:
+  config-check:
+    image: ghcr.io/jsc2304/odovi-worker@${ODOVI_WORKER_DIGEST:?Set ODOVI_WORKER_DIGEST from the accepted candidate record}
+    command: ["node", "../../packages/runtime-config/dist/check.js"]
+    restart: "no"
+    env_file:
+      - ${ODOVI_ENV_FILE:-.env}
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      TESLAMATE_DATABASE_URL: ${TESLAMATE_DATABASE_URL:?Set TESLAMATE_DATABASE_URL in .env}
+      ODOVI_DB_USER: ${ODOVI_DB_USER:-odovi}
+      ODOVI_DB_NAME: ${ODOVI_DB_NAME:-odovi}
+      ODOVI_DB_VOLUME_NAME: ${ODOVI_DB_VOLUME_NAME:-odovi-db-data}
+      WEB_PORT: ${WEB_PORT:-3000}
+      APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Zurich}
+      SYNC_INTERVAL_SECONDS: ${SYNC_INTERVAL_SECONDS:-60}
+      ODOVI_SETUP_TOKEN: ${ODOVI_SETUP_TOKEN:-}
+      FORCE_SECURE_COOKIES: ${FORCE_SECURE_COOKIES:-false}
+      ELEVATION_MAX_POINTS_PER_CYCLE: ${ELEVATION_MAX_POINTS_PER_CYCLE:-}
+      TESLA_CLIENT_ID: ${TESLA_CLIENT_ID:-}
+      TESLA_CLIENT_SECRET: ${TESLA_CLIENT_SECRET:-}
+      TESLA_REDIRECT_URI: ${TESLA_REDIRECT_URI:-}
+      TESLA_PARTNER_DOMAIN: ${TESLA_PARTNER_DOMAIN:-}
+      TESLA_TOKEN_ENCRYPTION_KEY: ${TESLA_TOKEN_ENCRYPTION_KEY:-}
+      TESLA_PUBLIC_KEY_PEM_BASE64: ${TESLA_PUBLIC_KEY_PEM_BASE64:-}
+      TESLA_COMMAND_PROXY_URL: ${TESLA_COMMAND_PROXY_URL:-}
+      TESLA_COMMAND_API_URL: ${TESLA_COMMAND_API_URL:-}
+      TESLA_FLEET_API_BASE_URL: ${TESLA_FLEET_API_BASE_URL:-}
+      ODOVI_LOCATION_PROVIDER_WEATHER_CREDENTIAL: ${ODOVI_LOCATION_PROVIDER_WEATHER_CREDENTIAL:-}
+      ODOVI_LOCATION_PROVIDER_ELEVATION_CREDENTIAL: ${ODOVI_LOCATION_PROVIDER_ELEVATION_CREDENTIAL:-}
+      ODOVI_LOCATION_PROVIDER_MAP_TILES_CREDENTIAL: ${ODOVI_LOCATION_PROVIDER_MAP_TILES_CREDENTIAL:-}
+      ODOVI_LOCATION_PROVIDER_ADDRESS_SEARCH_CREDENTIAL: ${ODOVI_LOCATION_PROVIDER_ADDRESS_SEARCH_CREDENTIAL:-}
+      ODOVI_LOCATION_PROVIDER_ROUTING_CREDENTIAL: ${ODOVI_LOCATION_PROVIDER_ROUTING_CREDENTIAL:-}
+      ODOVI_LOCATION_PROVIDER_EXTERNAL_NAVIGATION_CREDENTIAL: ${ODOVI_LOCATION_PROVIDER_EXTERNAL_NAVIGATION_CREDENTIAL:-}
+
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${ODOVI_DB_USER:-odovi}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${ODOVI_DB_NAME:-odovi}
+    volumes:
+      - odovi-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${ODOVI_DB_USER:-odovi} -d ${ODOVI_DB_NAME:-odovi}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  migrate:
+    image: ghcr.io/jsc2304/odovi-worker@${ODOVI_WORKER_DIGEST:?Set ODOVI_WORKER_DIGEST from the accepted candidate record}
+    command: ["node", "dist/migrate.js"]
+    restart: "no"
+    environment:
+      DATABASE_URL: postgres://${ODOVI_DB_USER:-odovi}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/${ODOVI_DB_NAME:-odovi}
+    depends_on:
+      config-check:
+        condition: service_completed_successfully
+      db:
+        condition: service_healthy
+
+  web:
+    image: ghcr.io/jsc2304/odovi-web@${ODOVI_WEB_DIGEST:?Set ODOVI_WEB_DIGEST from the accepted candidate record}
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    environment:
+      DATABASE_URL: postgres://${ODOVI_DB_USER:-odovi}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/${ODOVI_DB_NAME:-odovi}
+      APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Zurich}
+      ODOVI_SETUP_TOKEN: ${ODOVI_SETUP_TOKEN:-}
+      FORCE_SECURE_COOKIES: ${FORCE_SECURE_COOKIES:-false}
+      TESLAMATE_DATABASE_URL: ${TESLAMATE_DATABASE_URL:-}
+      TESLA_CLIENT_ID: ${TESLA_CLIENT_ID:-}
+      TESLA_CLIENT_SECRET: ${TESLA_CLIENT_SECRET:-}
+      TESLA_REDIRECT_URI: ${TESLA_REDIRECT_URI:-}
+      TESLA_PARTNER_DOMAIN: ${TESLA_PARTNER_DOMAIN:-}
+      TESLA_TOKEN_ENCRYPTION_KEY: ${TESLA_TOKEN_ENCRYPTION_KEY:-}
+      TESLA_PUBLIC_KEY_PEM_BASE64: ${TESLA_PUBLIC_KEY_PEM_BASE64:-}
+      TESLA_COMMAND_PROXY_URL: ${TESLA_COMMAND_PROXY_URL:-}
+      TESLA_COMMAND_API_URL: ${TESLA_COMMAND_API_URL:-}
+      TESLA_FLEET_API_BASE_URL: ${TESLA_FLEET_API_BASE_URL:-}
+      ODOVI_LOCATION_PROVIDER_WEATHER_CREDENTIAL: ${ODOVI_LOCATION_PROVIDER_WEATHER_CREDENTIAL:-}
+      ODOVI_LOCATION_PROVIDER_ELEVATION_CREDENTIAL: ${ODOVI_LOCATION_PROVIDER_ELEVATION_CREDENTIAL:-}
+      ODOVI_LOCATION_PROVIDER_MAP_TILES_CREDENTIAL: ${ODOVI_LOCATION_PROVIDER_MAP_TILES_CREDENTIAL:-}
+      ODOVI_LOCATION_PROVIDER_ADDRESS_SEARCH_CREDENTIAL: ${ODOVI_LOCATION_PROVIDER_ADDRESS_SEARCH_CREDENTIAL:-}
+      ODOVI_LOCATION_PROVIDER_ROUTING_CREDENTIAL: ${ODOVI_LOCATION_PROVIDER_ROUTING_CREDENTIAL:-}
+      ODOVI_LOCATION_PROVIDER_EXTERNAL_NAVIGATION_CREDENTIAL: ${ODOVI_LOCATION_PROVIDER_EXTERNAL_NAVIGATION_CREDENTIAL:-}
+    depends_on:
+      config-check:
+        condition: service_completed_successfully
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  worker:
+    image: ghcr.io/jsc2304/odovi-worker@${ODOVI_WORKER_DIGEST:?Set ODOVI_WORKER_DIGEST from the accepted candidate record}
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://${ODOVI_DB_USER:-odovi}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/${ODOVI_DB_NAME:-odovi}
+      TESLAMATE_DATABASE_URL: ${TESLAMATE_DATABASE_URL:?Set TESLAMATE_DATABASE_URL in .env}
+      APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Zurich}
+      SYNC_INTERVAL_SECONDS: ${SYNC_INTERVAL_SECONDS:-60}
+      ELEVATION_MAX_POINTS_PER_CYCLE: ${ELEVATION_MAX_POINTS_PER_CYCLE:-}
+      ODOVI_LOCATION_PROVIDER_WEATHER_CREDENTIAL: ${ODOVI_LOCATION_PROVIDER_WEATHER_CREDENTIAL:-}
+      ODOVI_LOCATION_PROVIDER_ELEVATION_CREDENTIAL: ${ODOVI_LOCATION_PROVIDER_ELEVATION_CREDENTIAL:-}
+    depends_on:
+      config-check:
+        condition: service_completed_successfully
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    stop_grace_period: 10m
+
+volumes:
+  odovi-db-data:
+    name: ${ODOVI_DB_VOLUME_NAME:-odovi-db-data}

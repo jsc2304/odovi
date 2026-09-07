@@ -1,0 +1,103 @@
+{
+  "unavailable": "Unavailable",
+  "driveCount": "{count, plural, one {# completed drive} other {# completed drives}}",
+  "classifications": {
+    "all": "All classifications",
+    "private": "Private",
+    "business": "Business",
+    "commute": "Commute",
+    "unclassified": "Unclassified"
+  },
+  "filters": {
+    "label": "Yearly insight filters",
+    "year": "Year",
+    "classification": "Drive classification",
+    "apply": "Apply filters"
+  },
+  "heatmap": {
+    "entry": "Explore destination visits",
+    "title": "Destination visits",
+    "subtitle": "See where your completed drives ended, one visit per arrival.",
+    "back": "Places",
+    "toWrapped": "Open yearly Wrapped"
+  },
+  "map": {
+    "label": "Destination visit frequency map",
+    "empty": "No destinations with coordinates for this selection.",
+    "intensity": "Stronger color means more visits within this selection.",
+    "visit": "visit",
+    "visits": "visits"
+  },
+  "destinations": {
+    "title": "Your destinations",
+    "description": "This map counts arrivals at destinations, not the roads you drove along.",
+    "coverage": "{mapped, plural, one {# arrival with coordinates} other {# arrivals with coordinates}} · {grouped, plural, one {# arrival grouped into a destination} other {# arrivals grouped into destinations}} · {missing, plural, one {# arrival without a usable destination} other {# arrivals without a usable destination}}.",
+    "topTitle": "Top visited destinations",
+    "empty": "No destinations for this selection. Choose another year or classification, or wait for completed drives to sync.",
+    "visits": "{count, plural, one {# visit} other {# visits}}",
+    "unknown": "Unnamed destination",
+    "approximate": "Approximate destination ({lat}, {lon})",
+    "home": "Home",
+    "noCoordinates": "No map coordinates",
+    "grouping": "Saved places are grouped by their place ID. Other destinations use a grid that rounds latitude and longitude to 0.001° (about 111 m north–south; east–west size varies by latitude). Nearby points across a grid boundary may be separate destinations. The list shows up to 10 destinations."
+  },
+  "wrapped": {
+    "entry": "Your yearly Wrapped",
+    "title": "Odovi Wrapped {year}",
+    "subtitle": "A year of drives, destinations and charging from your archive.",
+    "back": "Insights",
+    "print": "Print / Save as PDF",
+    "scope": "Driving and destinations: {year} · {classification}",
+    "yearBasis": "Completed records are assigned to the year and month of their start time in {timeZone}.",
+    "emptyDrives": "No completed drives match this year and classification. Charging below still covers the full selected year.",
+    "footer": "This report reflects the records currently available in your Odovi archive and the selected filters. Missing values are shown separately."
+  },
+  "totals": {
+    "distance": "Recorded distance",
+    "drives": "Drives",
+    "duration": "Recorded driving time",
+    "energy": "Recorded driving energy",
+    "coverage": "Values from {known} of {total, plural, one {# drive} other {# drives}}",
+    "completed": "Completed drives in this selection",
+    "hours": "{value} h",
+    "consumption": "Distance-weighted consumption: {value}",
+    "energyQuality": "Energy includes {estimated, plural, one {# drive marked as estimated} other {# drives marked as estimated}}; {missing, plural, one {# drive lacks energy data} other {# drives lack energy data}}. Consumption uses only drives with both energy and a positive distance.",
+    "missingDistance": "{count, plural, one {# distance missing} other {# distances missing}}"
+  },
+  "highlights": {
+    "title": "A few places to remember",
+    "longest": "Longest recorded drive",
+    "openDrive": "View drive · {date}",
+    "favorite": "Favorite destination",
+    "homeExclusion": "Home is excluded when another destination exists.",
+    "farthest": "Farthest destination from Home",
+    "straightLine": "Straight-line distance from {home}, not driving distance.",
+    "noHome": "Add a saved place of type Home with coordinates to enable this comparison."
+  },
+  "split": {
+    "title": "Classification split",
+    "description": "Completed drives and recorded distance within the current filter. Missing distance values are shown separately."
+  },
+  "months": {
+    "title": "Distance by month",
+    "description": "Recorded distance in each month. Empty months remain visible; missing distances are not counted.",
+    "caption": "Monthly driving distance for {year}",
+    "month": "Month"
+  },
+  "charging": {
+    "title": "A year of charging",
+    "scope": "All completed charging sessions in {year}, independent of the drive classification filter.",
+    "sessions": "Charging sessions",
+    "energy": "Recorded energy added",
+    "energyCoverage": "Energy from {known} of {total} sessions",
+    "peak": "Highest recorded DC power",
+    "types": "{ac} AC · {dc} DC · {unknown} unknown",
+    "costs": "Recorded charging costs",
+    "costCoverage": "Costs recorded for {known} of {total} sessions",
+    "noCosts": "No recorded charging costs.",
+    "costSessions": "{count, plural, one {# session} other {# sessions}}",
+    "unknownCurrency": "Currency not recorded",
+    "currencies": "Currencies are kept separate. Amounts with an unknown currency are not added to any named currency; no exchange rates are applied.",
+    "favorite": "Most-used charging location"
+  }
+}

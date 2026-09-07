@@ -36,7 +36,7 @@ describe("custom map tile adapter", () => {
   });
 
   it("forwards the runtime-only credential and preserves browser caching", async () => {
-    const request = vi.fn(async () =>
+    const request = vi.fn<typeof fetch>(async () =>
       new Response(new Uint8Array([1, 2, 3]), {
         headers: {
           "content-type": "image/png",
@@ -54,8 +54,8 @@ describe("custom map tile adapter", () => {
     expect(request).toHaveBeenCalledOnce();
     const [url, init] = request.mock.calls[0]!;
     expect(url).toBe("https://tiles.test/7/65/42.png");
-    expect((init.headers as Headers).get("X-Test-Key")).toBe("secret");
-    expect(init.cache).toBe("force-cache");
+    expect((init!.headers as Headers).get("X-Test-Key")).toBe("secret");
+    expect(init!.cache).toBe("force-cache");
     expect(result.cacheControl).toBe("public, max-age=3600");
     expect(result.contentType).toBe("image/png");
   });

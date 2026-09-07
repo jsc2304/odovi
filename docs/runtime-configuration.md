@@ -6,6 +6,11 @@ self-hosted release. The release interface is `docker-compose.yml` plus a
 before migration, web, or worker startup. Invalid, contradictory, unsafe, and
 unknown release settings stop the dependent services with an actionable error.
 
+Version 0.3.0 retains the 0.2.0 configuration contract. DC comparison and yearly
+insights add no environment variables, database migration or provider
+activation. Preserve the existing `.env` when following the
+[0.2.0 → 0.3.0 upgrade procedure](upgrade-odovi.md).
+
 ## Required release settings
 
 | Setting | Consumer | Contract |
@@ -86,14 +91,16 @@ contradiction is rejected.
 
 ## Startup and shutdown behavior
 
-Run the release stack with:
+From the directory containing the downloaded, immutable release Compose file
+and the configured `.env`, run:
 
 ```bash
-cp .env.example .env
-# Fill the two required values, then inspect the fully resolved model:
-docker compose config
-docker compose up -d --build
+docker compose --project-name odovi --env-file .env config --quiet
+docker compose --project-name odovi --env-file .env up -d
 ```
+
+Use the actual existing project name for an upgrade. Source builds use the root
+Compose file and are separate from the immutable release installation.
 
 Compose starts `config-check` first. Web and worker also validate their own
 effective environments at their process boundaries, so direct container or
@@ -106,8 +113,8 @@ To use a nonstandard environment-file path for Compose validation, point both
 Compose interpolation and `config-check` at the same file:
 
 ```bash
-ODOVI_ENV_FILE=/secure/odovi.env docker compose --env-file /secure/odovi.env config
-ODOVI_ENV_FILE=/secure/odovi.env docker compose --env-file /secure/odovi.env up -d
+ODOVI_ENV_FILE=/secure/odovi.env docker compose --project-name odovi --env-file /secure/odovi.env config --quiet
+ODOVI_ENV_FILE=/secure/odovi.env docker compose --project-name odovi --env-file /secure/odovi.env up -d
 ```
 
 ## Development-only settings

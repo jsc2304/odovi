@@ -6,7 +6,9 @@
 **Self-hosted trip archive and analytics for Tesla.** Pick a date, review every trip of the day, classify it, export it - your movement data stays on your server.
 
 Latest stable release: [Odovi 0.2.0](https://github.com/jsc2304/odovi/releases/tag/v0.2.0).
-[Install](#deployment) · [Upgrade from Tripatlas](docs/rename-to-odovi.md).
+This checkout prepares [Odovi 0.3.0](docs/releases/0.3.0.md), including the new
+DC charging and yearly destination analysis views below.
+[Install](#deployment) · [Upgrade Odovi](docs/upgrade-odovi.md) · [Upgrade from Tripatlas](docs/rename-to-odovi.md).
 
 Odovi reads the database of an existing [TeslaMate](https://github.com/teslamate-org/teslamate) installation in read-only mode and turns it into a searchable trip, parking, and charging archive with a daily timeline, places, tags, auto-classification, and business exports (CSV/PDF/GPX). Self-hosting requires no subscription or cloud service, and Odovi adds no product tracking.
 
@@ -27,9 +29,11 @@ Tessie and similar services are good, but they come with subscription costs, ove
 **Trip and charging analytics**
 - **Trip detail** - Route on the map, combined history chart (elevation/SoC/speed), temperatures, max speed/power/recuperation, historical weather at trip time, GPX export
 - **Charging overview** - Charging curve (kW over SoC), AC/DC, cost, location map
+- **DC charging comparison** - Compare the latest 5 or 10 completed fast-charging sessions, recorded curves, observed power, 10–80% times and charging locations
 - **Automatic charging costs** - Store an electricity price per place (for example home at EUR 0.32/kWh) -> sessions without a known price are calculated automatically, while manual and synced costs remain untouched
 - **Journeys** - Vacations/trips as a wrapper around drives and charging stops, with KPI dashboard, map of all stages, an [immersive scroll-controlled 3D recap](docs/journey-recap.md), and export as CSV, PDF, and GPX
 - **Insights** - Personal consumption curve: consumption vs. outside temperature and speed, seasonal patterns, share of short trips
+- **Yearly destinations and Wrapped** - Visit heatmap and top destinations from completed drives, annual driving and charging summaries, and browser Print/Save as PDF
 - **Parking analytics** - Vampire drain per parking session, parking durations by place
 - **Roadtrip planner** - Ordered checkpoints, versioned journey plans, real routes (OSRM), elevation profile, your personal consumption profile, explicit charge targets, and charge-time estimates from your own DC history
 - **Mobile roadtrip companion** - Store a plan on the phone, follow the next stop and key leg metrics even when reception drops
@@ -49,6 +53,64 @@ Tessie and similar services are good, but they come with subscription costs, ove
 - **Data ownership** - Your own PostgreSQL database, source-agnostic schema (`source`/`source_id`), annotations structurally survive every re-sync
 - **Tessie import** - Reconstructs trips/charging sessions from a Tessie raw data export (`import-tessie` CLI), including real energy values from vehicle counters
 - **Honest energy data** - Real counter values where available, otherwise clearly marked estimates; efficiency fallback in settings until TeslaMate has learned the vehicle value
+
+### Compare DC charging sessions
+
+Open **Charging → Compare DC charging** to compare the latest 5 or 10 completed
+DC sessions for the installation's default vehicle. Ongoing and AC sessions are
+excluded. Sessions with missing samples remain visible with an explanation.
+
+- **10–80% time:** calculated between the first observed 10% and 80% crossings,
+  with linear interpolation between adjacent samples. Partial sessions are not
+  extrapolated; missing or conflicting SoC samples, falling SoC within the
+  measured window, or sample gaps over two minutes make the timing unavailable.
+- **Power:** average power is time-weighted over observed intervals across each
+  whole session, with the observed time coverage shown. The summary reports the
+  median of those session averages and the highest recorded peak across the
+  selected sessions. These averages may cover different SoC ranges.
+- **Locations:** saved places are grouped by place ID; otherwise an exact
+  address match ignoring case and repeated whitespace is used. A location needs
+  at least two valid 10–80% timings to enter the ranking. Unlocated sessions are
+  grouped separately and never ranked. Results describe this selected history,
+  not a charger's guaranteed performance.
+- **Slower sessions:** a hint requires at least three other valid 10–80% timings
+  and a duration at least 25% and five minutes above their median. Outside
+  temperature is matched within ±5°C only when three such peers exist. This
+  does not establish a cause: battery temperature, preconditioning, charger
+  limits and other conditions are not controlled.
+
+The comparison reads the existing Odovi archive and requires no new provider,
+vehicle contact, tracking, or database migration.
+
+### Yearly destinations and Wrapped
+
+Open **Places → Explore destination visits** for `/places/heatmap`, or
+**Insights → Your yearly Wrapped** for `/wrapped`. Both views share the year
+and drive-classification filters, destination counts and measurement coverage.
+
+- A completed drive belongs to the year and month in which it **started** in
+  `APP_TIMEZONE`, including drives that end after New Year's midnight. Open,
+  invalid-duration and future-ending records are excluded.
+- The heatmap counts **drive destinations**, not route points or road density.
+  Saved destinations are grouped by place ID, using that place's coordinates.
+  Unsaved destinations are grouped by independently rounding latitude and
+  longitude to the nearest `0.001°` (about 111 m north/south; east/west size
+  varies by latitude). Halfway values round toward positive infinity. Nearby
+  points across a cell boundary may remain separate. Missing locations are
+  counted explicitly and never assigned invented coordinates.
+- The favorite destination excludes saved places of type **Home** when another
+  destination exists. The farthest destination uses straight-line distance from
+  the lowest-ID saved Home with valid coordinates; it is not driving distance.
+  No Home is inferred from a place's name or visit frequency.
+- Wrapped includes twelve months, classification totals, longest drive,
+  destinations, charging counts, energy and recorded costs. Missing measurements
+  and estimated drive energy remain visible. Charging totals cover the **whole
+  selected year**, independently of the drive-classification filter, because
+  charging sessions have no classification. Currency totals remain separate;
+  amounts without a known currency are shown separately without conversion.
+- Maps retain the existing Provider Review gate. Counts and reports work with
+  map tiles disabled. **Print / Save as PDF** uses the browser's print dialog,
+  retains the year/filter context and removes application navigation.
 
 ## Demo without a car
 
@@ -248,6 +310,11 @@ for a trip.
 
 ### Update
 
+For an existing Odovi 0.2.0 installation, follow the
+[0.3.0 upgrade procedure](docs/upgrade-odovi.md) once the stable assets are
+published. The update retains the existing database schema, runtime settings
+and provider decisions; keep the project, volume and credentials unchanged.
+
 Existing v0.1.1 installations must follow the
 [Supported Rename Upgrade](docs/rename-to-odovi.md), including a tested backup,
 the existing database/volume identity, mandatory Provider Review and rollback.
@@ -280,7 +347,7 @@ Idempotent (safe to run multiple times), does not collide with TeslaMate data.
 
 - **Requires TeslaMate** as the tracking data source; optional Fleet API access is only used when explicitly sending a planned route
 - **One vehicle** per instance is the current focus
-- **Number formatting** is currently consistently de-DE (decimal comma), including in the English UI
+- **Number formatting** in some older views still uses German conventions; the new DC comparison and yearly views follow the selected language
 - **Charging stops are explicit checkpoints** - automatic charger discovery/optimization is not implemented yet; default routing uses the public OSRM demo server
 - **No tax/legal opinion**: exports are logbook-like with audit log, but acceptance by the tax office depends on the individual case
 
@@ -294,7 +361,7 @@ Idempotent (safe to run multiple times), does not collide with TeslaMate data.
 
 ## License
 
-The current `0.2.x` versions are available under
+Current Odovi versions are available under
 [FSL-1.1-ALv2](LICENSE) © 2026 Jan Schultheiss. This is a Fair Source /
 source-available license: self-hosting, source inspection and modifications for
 non-competing purposes are permitted, while a competing commercial product or

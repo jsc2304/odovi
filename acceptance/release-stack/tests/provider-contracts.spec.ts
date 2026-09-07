@@ -25,7 +25,7 @@ async function activate(page: Page, capability: keyof typeof endpoints) {
   await expect(card.getByText(/Decision saved|Entscheidung gespeichert/i)).toBeVisible();
 }
 
-test("activated capabilities use only controlled provider contracts", async ({ context, page }) => {
+test("activated capabilities use only controlled provider contracts", async ({ context, page }, testInfo) => {
   await installBrowserEgressGuard(context);
   const browserRequests: string[] = [];
   context.on("request", (request) => browserRequests.push(request.url()));
@@ -38,6 +38,34 @@ test("activated capabilities use only controlled provider contracts", async ({ c
   await page.goto("/");
   await expect(page.locator("[data-testid=map-provider-attribution]").first()).toContainText("Controlled mapTiles");
   await expect(page.locator("[data-testid=map-tiles-disabled]")).toHaveCount(0);
+
+  if (process.env.ODOVI_EXPECT_INSIGHTS_FIXTURE === "1") {
+    await test.step("yearly destination heatmap and print use the activated tile provider", async () => {
+      const year = process.env.ODOVI_ACCEPTANCE_INSIGHTS_YEAR!;
+      await page.goto(`/wrapped?year=${year}&classification=private`);
+      const map = page.locator("[data-yearly-destinations] .leaflet-container");
+      const snapshot = page.locator("[data-destination-print-map] svg");
+      await expect(map).toBeVisible();
+      await expect(map.locator('.leaflet-marker-pane [role="img"]')).toHaveCount(2);
+      await expect.poll(() => map.locator("img.leaflet-tile:not(.leaflet-tile-loaded)").count()).toBe(0);
+      await expect.poll(() => snapshot.locator("image").count()).toBeGreaterThan(0);
+      const radii = await map.locator(".leaflet-overlay-pane svg circle").evaluateAll((circles) =>
+        circles.map((circle) => Number(circle.getAttribute("r"))).sort((a, b) => a - b));
+      expect(radii).toHaveLength(2);
+      expect(radii[1]).toBeGreaterThan(radii[0]!);
+
+      await page.emulateMedia({ media: "print" });
+      await expect(map).not.toBeVisible();
+      await expect(snapshot).toBeVisible();
+      await expect(snapshot.locator("[data-destination-print-marker]")).toHaveCount(2);
+      await expect(page.getByTestId("map-provider-attribution")).toBeVisible();
+      await expect(page.getByTestId("map-provider-attribution")).toHaveText("Controlled mapTiles");
+      const pdfPath = testInfo.outputPath("wrapped-active-map.pdf");
+      await page.pdf({ path: pdfPath, format: "A4", printBackground: true, preferCSSPageSize: true });
+      await testInfo.attach("wrapped-active-map", { path: pdfPath, contentType: "application/pdf" });
+      await page.emulateMedia({ media: "screen" });
+    });
+  }
 
   await page.goto("/places/new");
   const query = page.locator('input[type="search"]').first();

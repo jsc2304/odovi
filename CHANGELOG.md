@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - Unreleased
+
+### Added
+
+- Compare the latest 5 or 10 completed DC charging sessions, including charging
+  curves, observed average and peak power, 10–80% timings, and location rankings.
+  Missing measurements and slower-session comparisons are explicitly qualified.
+- Explore yearly destination visits with a year and drive-classification filter,
+  top destinations, and the existing map-provider activation controls.
+- View an annual Wrapped with driving totals, classification and monthly
+  distance, longest drive, favorite and farthest destinations, and charging costs
+  kept separate by currency. Print or save the report as a PDF in the browser.
+- English and German copy, keyboard-accessible controls, and mobile layouts for
+  the new analysis views.
+
+### Fixed
+
+- Keep Calendar in the mobile navigation and make Search available in the
+  header; secondary destinations retain an active navigation state.
+- Keep Insights selected when viewing the annual Wrapped.
+
 ## [0.2.0] - 2026-08-27
 
 ### Added

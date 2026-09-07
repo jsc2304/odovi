@@ -40,15 +40,25 @@ keeps an image-build milestone from being mistaken for public-launch readiness.
 Entering a publication phrase authorizes only that workflow run. It does not
 authorize future releases, deployments, or paid distribution.
 
+Native Raspberry Pi runtime checks and the 0.2.0 → 0.3.0 upgrade/restore/rollback
+rehearsal use the same candidate images. Record their results in a reviewed
+`acceptance-summary.json`; do not copy acceptance claims from the 0.2.0 release.
+The source release notes describe the required gates, and the attached records
+establish which checks passed for the published image digests.
+
+After promotion, a documentation-only update can point the README at the stable
+assets and publish the reviewed acceptance summary. It does not change the
+accepted source revision embedded in the images or require rebuilding them.
+
 ## Local consistency and Compose checks
 
 ```bash
-node scripts/check-release-consistency.mjs release/0.2.0/release.json
+node scripts/check-release-consistency.mjs release/0.3.0/release.json
 ODOVI_WEB_DIGEST=sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa \
 ODOVI_WORKER_DIGEST=sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb \
 ODOVI_ENV_FILE="$PWD/tests/runtime-config/required.env" \
 docker compose --env-file tests/runtime-config/required.env \
-  -f release/0.2.0/docker-compose.yml config --quiet
+  -f release/0.3.0/docker-compose.yml config --quiet
 ```
 
 Development and advanced operators can continue building directly from source

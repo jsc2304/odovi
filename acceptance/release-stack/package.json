@@ -1,7 +1,7 @@
 {
   "name": "@odovi/release-acceptance",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.3.0",
   "scripts": {
     "list": "playwright test --config playwright.config.ts --list"
   },

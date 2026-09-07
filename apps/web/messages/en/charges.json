@@ -108,5 +108,89 @@
     "currencyRequired": "Please provide a currency if a cost is recorded.",
     "sessionNotFound": "Charging session not found.",
     "tagCreateFailed": "Failed to create tag."
+  },
+  "analysis": {
+    "entry": "Compare DC charging",
+    "back": "Charging overview",
+    "title": "DC charging analysis",
+    "subtitle": "Compare your most recent completed fast charges, across all months.",
+    "selectorLabel": "Number of sessions",
+    "lastSessions": "Last {count}",
+    "selectedCount": "{count, plural, one {# completed DC session} other {# completed DC sessions}}",
+    "minutes": "{value} min",
+    "unavailable": "Unavailable",
+    "unknownLocation": "Unknown location",
+    "sessionNumber": "Session {count}",
+    "completeTimings": "{count, plural, one {# complete 10–80% timing} other {# complete 10–80% timings}}",
+    "empty": {
+      "title": "No completed DC charging sessions yet.",
+      "hint": "Completed fast charges will appear after sync. AC charges and sessions still in progress are excluded."
+    },
+    "summary": {
+      "timing": "Median 10–80% time",
+      "averagePower": "Median observed average power",
+      "powerCount": "Time-weighted · {count, plural, one {# session} other {# sessions}}",
+      "peakPower": "Highest recorded power",
+      "peakDetail": "Peak across the selected sessions"
+    },
+    "curves": {
+      "title": "Compare charging curves",
+      "subtitle": "Power at the same battery level. Numbers and line patterns identify each session.",
+      "chartTitle": "Charging power by state of charge",
+      "chartDescription": "Recorded charging power in kilowatts on the vertical axis and battery state of charge from 0 to 100 percent on the horizontal axis. Each line matches a pattern in the numbered legend. Gaps remain unconnected. Session details below provide selected recorded values in a table.",
+      "socAxis": "State of charge (%)",
+      "powerAxis": "Power (kW)",
+      "noData": "There are not enough continuous power and state-of-charge measurements to draw a curve.",
+      "sessionUnavailable": "No usable curve",
+      "legend": "Charging sessions in the chart",
+      "availableCount": "{count} of {total} sessions have a usable curve. Gaps are left open; recorded values are available in the session details."
+    },
+    "sessions": {
+      "title": "Session details",
+      "timing": "10–80% time",
+      "averagePower": "Observed average",
+      "peakPower": "Recorded peak",
+      "outsideTemperature": "Avg. outside temperature",
+      "noPower": "Not enough continuous power measurements for an observed average.",
+      "coverage": "Average based on {minutes} observed minutes ({percent}% of the session duration)."
+    },
+    "timingReasons": {
+      "missing-points": "10–80% time unavailable: too few usable state-of-charge measurements.",
+      "partial-session": "10–80% time unavailable: the recorded range does not cover both 10% and 80%.",
+      "data-gap": "10–80% time unavailable: missing measurements or a gap longer than two minutes in the required range.",
+      "soc-regression": "10–80% time unavailable: the recorded state of charge decreases in the required range.",
+      "conflicting-points": "10–80% time unavailable: conflicting state-of-charge readings at the same timestamp."
+    },
+    "slow": {
+      "title": "Longer than comparable recent sessions",
+      "comparison": "{minutes} longer ({percent}%) than the median of {count} other complete 10–80% sessions ({median}).",
+      "temperatureMatched": "These peers have average outside temperatures within 5 °C of this session.",
+      "temperatureUnused": "There were not enough peers at similar outside temperatures to adjust this comparison for temperature.",
+      "qualification": "This comparison does not identify a cause. Battery temperature, preconditioning and charger limits are not known."
+    },
+    "samples": {
+      "title": "Recorded curve values",
+      "description": "{count} selected recorded points out of {total}. Values are not interpolated; elapsed time is measured from session start.",
+      "caption": "Selected charging measurements for {session}",
+      "elapsed": "Elapsed time"
+    },
+    "locations": {
+      "title": "Location ranking",
+      "description": "Fastest median 10–80% time first. A location needs at least two complete timings to be ranked. Only the selected sessions count; conditions may differ.",
+      "empty": "No locations available.",
+      "samples": "{sessions, plural, one {# session} other {# sessions}} · {timings, plural, one {# complete timing} other {# complete timings}}",
+      "median": "Median 10–80%",
+      "unranked": "Not ranked · fewer than 2 timings",
+      "unknown": "Not ranked · location unknown"
+    },
+    "method": {
+      "title": "How to read these comparisons",
+      "selection": "The latest 5 or 10 completed DC sessions are selected by start time. Sessions with missing measurements remain in the selection, so gaps in your history are visible.",
+      "timing": "10–80% time is the elapsed time between reaching 10% and 80%. Thresholds use recorded timestamps or linear interpolation between adjacent readings no more than two minutes apart. Missing ranges are never extrapolated.",
+      "power": "Observed average power weights continuous measurements by elapsed time across the whole session. Coverage shows how much of the session duration was observed. Peak power is the highest valid recorded session peak or measurement; it may exist even without a curve.",
+      "median": "The median is the middle value of the available results. Average-power comparisons can cover different battery ranges; compare the curves at the same state of charge for context.",
+      "slow": "A slower-session hint requires at least three other complete 10–80% timings, and a duration at least 25% and five minutes above their median. No hint means these conditions were not met; it does not establish normal performance.",
+      "temperature": "Outside temperature is not battery temperature. Temperature matching is used only when at least three other complete timings have average outside temperatures within 5 °C. It cannot show whether cold weather caused slower charging."
+    }
   }
 }

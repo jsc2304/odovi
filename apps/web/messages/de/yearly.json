@@ -1,0 +1,103 @@
+{
+  "unavailable": "Nicht verfügbar",
+  "driveCount": "{count, plural, one {# abgeschlossene Fahrt} other {# abgeschlossene Fahrten}}",
+  "classifications": {
+    "all": "Alle Klassifikationen",
+    "private": "Privat",
+    "business": "Geschäftlich",
+    "commute": "Arbeitsweg",
+    "unclassified": "Unklassifiziert"
+  },
+  "filters": {
+    "label": "Filter für Jahresauswertungen",
+    "year": "Jahr",
+    "classification": "Fahrtklassifikation",
+    "apply": "Filter anwenden"
+  },
+  "heatmap": {
+    "entry": "Zielbesuche entdecken",
+    "title": "Zielbesuche",
+    "subtitle": "Sieh, wo deine abgeschlossenen Fahrten endeten – ein Besuch pro Ankunft.",
+    "back": "Orte",
+    "toWrapped": "Jahres-Wrapped öffnen"
+  },
+  "map": {
+    "label": "Karte der Zielbesuche",
+    "empty": "Keine Ziele mit Koordinaten für diese Auswahl.",
+    "intensity": "Kräftigere Farben bedeuten mehr Besuche in dieser Auswahl.",
+    "visit": "Besuch",
+    "visits": "Besuche"
+  },
+  "destinations": {
+    "title": "Deine Ziele",
+    "description": "Diese Karte zählt Ankünfte an Zielen, nicht die befahrenen Straßen.",
+    "coverage": "{mapped, plural, one {# Ankunft mit Koordinaten} other {# Ankünfte mit Koordinaten}} · {grouped, plural, one {# Ankunft zu einem Ziel gruppiert} other {# Ankünfte zu Zielen gruppiert}} · {missing, plural, one {# Ankunft ohne auswertbares Ziel} other {# Ankünfte ohne auswertbares Ziel}}.",
+    "topTitle": "Meistbesuchte Ziele",
+    "empty": "Keine Ziele für diese Auswahl. Wähle ein anderes Jahr oder eine andere Klassifikation oder warte auf die Synchronisierung abgeschlossener Fahrten.",
+    "visits": "{count, plural, one {# Besuch} other {# Besuche}}",
+    "unknown": "Unbenanntes Ziel",
+    "approximate": "Ungefähres Ziel ({lat}, {lon})",
+    "home": "Zuhause",
+    "noCoordinates": "Keine Kartenkoordinaten",
+    "grouping": "Gespeicherte Orte werden anhand ihrer Orts-ID gruppiert. Andere Ziele liegen in einem Raster, das Breiten- und Längengrad auf 0,001° rundet (etwa 111 m in Nord-Süd-Richtung; die Ost-West-Größe hängt vom Breitengrad ab). Nahe Punkte an einer Rastergrenze können getrennte Ziele sein. Die Liste zeigt bis zu 10 Ziele."
+  },
+  "wrapped": {
+    "entry": "Dein Jahres-Wrapped",
+    "title": "Odovi Wrapped {year}",
+    "subtitle": "Ein Jahr voller Fahrten, Ziele und Ladungen aus deinem Archiv.",
+    "back": "Erkenntnisse",
+    "print": "Drucken / Als PDF speichern",
+    "scope": "Fahrten und Ziele: {year} · {classification}",
+    "yearBasis": "Abgeschlossene Einträge zählen zum Jahr und Monat ihres Beginns in {timeZone}.",
+    "emptyDrives": "Keine abgeschlossenen Fahrten passen zu diesem Jahr und dieser Klassifikation. Die Ladungen unten umfassen weiterhin das gesamte gewählte Jahr.",
+    "footer": "Dieser Bericht zeigt die aktuell verfügbaren Einträge in deinem Odovi-Archiv und die gewählten Filter. Fehlende Werte werden gesondert ausgewiesen."
+  },
+  "totals": {
+    "distance": "Erfasste Strecke",
+    "drives": "Fahrten",
+    "duration": "Erfasste Fahrzeit",
+    "energy": "Erfasste Fahrenergie",
+    "coverage": "Werte aus {known} von {total, plural, one {# Fahrt} other {# Fahrten}}",
+    "completed": "Abgeschlossene Fahrten dieser Auswahl",
+    "hours": "{value} h",
+    "consumption": "Streckengewichteter Verbrauch: {value}",
+    "energyQuality": "Die Energie enthält {estimated, plural, one {# als geschätzt markierte Fahrt} other {# als geschätzt markierte Fahrten}}; bei {missing, plural, one {# Fahrt fehlt der Energiewert} other {# Fahrten fehlt der Energiewert}}. Der Verbrauch nutzt nur Fahrten mit Energie und positiver Strecke.",
+    "missingDistance": "{count, plural, one {# Streckenwert fehlt} other {# Streckenwerte fehlen}}"
+  },
+  "highlights": {
+    "title": "Ein paar Ziele in Erinnerung",
+    "longest": "Längste erfasste Fahrt",
+    "openDrive": "Fahrt ansehen · {date}",
+    "favorite": "Lieblingsziel",
+    "homeExclusion": "Zuhause wird ausgeschlossen, sobald es ein anderes Ziel gibt.",
+    "farthest": "Weitestes Ziel von Zuhause",
+    "straightLine": "Luftlinie ab {home}, keine Fahrstrecke.",
+    "noHome": "Lege einen gespeicherten Ort vom Typ Zuhause mit Koordinaten an, um diesen Vergleich zu aktivieren."
+  },
+  "split": {
+    "title": "Klassifikationen",
+    "description": "Abgeschlossene Fahrten und erfasste Strecke im aktuellen Filter. Fehlende Streckenwerte werden gesondert ausgewiesen."
+  },
+  "months": {
+    "title": "Strecke nach Monat",
+    "description": "Erfasste Strecke je Monat. Leere Monate bleiben sichtbar; fehlende Streckenwerte werden nicht mitgezählt.",
+    "caption": "Monatliche Fahrstrecke für {year}",
+    "month": "Monat"
+  },
+  "charging": {
+    "title": "Ein Jahr voller Ladungen",
+    "scope": "Alle abgeschlossenen Ladevorgänge in {year}, unabhängig vom Filter der Fahrtklassifikation.",
+    "sessions": "Ladevorgänge",
+    "energy": "Erfasste geladene Energie",
+    "energyCoverage": "Energie aus {known} von {total} Ladevorgängen",
+    "peak": "Höchste erfasste DC-Leistung",
+    "types": "{ac} AC · {dc} DC · {unknown} unbekannt",
+    "costs": "Erfasste Ladekosten",
+    "costCoverage": "Kosten bei {known} von {total} Ladevorgängen erfasst",
+    "noCosts": "Keine Ladekosten erfasst.",
+    "costSessions": "{count, plural, one {# Ladevorgang} other {# Ladevorgänge}}",
+    "unknownCurrency": "Währung nicht erfasst",
+    "currencies": "Währungen bleiben getrennt. Beträge ohne bekannte Währung werden keiner benannten Währung zugerechnet; es erfolgt keine Umrechnung.",
+    "favorite": "Häufigster Ladestandort"
+  }
+}

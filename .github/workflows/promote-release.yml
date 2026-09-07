@@ -12,7 +12,7 @@ on:
         required: true
         type: string
       authorization:
-        description: Enter PROMOTE 0.2.0 to publish stable tags and a GitHub Release
+        description: Enter PROMOTE 0.3.0 to publish stable tags and a GitHub Release
         required: true
         type: string
 
@@ -20,7 +20,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: promote-stable-0.2.0
+  group: promote-stable-0.3.0
   cancel-in-progress: false
 
 jobs:
@@ -44,7 +44,7 @@ jobs:
           CANDIDATE_RUN_ATTEMPT: ${{ inputs.candidate_run_attempt }}
         run: |
           test "${{ github.ref }}" = "refs/heads/main"
-          test "$AUTHORIZATION" = "PROMOTE 0.2.0"
+          test "$AUTHORIZATION" = "PROMOTE 0.3.0"
           [[ "$CANDIDATE_RUN_ID" =~ ^[1-9][0-9]*$ ]]
           [[ "$CANDIDATE_RUN_ATTEMPT" =~ ^[1-9][0-9]*$ ]]
 
@@ -68,9 +68,9 @@ jobs:
 
       - name: Recheck release consistency and candidate acceptance
         run: |
-          node scripts/check-release-consistency.mjs release/0.2.0/release.json
+          node scripts/check-release-consistency.mjs release/0.3.0/release.json
           node scripts/verify-release-candidate.mjs \
-            release/0.2.0/release.json \
+            release/0.3.0/release.json \
             "${{ runner.temp }}/candidate/release-candidate.json" \
             "${{ github.repository }}"
 
@@ -87,16 +87,16 @@ jobs:
         run: |
           mkdir -p stable-assets
           node scripts/render-release-compose.mjs \
-            release/0.2.0/docker-compose.yml \
+            release/0.3.0/docker-compose.yml \
             "${{ steps.candidate.outputs.web_digest }}" \
             "${{ steps.candidate.outputs.worker_digest }}" \
-            stable-assets/odovi-0.2.0-docker-compose.yml
+            stable-assets/odovi-0.3.0-docker-compose.yml
           cp "${{ runner.temp }}/candidate/release-candidate.json" stable-assets/release-candidate.json
 
       - name: Upload verified stable assets
         uses: actions/upload-artifact@v4
         with:
-          name: stable-assets-0.2.0-${{ github.run_attempt }}
+          name: stable-assets-0.3.0-${{ github.run_attempt }}
           path: stable-assets/
           if-no-files-found: error
           retention-days: 90
@@ -117,7 +117,7 @@ jobs:
       - name: Download verified stable assets
         uses: actions/download-artifact@v4
         with:
-          name: stable-assets-0.2.0-${{ github.run_attempt }}
+          name: stable-assets-0.3.0-${{ github.run_attempt }}
           path: stable-assets
 
       - name: Set up Docker Buildx
@@ -133,19 +133,19 @@ jobs:
       - name: Promote accepted digests without rebuilding
         run: |
           docker buildx imagetools create \
-            --tag ghcr.io/jsc2304/odovi-web:0.2.0 \
+            --tag ghcr.io/jsc2304/odovi-web:0.3.0 \
             "ghcr.io/jsc2304/odovi-web@${{ needs.verify-candidate.outputs.web_digest }}"
           docker buildx imagetools create \
-            --tag ghcr.io/jsc2304/odovi-worker:0.2.0 \
+            --tag ghcr.io/jsc2304/odovi-worker:0.3.0 \
             "ghcr.io/jsc2304/odovi-worker@${{ needs.verify-candidate.outputs.worker_digest }}"
 
       - name: Publish the GitHub Release from the same source revision
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create v0.2.0 \
+          gh release create v0.3.0 \
             --target "${{ needs.verify-candidate.outputs.source_commit }}" \
-            --title "Odovi 0.2.0" \
-            --notes-file docs/releases/0.2.0.md \
-            stable-assets/odovi-0.2.0-docker-compose.yml \
+            --title "Odovi 0.3.0" \
+            --notes-file docs/releases/0.3.0.md \
+            stable-assets/odovi-0.3.0-docker-compose.yml \
             stable-assets/release-candidate.json

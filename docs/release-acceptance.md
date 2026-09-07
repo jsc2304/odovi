@@ -25,19 +25,19 @@ npm exec --prefix acceptance/release-stack -- playwright install chromium
 ```
 
 The default mode builds local source into exact development tags such as
-`odovi-web:0.2.0-dev.<commit>`. To exercise already-published candidate images
+`odovi-web:0.3.0-dev.<commit>`. To exercise already-published candidate images
 without rebuilding them:
 
 ```bash
 ODOVI_ACCEPTANCE_BUILD=0 \
-ODOVI_ACCEPTANCE_VERSION=0.2.0 \
+ODOVI_ACCEPTANCE_VERSION=0.3.0 \
 ODOVI_WEB_IMAGE="ghcr.io/jsc2304/odovi-web@${ODOVI_WEB_DIGEST:?Copy the published candidate digest}" \
 ODOVI_WORKER_IMAGE="ghcr.io/jsc2304/odovi-worker@${ODOVI_WORKER_DIGEST:?Copy the published candidate digest}" \
 ./scripts/release-acceptance.sh
 ```
 
-The candidate registry tag is `0.2.0-rc.2`; its embedded product version is
-`0.2.0` so stable promotion can preserve the exact tested images without a
+The candidate registry tag is `0.3.0-rc.1`; its embedded product version is
+`0.3.0` so stable promotion can preserve the exact tested images without a
 rebuild. Use the publication run's immutable digests for candidate acceptance,
 not a moving tag. This command does not publish or promote anything.
 
@@ -70,7 +70,11 @@ The current baseline performs:
    Location Provider request is blocked;
 9. web and worker restart followed by distinct liveness and readiness probes,
    login, and persisted day data;
-10. healthy, worker-stale, TeslaMate-incompatible, optional-provider-outage,
+10. DC comparison in English and German, five/ten-session selection, accessible
+    recorded values and mobile layout;
+11. yearly destination and Wrapped filters, twelve-month data, separate annual
+    charging scope, and browser print/PDF layout in both languages;
+12. healthy, worker-stale, TeslaMate-incompatible, optional-provider-outage,
     migration-incomplete, protected-app-unavailable, and database-unavailable
     status transitions, including recovery to healthy after every injected
     fault.
