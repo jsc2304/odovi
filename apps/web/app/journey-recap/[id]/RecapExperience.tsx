@@ -267,6 +267,7 @@ export function RecapExperience({ data }: { data: JourneyRecapData }) {
     const target = top + position * unit;
     stopPlayback();
     if (reducedMotion || behavior === "auto") {
+      setChapterIndex(next);
       window.scrollTo({ top: target, behavior: "auto" });
       return;
     }
