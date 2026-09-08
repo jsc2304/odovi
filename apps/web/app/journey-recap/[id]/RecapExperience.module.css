@@ -177,3 +177,29 @@
 .railMeta strong { display: flex; align-items: center; justify-content: center; gap: .4rem; }
 .chapterNav[data-kind="charge"] { --recap-accent: var(--recap-charge); }
 .chapterNav[data-kind="charge"] .railMeta strong { color: var(--recap-charge); }
+
+/* A charging stop is a distinct activity surface, including all its details. */
+.story[data-kind="charge"] {
+  --recap-muted: #695641;
+  --recap-border: #d7bd94;
+  padding: 1.25rem;
+  border: 1px solid var(--recap-border);
+  border-left: 4px solid var(--recap-charge);
+  border-radius: .75rem;
+  background: #f3e4ce;
+}
+.story[data-kind="charge"] .chargeLabel {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+:global(.dark) .story[data-kind="charge"] {
+  --recap-muted: #d0bd9f;
+  --recap-border: #685237;
+  background: #352d22;
+}
+@media (max-width: 759px) {
+  .story[data-kind="charge"] { padding: 1rem; }
+  .story[data-kind="charge"] .metrics { margin-top: 1rem; }
+}

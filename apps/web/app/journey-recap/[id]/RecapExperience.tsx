@@ -476,7 +476,8 @@ export function RecapExperience({ data }: { data: JourneyRecapData }) {
         <div className={styles.compass} aria-hidden><span>N</span><i /></div>
         <div className={styles.scrim} aria-hidden />
         <section className={styles.storyPanel} aria-label={t("chapter", { current: chapterIndex + 1, total: chapters.length })}>
-          <div key={activeChapter.key} className={styles.story}>
+          <div key={activeChapter.key} className={styles.story}
+            data-kind={activeChapter.kind === "item" ? activeChapter.item.kind : activeChapter.kind}>
             {renderChapterContent(activeChapter)}
           </div>
         </section>
