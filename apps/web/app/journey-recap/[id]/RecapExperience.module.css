@@ -5,7 +5,7 @@
   --recap-muted: #67706b;
   --recap-border: #e5e1d8;
   --recap-accent: #176b62;
-  --recap-charge: #90612f;
+  --recap-charge: #85582b;
   position: relative;
   overflow: clip;
   background: var(--recap-paper);
