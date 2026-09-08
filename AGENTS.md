@@ -24,6 +24,11 @@ the automated path/pattern checks; neither checks every possible disclosure.
 
 - Inspect branch and dirty files before editing. Use a `codex/` feature branch
   and preserve unrelated or uncommitted work.
+- Before adding or moving files, read
+  [File placement](CONTRIBUTING.md#file-placement).
+- Create task worktrees outside this checkout, under
+  `../agent-worktrees/odovi/<task>/`. Keep one owner per worktree; preserve
+  existing checkouts used by running processes.
 - Keep public issue reports factual and limited to reproducible product
   behavior. Internal planning belongs in the private workspace.
 - Preserve the read-only TeslaMate boundary and explicit provider activation.
