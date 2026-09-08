@@ -1,69 +1,64 @@
-# Journey recap
+# Journey and day recaps
 
-The journey recap is an authenticated, immersive presentation of an existing
-journey. It is available at `/journey-recap/[id]` and linked from the regular
-journey detail page. The same experience is available for a single calendar day
-at `/day-recap/[date]` when that vehicle has at least two drives on the day; the
-day view exposes the entry point and preserves the selected vehicle.
+The authenticated recap at `/journey-recap/[id]` presents an existing journey.
+The same experience is available at `/day-recap/[date]` when the selected
+vehicle has at least two drives. Each drive and charging stop remains an
+individually reachable chapter between the introduction and summary.
 
-## Interaction model
+## Playback and navigation
 
-- Every intro, drive, charging stop, and finale is a real full-viewport section
-  in the document flow. Scrolling therefore moves content through the viewport
-  instead of only swapping text in a fixed stage.
-- Section heights are deliberately unequal: the intro, charging stops, and the
-  finale get more scroll distance than ordinary drives. The camera eases into a
-  short mid-section hold without changing either endpoint, so forward and
-  reverse scrolling keep the same continuous route handoff.
-- The active chapter is derived from the actual center positions of those DOM
-  sections. Play, chapter dots, and arrow controls scroll to the real section
-  center; they must not estimate targets from a fixed pixel height or an equal
-  percentage of the document.
-- Starting Play between two chapters first snaps to the nearest chapter. Manual
-  wheel, touch, or navigation-key input pauses autoplay.
-- The speed control changes both the delay between chapters and the animated
-  transition duration. Reduced Motion disables autoplay and smooth movement.
-- Dense journeys use one continuous range rail instead of one equally weighted
-  dot per chapter. Charging stops and the final destination remain visible as
-  milestones; previous/next buttons and the range input provide keyboard and
-  direct navigation for every chapter.
+The page has one persistent scene and one visible chapter. Scroll sections are
+weighted by drive distance: short drives take less time and scroll distance,
+while longer legs have more room. Charging stops hold the last reached route
+position. Playback advances continuously using elapsed time; it does not stop
+at every chapter and then jump to the next one.
 
-## Route scene
+Scroll position determines route progress and the active chapter. Adjacent
+segments share bounded interpolation tangents, so forward and backward travel
+preserve position and velocity at their boundaries. The camera applies a
+small time-based damping step rather than restarting at chapter changes.
 
-The background scene is a lightweight Canvas projection, not a separate 3D
-framework. GPS points use `[latitude, longitude]` coordinates normalized across
-the complete journey:
+- Play resumes at the current position. At the finale, it restarts the recap.
+- Wheel, touch and navigation-key input pause automatic playback.
+- Previous/next buttons and the chapter range control reach every item.
+- The speed control adjusts continuous playback speed.
+- Skip to finale shows the complete route and recorded totals.
+- Reduced Motion shows a stationary overview with manual chapter navigation.
 
-- longitude maps to the horizontal east-west axis;
-- increasing latitude maps north and is always projected towards the top of the
-  viewport;
-- camera yaw stays fixed so zoom, tilt, pointer parallax, and camera travel do
-  not rotate the compass orientation;
-- the current route point is the camera focus, the completed route is drawn as
-  a bright trail, and the remaining route stays visible as a subtle guide;
-- chapter transitions interpolate route progress, keep camera direction stable,
-  and use restrained zoom changes rather than reversing or orbiting at seams;
-- route-derived contour islands and a subdued ground plane add spatial depth
-  without replacing the real GPS geometry with generated imagery.
+The introduction, drive text and charging cards use the application's light
+and dark themes. Charging cards are distinguished through a warm surface,
+colored edge, icon and numbered charging-stop label. The active route marker
+and chapter navigation also identify charging.
 
-A small north marker makes the stable orientation explicit. Semantic journey
-content remains HTML above the decorative `aria-hidden` canvas.
+## Recorded route
 
-## Mobile navigation
+The Canvas scene uses actual `[latitude, longitude]` data in timeline order.
+Geographic distance determines movement along the route; GPS sampling density
+does not determine the duration of a leg. Longitude is corrected for latitude,
+and geographic north stays at the top of the scene.
 
-`/journeys` is a first-class item in the mobile bottom navigation. The recap
-uses its own full-screen layout but remains session-protected server-side.
+GPS gaps can move the camera between available tracks but are not painted as
+recorded driving. A drive without GPS holds the last known route position.
+The originally planned route, when present, is drawn separately as a dashed
+line. Neither generated scenery nor decorative contour rings claim to be
+recorded roads or measured terrain.
+
+Geometry is bounded for long journeys while retaining track endpoints. The
+canvas persists across chapter changes and skips repainting when the scene is
+stationary. Semantic chapter content remains HTML; the canvas is decorative
+and hidden from assistive technology.
+
+## Responsive behavior
+
+On narrow screens the route sits above the chapter content. Long content can
+scroll within its panel without horizontal overflow. Touch address-bar-only
+resizes do not rebuild the timeline. A full viewport resize, such as rotating
+a device, can change the selected chapter because scroll sections use viewport
+units.
 
 ## Verification
 
-Run the focused derivation tests and a production build:
-
-```bash
-pnpm --filter @odovi/web test -- --run lib/journeyRecap.test.ts
-pnpm --filter @odovi/web lint
-pnpm --filter @odovi/web build
-```
-
-Browser verification should cover desktop and an iPhone-sized viewport. In
-particular, pause between two chapters, press Play, and verify that the selected
-section is centered exactly before autoplay continues.
+Run the route/timeline tests and the normal web checks. Browser verification
+should cover short and long drives, charging pauses, missing GPS, fast forward
+and backward chapter selection, finale/replay, theme and reduced-motion states.
+Check both a desktop and a narrow viewport.

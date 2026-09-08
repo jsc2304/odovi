@@ -91,20 +91,20 @@ export default async function DriveDetailPage({
     drive.startPlaceName,
     drive.startAddress,
     drive.startLat,
-    drive.startLon,
+    drive.startLon, locale,
   );
   const to = formatPlaceLabel(
     drive.endPlaceName,
     drive.endAddress,
     drive.endLat,
-    drive.endLon,
+    drive.endLon, locale,
   );
 
   const dateStr = toDateParam(drive.startTime);
   const classification = drive.classification as Classification;
 
   const kennzahlen: Array<[string, React.ReactNode]> = [
-    [t("metrics.distance"), drive.distanceKm != null ? formatKm(drive.distanceKm) : "—"],
+    [t("metrics.distance"), drive.distanceKm != null ? formatKm(drive.distanceKm, locale) : "—"],
     [
       t("metrics.duration"),
       drive.durationSeconds != null ? formatDuration(drive.durationSeconds) : "—",
@@ -118,7 +118,7 @@ export default async function DriveDetailPage({
     [
       t("metrics.consumedEnergy"),
       drive.consumedEnergyKwh != null
-        ? `${formatKwh(drive.consumedEnergyKwh)}${drive.energyIsEstimated ? " ~" : ""}`
+        ? `${formatKwh(drive.consumedEnergyKwh, {}, locale)}${drive.energyIsEstimated ? " ~" : ""}`
         : "—",
     ],
     [
@@ -129,7 +129,7 @@ export default async function DriveDetailPage({
     [
       t("metrics.startOdometer"),
       drive.startOdometerKm != null ? (
-        <span className="font-mono">{formatOdometer(drive.startOdometerKm)}</span>
+        <span className="font-mono">{formatOdometer(drive.startOdometerKm, locale)}</span>
       ) : (
         "—"
       ),
@@ -137,7 +137,7 @@ export default async function DriveDetailPage({
     [
       t("metrics.endOdometer"),
       drive.endOdometerKm != null ? (
-        <span className="font-mono">{formatOdometer(drive.endOdometerKm)}</span>
+        <span className="font-mono">{formatOdometer(drive.endOdometerKm, locale)}</span>
       ) : (
         "—"
       ),
@@ -157,10 +157,10 @@ export default async function DriveDetailPage({
 
   // Angereicherte Kennzahlen (M18) — nur zeigen, wenn befüllt (kein „—"-Rauschen).
   if (drive.outsideTempAvg != null) {
-    kennzahlen.push([t("metrics.outsideTempAvg"), formatTemp(drive.outsideTempAvg)]);
+    kennzahlen.push([t("metrics.outsideTempAvg"), formatTemp(drive.outsideTempAvg, locale)]);
   }
   if (drive.insideTempAvg != null) {
-    kennzahlen.push([t("metrics.insideTempAvg"), formatTemp(drive.insideTempAvg)]);
+    kennzahlen.push([t("metrics.insideTempAvg"), formatTemp(drive.insideTempAvg, locale)]);
   }
   if (drive.speedMaxKmh != null) {
     kennzahlen.push([t("metrics.maxSpeed"), formatSpeed(drive.speedMaxKmh)]);
@@ -190,7 +190,7 @@ export default async function DriveDetailPage({
         <div>
           <p className="text-sm text-neutral-500 dark:text-neutral-400">
             {formatLongDate(dateStr, locale)} ·{" "}
-            {formatTimeRange(drive.startTime, drive.endTime, APP_TIMEZONE)}
+            {formatTimeRange(drive.startTime, drive.endTime, APP_TIMEZONE, locale)}
           </p>
           <h1 className="mt-1 text-2xl font-semibold tracking-tight">
             {from} <span className="text-neutral-400">→</span> {to}

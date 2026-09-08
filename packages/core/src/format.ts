@@ -1,14 +1,21 @@
-const kmFormatter = new Intl.NumberFormat("de-DE", {
-  minimumFractionDigits: 1,
-  maximumFractionDigits: 1,
-});
+const numberFormatters = new Map<string, Intl.NumberFormat>();
+
+function numberFormatter(locale: string, digits: number): Intl.NumberFormat {
+  const key = `${locale}:${digits}`;
+  let formatter = numberFormatters.get(key);
+  if (!formatter) {
+    formatter = new Intl.NumberFormat(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits });
+    numberFormatters.set(key, formatter);
+  }
+  return formatter;
+}
 
 /**
- * Formats a distance in kilometers using de-DE conventions with one decimal.
+ * Formats a distance in kilometers using the requested locale (de-DE by default) with one decimal.
  * Example: formatKm(27.3) -> "27,3 km"
  */
-export function formatKm(km: number): string {
-  return `${kmFormatter.format(km)} km`;
+export function formatKm(km: number, locale = "de-DE"): string {
+  return `${numberFormatter(locale, 1).format(km)} km`;
 }
 
 /**
@@ -44,8 +51,7 @@ export function formatTime(date: Date, timeZone: string): string {
 
 /**
  * Formats a start/end instant pair as a "HH:mm – HH:mm" range (24h, de-DE) in
- * the given timezone. If `end` is null the session is still running and the
- * result is "seit HH:mm".
+ * the given timezone. If `end` is null the session is still running; its prefix follows the requested locale.
  * Example: formatTimeRange(start, end, "Europe/Zurich") -> "07:58 – 08:14"
  * Example: formatTimeRange(start, null, "Europe/Zurich") -> "seit 17:36"
  */
@@ -53,18 +59,14 @@ export function formatTimeRange(
   start: Date,
   end: Date | null,
   timeZone: string,
+  locale = "de-DE",
 ): string {
   const startStr = formatTime(start, timeZone);
   if (end === null) {
-    return `seit ${startStr}`;
+    return `${locale.startsWith("en") ? "since" : "seit"} ${startStr}`;
   }
   return `${startStr} – ${formatTime(end, timeZone)}`;
 }
-
-const kwhFormatter = new Intl.NumberFormat("de-DE", {
-  minimumFractionDigits: 1,
-  maximumFractionDigits: 1,
-});
 
 /**
  * Formats an energy amount in kWh (de-DE, one decimal).
@@ -75,9 +77,10 @@ const kwhFormatter = new Intl.NumberFormat("de-DE", {
 export function formatKwh(
   kwh: number,
   opts: { sign?: boolean } = {},
+  locale = "de-DE",
 ): string {
   const prefix = opts.sign && kwh > 0 ? "+" : "";
-  return `${prefix}${kwhFormatter.format(kwh)} kWh`;
+  return `${prefix}${numberFormatter(locale, 1).format(kwh)} kWh`;
 }
 
 /**
@@ -100,12 +103,6 @@ export function formatConsumption(whPerKm: number, estimated = false): string {
   return estimated ? `${base} ~` : base;
 }
 
-const odometerFormatter = new Intl.NumberFormat("de-DE", {
-  minimumFractionDigits: 1,
-  maximumFractionDigits: 1,
-  useGrouping: true,
-});
-
 /**
  * Formats an odometer reading in km at full precision (one decimal, as
  * stored) with de-DE thousands grouping — meant for monospace display where
@@ -113,22 +110,17 @@ const odometerFormatter = new Intl.NumberFormat("de-DE", {
  * `formatKm` used for distances.
  * Example: formatOdometer(48213.7) -> "48.213,7 km"
  */
-export function formatOdometer(km: number): string {
-  return `${odometerFormatter.format(km)} km`;
+export function formatOdometer(km: number, locale = "de-DE"): string {
+  return `${numberFormatter(locale, 1).format(km)} km`;
 }
-
-const tempFormatter = new Intl.NumberFormat("de-DE", {
-  minimumFractionDigits: 1,
-  maximumFractionDigits: 1,
-});
 
 /**
  * Formats a temperature in °C (de-DE, one decimal with comma separator).
  * Example: formatTemp(18.5) -> "18,5 °C"
  * Example: formatTemp(-3) -> "-3,0 °C"
  */
-export function formatTemp(celsius: number): string {
-  return `${tempFormatter.format(celsius)} °C`;
+export function formatTemp(celsius: number, locale = "de-DE"): string {
+  return `${numberFormatter(locale, 1).format(celsius)} °C`;
 }
 
 /**
@@ -151,11 +143,6 @@ export function formatSpeed(kmh: number): string {
   return `${Math.round(kmh)} km/h`;
 }
 
-const coordFormatter = new Intl.NumberFormat("de-DE", {
-  minimumFractionDigits: 4,
-  maximumFractionDigits: 4,
-});
-
 /**
  * Produces a human-readable label for a start/end location, degrading
  * gracefully: a named place wins, else the street address, else rounded
@@ -169,6 +156,7 @@ export function formatPlaceLabel(
   address: string | null | undefined,
   lat: number | null | undefined,
   lon: number | null | undefined,
+  locale = "de-DE",
 ): string {
   if (placeName && placeName.trim() !== "") {
     return placeName;
@@ -177,7 +165,7 @@ export function formatPlaceLabel(
     return address;
   }
   if (typeof lat === "number" && typeof lon === "number") {
-    return `${coordFormatter.format(lat)}, ${coordFormatter.format(lon)}`;
+    return `${numberFormatter(locale, 4).format(lat)}, ${numberFormatter(locale, 4).format(lon)}`;
   }
-  return "Unbekannter Ort";
+  return locale.startsWith("en") ? "Unknown place" : "Unbekannter Ort";
 }

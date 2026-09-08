@@ -96,12 +96,12 @@ export async function StatsRow({
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
       <StatCard icon={CalendarDays} label={t("stats.today")} href="/day">
-        <p className="text-lg font-semibold tabular-nums">{formatKm(today.distanceKm)}</p>
+        <p className="text-lg font-semibold tabular-nums">{formatKm(today.distanceKm, locale)}</p>
         <p className="flex flex-wrap gap-x-1 text-xs text-neutral-500 dark:text-neutral-400">
           <span>{t("stats.driveCount", { count: today.driveCount })}</span>
           {today.energyKwh > 0 && (
             <span>
-              · {formatKwh(today.energyKwh)}{today.anyEstimated ? " ~" : ""}
+              · {formatKwh(today.energyKwh, {}, locale)}{today.anyEstimated ? " ~" : ""}
             </span>
           )}
           {today.avgConsumptionWhKm != null && (
@@ -114,12 +114,12 @@ export async function StatsRow({
       </StatCard>
 
       <StatCard icon={CalendarRange} label={t("stats.thisWeek")} href="/calendar">
-        <p className="text-lg font-semibold tabular-nums">{formatKm(week.distanceKm)}</p>
+        <p className="text-lg font-semibold tabular-nums">{formatKm(week.distanceKm, locale)}</p>
         <p className="flex flex-wrap gap-x-1 text-xs text-neutral-500 dark:text-neutral-400">
           <span>{t("stats.driveCount", { count: week.driveCount })}</span>
           {week.energyKwh > 0 && (
             <span>
-              · {formatKwh(week.energyKwh)}{week.anyEstimated ? " ~" : ""}
+              · {formatKwh(week.energyKwh, {}, locale)}{week.anyEstimated ? " ~" : ""}
             </span>
           )}
           {week.avgConsumptionWhKm != null && (
@@ -141,7 +141,7 @@ export async function StatsRow({
             <div className="flex items-center justify-between gap-2">
               <p className="text-lg font-semibold tabular-nums">
                 {lastCharge.energyAddedKwh != null
-                  ? formatKwh(lastCharge.energyAddedKwh, { sign: true })
+                  ? formatKwh(lastCharge.energyAddedKwh, { sign: true }, locale)
                   : tCommon("state.none")}
               </p>
               {lastCharge.chargerType && (
@@ -153,7 +153,7 @@ export async function StatsRow({
             <p className="truncate text-xs text-neutral-500 dark:text-neutral-400">
               {formatRelativeTime(lastCharge.endTime, locale)}
               {lastCharge.placeName || lastCharge.address
-                ? ` · ${formatPlaceLabel(lastCharge.placeName, lastCharge.address, null, null)}`
+                ? ` · ${formatPlaceLabel(lastCharge.placeName, lastCharge.address, null, null, locale)}`
                 : ""}
             </p>
             <p className="mt-1 flex flex-wrap gap-x-1 text-xs text-neutral-500 dark:text-neutral-400">

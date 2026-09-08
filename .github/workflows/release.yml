@@ -12,7 +12,7 @@ on:
           - dry-run
           - publish-candidate
       authorization:
-        description: For publication only, enter PUBLISH 0.3.0-rc.1
+        description: For publication only, enter PUBLISH 0.4.0-rc.1
         required: false
         type: string
 
@@ -63,10 +63,10 @@ jobs:
           pnpm test:compose-config
           ODOVI_ENV_FILE="$GITHUB_WORKSPACE/tests/runtime-config/required.env" \
             docker compose --env-file tests/runtime-config/required.env \
-              --file release/0.3.0/docker-compose.yml config --quiet
+              --file release/0.4.0/docker-compose.yml config --quiet
           ODOVI_ENV_FILE="$GITHUB_WORKSPACE/tests/runtime-config/optional.env" \
             docker compose --env-file tests/runtime-config/optional.env \
-              --file release/0.3.0/docker-compose.yml config --quiet
+              --file release/0.4.0/docker-compose.yml config --quiet
 
   build-validation:
     needs: [complete-ci, release-gates]
@@ -100,8 +100,8 @@ jobs:
       - name: Read release identity
         id: release
         run: |
-          echo "version=$(node -p 'require("./release/0.3.0/release.json").version')" >> "$GITHUB_OUTPUT"
-          echo "candidate=$(node -p 'require("./release/0.3.0/release.json").candidate')" >> "$GITHUB_OUTPUT"
+          echo "version=$(node -p 'require("./release/0.4.0/release.json").version')" >> "$GITHUB_OUTPUT"
+          echo "candidate=$(node -p 'require("./release/0.4.0/release.json").candidate')" >> "$GITHUB_OUTPUT"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -171,7 +171,7 @@ jobs:
 
       - name: Run source-built release acceptance without publication
         env:
-          ODOVI_ACCEPTANCE_VERSION: 0.3.0
+          ODOVI_ACCEPTANCE_VERSION: 0.4.0
           ODOVI_ACCEPTANCE_RUN_ID: dry-run-${{ github.run_id }}-${{ github.run_attempt }}
           ODOVI_EXPECT_TESLAMATE_COMPAT: "1"
         run: ./scripts/release-acceptance.sh
@@ -210,7 +210,7 @@ jobs:
           AUTHORIZATION: ${{ inputs.authorization }}
         run: |
           test "${{ github.ref }}" = "refs/heads/main"
-          test "$AUTHORIZATION" = "PUBLISH 0.3.0-rc.1"
+          test "$AUTHORIZATION" = "PUBLISH 0.4.0-rc.1"
 
       - name: Check out the gated source revision
         uses: actions/checkout@v4
@@ -218,8 +218,8 @@ jobs:
       - name: Read release identity
         id: release
         run: |
-          echo "version=$(node -p 'require("./release/0.3.0/release.json").version')" >> "$GITHUB_OUTPUT"
-          echo "candidate=$(node -p 'require("./release/0.3.0/release.json").candidate')" >> "$GITHUB_OUTPUT"
+          echo "version=$(node -p 'require("./release/0.4.0/release.json").version')" >> "$GITHUB_OUTPUT"
+          echo "candidate=$(node -p 'require("./release/0.4.0/release.json").candidate')" >> "$GITHUB_OUTPUT"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -313,7 +313,7 @@ jobs:
       - name: Run acceptance against the published candidate digests
         env:
           ODOVI_ACCEPTANCE_BUILD: "0"
-          ODOVI_ACCEPTANCE_VERSION: 0.3.0
+          ODOVI_ACCEPTANCE_VERSION: 0.4.0
           ODOVI_ACCEPTANCE_RUN_ID: candidate-${{ github.run_id }}-${{ github.run_attempt }}
           ODOVI_EXPECT_TESLAMATE_COMPAT: "1"
         run: |
@@ -332,7 +332,7 @@ jobs:
             if test "$image" = web; then digest="$web_digest"; else digest="$worker_digest"; fi
             reference="ghcr.io/jsc2304/odovi-$image@$digest"
             node scripts/verify-release-image.mjs \
-              "$reference" "0.3.0" "${{ github.sha }}" linux/amd64 \
+              "$reference" "0.4.0" "${{ github.sha }}" linux/amd64 \
               "$evidence_dir/exact-$image-amd64.json"
             # The classic image store cannot bind one index digest to two
             # architectures. Acceptance containers have already been removed;
@@ -341,7 +341,7 @@ jobs:
             docker image rm --no-prune "$reference"
             docker pull --platform linux/arm64 "$reference"
             node scripts/verify-release-image.mjs \
-              "$reference" "0.3.0" "${{ github.sha }}" linux/arm64 \
+              "$reference" "0.4.0" "${{ github.sha }}" linux/arm64 \
               "$evidence_dir/exact-$image-arm64.json"
           done
 
@@ -384,7 +384,7 @@ jobs:
           acceptance_manifest="$(find acceptance -name manifest.json -type f -print -quit)"
           test -n "$acceptance_manifest"
           node scripts/create-release-candidate.mjs \
-            release/0.3.0/release.json \
+            release/0.4.0/release.json \
             "${{ github.sha }}" \
             "$web_digest" \
             "$worker_digest" \

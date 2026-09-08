@@ -4,7 +4,7 @@ import { execFileSync } from 'node:child_process';
 const publicDocs = new Set([
   'docs/demo.md', 'docs/journey-recap.md', 'docs/driving-profile.md', 'docs/runtime-configuration.md',
   'docs/teslamate-compatibility.md', 'docs/rename-to-odovi.md',
-  'docs/releases/pipeline.md', 'docs/releases/0.2.0.md', 'docs/releases/0.3.0.md',
+  'docs/releases/pipeline.md', 'docs/releases/0.2.0.md', 'docs/releases/0.3.0.md', 'docs/releases/0.4.0.md',
   'docs/upgrade-odovi.md',
   'docs/release-acceptance.md',
   'docs/adr/0001-require-provider-activation-for-location-data.md',

@@ -195,7 +195,7 @@ export default async function DayPage({
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium text-neutral-700 dark:text-neutral-300">
                 <span>{t("driveCount", { count: driveCount })}</span>
                 <span aria-hidden>·</span>
-                <span className="tabular-nums">{formatKm(totalKm)}</span>
+                <span className="tabular-nums">{formatKm(totalKm, locale)}</span>
                 <span aria-hidden>·</span>
                 <span className="tabular-nums">
                   {formatDuration(totalDriveSeconds)} {t("driveTime")}
@@ -204,7 +204,7 @@ export default async function DayPage({
                   <>
                     <span aria-hidden>·</span>
                     <span className="tabular-nums">
-                      {formatKwh(totalEnergy)}
+                      {formatKwh(totalEnergy, {}, locale)}
                       {anyEstimated ? ` (${t("estimated")})` : ""}
                     </span>
                   </>

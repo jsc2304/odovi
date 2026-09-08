@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Zap } from "lucide-react";
 import {
   formatDuration,
@@ -32,7 +32,7 @@ export async function Timeline({
   now: number;
   parkLossById?: Map<number, ParkLoss>;
 }) {
-  const t = await getTranslations("day");
+  const [t, locale] = await Promise.all([getTranslations("day"), getLocale()]);
   const items: Item[] = [
     ...timeline.parks.map((row) => ({
       kind: "park" as const,
@@ -62,12 +62,13 @@ export async function Timeline({
               tz={tz}
               loss={parkLossById?.get(item.row.id) ?? null}
               t={t}
+              locale={locale}
             />
           );
         }
         if (item.kind === "charge") {
           return (
-            <ChargeEntry key={`c${item.row.id}`} row={item.row} tz={tz} t={t} />
+            <ChargeEntry key={`c${item.row.id}`} row={item.row} tz={tz} t={t} locale={locale} />
           );
         }
         return (
@@ -90,13 +91,15 @@ function ParkEntry({
   tz,
   loss,
   t,
+  locale,
 }: {
   row: ParkRow;
   tz: string;
   loss: ParkLoss | null;
   t: DayT;
+  locale: string;
 }) {
-  const label = formatPlaceLabel(row.placeName, row.address, row.lat, row.lon);
+  const label = formatPlaceLabel(row.placeName, row.address, row.lat, row.lon, locale);
   const dur =
     row.endTime != null
       ? formatDuration((row.endTime.getTime() - row.startTime.getTime()) / 1000)
@@ -110,7 +113,7 @@ function ParkEntry({
   return (
     <li className="flex items-center gap-2 px-1 text-sm text-neutral-500 dark:text-neutral-400">
       <span className="tabular-nums">
-        {formatTimeRange(row.startTime, row.endTime, tz)}
+        {formatTimeRange(row.startTime, row.endTime, tz, locale)}
       </span>
       <span aria-hidden>·</span>
       <span>{t("parkedAt", { place: label })}</span>
@@ -138,11 +141,11 @@ function ParkEntry({
   );
 }
 
-function ChargeEntry({ row, tz, t }: { row: ChargeRow; tz: string; t: DayT }) {
-  const label = formatPlaceLabel(row.placeName, row.address, row.lat, row.lon);
+function ChargeEntry({ row, tz, t, locale }: { row: ChargeRow; tz: string; t: DayT; locale: string }) {
+  const label = formatPlaceLabel(row.placeName, row.address, row.lat, row.lon, locale);
   const parts: string[] = [];
   if (row.energyAddedKwh != null) {
-    parts.push(formatKwh(row.energyAddedKwh, { sign: true }));
+    parts.push(formatKwh(row.energyAddedKwh, { sign: true }, locale));
   }
   if (row.startSoc != null && row.endSoc != null) {
     parts.push(`${formatSoc(row.startSoc)} → ${formatSoc(row.endSoc)}`);
@@ -158,7 +161,7 @@ function ChargeEntry({ row, tz, t }: { row: ChargeRow; tz: string; t: DayT }) {
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-emerald-800 dark:text-emerald-300">
         <Zap aria-hidden size={16} className="shrink-0" />
         <span className="tabular-nums">
-          {formatTimeRange(row.startTime, row.endTime, tz)}
+          {formatTimeRange(row.startTime, row.endTime, tz, locale)}
         </span>
         <span aria-hidden>·</span>
         <span className="font-medium">{t("chargedAt", { place: label })}</span>

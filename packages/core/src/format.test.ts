@@ -182,3 +182,14 @@ describe("formatPlaceLabel", () => {
     expect(formatPlaceLabel(null, null, null, null)).toBe("Unbekannter Ort");
   });
 });
+
+it("formats English UI values without changing the German defaults", () => {
+  expect(formatKm(1234.5, "en")).toBe("1,234.5 km");
+  expect(formatKwh(30.2, { sign: true }, "en")).toBe("+30.2 kWh");
+  expect(formatOdometer(48213.7, "en")).toBe("48,213.7 km");
+  expect(formatTemp(-3.5, "en")).toBe("-3.5 °C");
+  expect(formatTimeRange(new Date("2026-07-02T15:36:00Z"), null, TZ, "en")).toBe("since 17:36");
+  expect(formatPlaceLabel(null, null, 47.3769, 8.5417, "en")).toBe("47.3769, 8.5417");
+  expect(formatPlaceLabel(null, null, null, null, "en")).toBe("Unknown place");
+  expect(formatKm(1234.5)).toBe("1.234,5 km");
+});

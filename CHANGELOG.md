@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - Unreleased
+
+### Added
+- Vehicle driving profiles for future completed drives, with explicit application to unclassified history and guarded undo.
+
+### Changed
+- Paper & Ink application styling, a clearer overview and faster drive classification.
+- Continuous, distance-based journey and day recaps with shorter sections for short trips and distinct charging-stop cards.
+- Locale-aware numeric and ongoing-session formatting on overview, day and drive views.
+
+### Fixed
+- Clearing a manual charging price immediately restores the available place tariff and updates the form.
+- Rapid recap chapter selection retains every keyboard step.
+
 ## [Unreleased]
 
 ## [0.3.0] - 2026-09-07

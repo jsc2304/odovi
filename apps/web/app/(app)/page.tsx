@@ -167,7 +167,7 @@ export default async function DashboardPage() {
 
       <dl className="overview-summary" aria-label={t("stats.today")}>
         <div><Car aria-hidden /><dt className="sr-only">{t("overview.driveCount")}</dt><dd>{t("stats.driveCount", { count: today.driveCount })}</dd></div>
-        <div><Route aria-hidden /><dt className="sr-only">{t("overview.distance")}</dt><dd>{formatKm(today.distanceKm)}</dd></div>
+        <div><Route aria-hidden /><dt className="sr-only">{t("overview.distance")}</dt><dd>{formatKm(today.distanceKm, locale)}</dd></div>
         <div><Clock3 aria-hidden /><dt className="sr-only">{t("overview.duration")}</dt><dd>{today.durationSeconds == null ? "—" : formatDuration(today.durationSeconds)}</dd></div>
       </dl>
 
