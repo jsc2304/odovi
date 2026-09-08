@@ -1,9 +1,11 @@
-# Upgrade Odovi 0.2.0 to 0.3.0
+# Upgrade Odovi 0.3.0 to 0.4.0
 
-Use the stable 0.3.0 Compose asset and the exact accepted image digests attached
-to the [GitHub Release](https://github.com/jsc2304/odovi/releases/tag/v0.3.0).
+Use the stable 0.4.0 Compose asset and the exact accepted image digests attached
+to the [GitHub Release](https://github.com/jsc2304/odovi/releases/tag/v0.4.0).
 The release's acceptance records establish the image and upgrade checks; this
 procedure does not turn an unpublished candidate into an accepted release.
+Installations on 0.2.0 can use the
+[archived 0.2.0 → 0.3.0 procedure](https://github.com/jsc2304/odovi/blob/85621b147a6194d65b02c1c5f9d6e6be7914b49f/docs/upgrade-odovi.md) first.
 Installations still on Tripatlas v0.1.1 must complete the
 [rename upgrade to 0.2.0](rename-to-odovi.md) first.
 
@@ -31,12 +33,12 @@ PROJECT=your-existing-compose-project
 BACKUP_ROOT=/absolute/path/to/private-backups
 TOOLS=/absolute/path/to/accepted-odovi-source/scripts/database-backup.mjs
 OLD_COMPOSE="$INSTALL_DIR/docker-compose.yml"
-NEW_COMPOSE="$INSTALL_DIR/docker-compose-0.3.0.yml"
+NEW_COMPOSE="$INSTALL_DIR/docker-compose-0.4.0.yml"
 old=(docker compose --project-name "$PROJECT" --env-file "$INSTALL_DIR/.env" --file "$OLD_COMPOSE")
 new=(docker compose --project-name "$PROJECT" --env-file "$INSTALL_DIR/.env" --file "$NEW_COMPOSE")
 
 test ! -e "$NEW_COMPOSE" &&
-curl -fL https://github.com/jsc2304/odovi/releases/download/v0.3.0/odovi-0.3.0-docker-compose.yml -o "$NEW_COMPOSE"
+curl -fL https://github.com/jsc2304/odovi/releases/download/v0.4.0/odovi-0.4.0-docker-compose.yml -o "$NEW_COMPOSE"
 ```
 
 If `NEW_COMPOSE` already exists, inspect it instead of overwriting it. Add every
@@ -62,7 +64,7 @@ them outside the repository and public issue reports.
 
 Before touching a real installation, restore a recent checkpoint into a
 different disposable project with its own volume, network and port. Use the
-matching 0.2.0 images, then verify login, representative annotations and exports.
+matching 0.3.0 images, then verify login, representative annotations and exports.
 The backup utility's archive check is not a substitute for a successful restore.
 The [restore procedure](rename-to-odovi.md#5-restore-or-roll-back) describes its
 empty-destination and explicit-identity requirements.
@@ -74,7 +76,7 @@ and resolve the backup failure before continuing.
 ```bash
 mkdir -p "$BACKUP_ROOT"
 chmod 700 "$BACKUP_ROOT"
-CHECKPOINT="$BACKUP_ROOT/odovi-0.2.0-before-0.3.0-$(date -u +%Y%m%dT%H%M%SZ)"
+CHECKPOINT="$BACKUP_ROOT/odovi-0.3.0-before-0.4.0-$(date -u +%Y%m%dT%H%M%SZ)"
 "${old[@]}" stop web worker
 node "$TOOLS" backup --project "$PROJECT" --env-file "$INSTALL_DIR/.env" \
   --file "$OLD_COMPOSE" --directory "$CHECKPOINT"
@@ -92,20 +94,23 @@ dump. Do not delete or replace the running database volume.
 "${new[@]}" up -d --no-deps web worker
 ```
 
-The migration command should find no new migration for a complete 0.2.0
+The migration command should find no new migration for a complete 0.3.0
 installation. Stop and investigate unexpected schema changes instead of
 continuing with a mismatched version. `--no-deps` leaves the database and
 unrelated services running.
 
 Use the configured port for `/api/health` and `/api/ready`. Verify:
 
-- Settings shows **Odovi 0.3.0** and the accepted build commit.
+- Settings shows **Odovi 0.4.0** and the accepted build commit.
 - Existing passwords/sessions, drives, annotations, places, tags, journeys and
   recorded charging costs remain available; representative CSV/GPX exports work.
 - Synchronization resumes without duplicates and preserves annotations.
-- DC charging comparison handles the available measurements; destination visits
-  and Wrapped retain the selected year and classification.
-- Provider decisions are preserved. These analysis views do not require a new
+- The Paper & Ink overview, daily archive and journey/day recap open correctly.
+  Driving profiles retain their saved choice; historical classifications remain
+  unchanged unless the separate backlog action is explicitly used.
+- Clearing a manual charging price uses an available place tariff; when no
+  tariff can be applied, the manual marker is cleared on save.
+- Provider decisions are preserved. The updated archive does not require a new
   provider or TeslaMate write permission.
 
 `degraded` can indicate an optional-provider problem; `not_ready`/503 requires
@@ -118,7 +123,7 @@ If startup or verification fails, stop the new web and worker before taking
 further action. Preserve the current volume and inspect the failure privately.
 
 There is no schema change in this update. If schema identity is unchanged,
-restart the exact previous 0.2.0 web and worker images through the preserved
+restart the exact previous 0.3.0 web and worker images through the preserved
 Compose files, then recheck login, exports and synchronization. Do not substitute
 an arbitrary old tag or rebuild from a moving branch.
 

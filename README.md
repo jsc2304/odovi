@@ -5,8 +5,8 @@
 
 **Self-hosted trip archive and analytics for Tesla.** Pick a date, review every trip of the day, classify it, export it - your movement data stays on your server.
 
-Latest stable release: [Odovi 0.3.0](https://github.com/jsc2304/odovi/releases/tag/v0.3.0).
-[Install](#deployment) · [Release notes](docs/releases/0.3.0.md) · [Upgrade Odovi](docs/upgrade-odovi.md) · [Upgrade from Tripatlas](docs/rename-to-odovi.md).
+Latest stable release: [Odovi 0.4.0](https://github.com/jsc2304/odovi/releases/tag/v0.4.0).
+[Install](#deployment) · [Release notes](docs/releases/0.4.0.md) · [Upgrade Odovi](docs/upgrade-odovi.md) · [Upgrade from Tripatlas](docs/rename-to-odovi.md).
 
 Odovi reads the database of an existing [TeslaMate](https://github.com/teslamate-org/teslamate) installation in read-only mode and turns it into a searchable trip, parking, and charging archive with a daily timeline, places, tags, auto-classification, and business exports (CSV/PDF/GPX). Self-hosting requires no subscription or cloud service, and Odovi adds no product tracking.
 
@@ -147,10 +147,10 @@ Tests: `pnpm test` · typecheck: `pnpm lint` · more: [CONTRIBUTING.md](CONTRIBU
 Docker Compose on a home server/NAS/Raspberry Pi in your LAN or VPN (for example Tailscale), connected to the existing TeslaMate Postgres through a read-only role.
 
 Use the immutable Compose asset attached to the
-[0.3.0 stable release](https://github.com/jsc2304/odovi/releases/tag/v0.3.0).
+[0.4.0 stable release](https://github.com/jsc2304/odovi/releases/tag/v0.4.0).
 It pins the exact tested web and worker images for `linux/amd64` and
 `linux/arm64`; no GitHub login or local application build is needed.
-See the [acceptance summary](release/0.3.0/acceptance-summary.json) for the
+See the [acceptance summary](release/0.4.0/acceptance-summary.json) for the
 automated, native Raspberry Pi and upgrade checks.
 
 Upgrading an installation created before the Odovi rename? Follow
@@ -172,8 +172,8 @@ existing installation or `.env`:
 ```bash
 mkdir odovi &&
 cd odovi &&
-curl -fL https://github.com/jsc2304/odovi/releases/download/v0.3.0/odovi-0.3.0-docker-compose.yml -o docker-compose.yml &&
-curl -fL https://raw.githubusercontent.com/jsc2304/odovi/v0.3.0/.env.example -o .env &&
+curl -fL https://github.com/jsc2304/odovi/releases/download/v0.4.0/odovi-0.4.0-docker-compose.yml -o docker-compose.yml &&
+curl -fL https://raw.githubusercontent.com/jsc2304/odovi/v0.4.0/.env.example -o .env &&
 chmod 600 .env
 ```
 
@@ -309,8 +309,8 @@ for a trip.
 
 ### Update
 
-For an existing Odovi 0.2.0 installation, follow the
-[0.3.0 upgrade procedure](docs/upgrade-odovi.md). The update retains the
+For an existing Odovi 0.3.0 installation, follow the
+[0.4.0 upgrade procedure](docs/upgrade-odovi.md). The update retains the
 existing database schema, runtime settings and provider decisions; keep the
 project, volume and credentials unchanged.
 
