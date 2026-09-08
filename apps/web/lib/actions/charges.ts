@@ -3,7 +3,8 @@ import { revalidatePath } from "next/cache";
 import { and, asc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { getTranslations } from "next-intl/server";
-import { auditLog, chargeSessionTags, chargeSessions, tags } from "@odovi/db";
+import { auditLog, chargeSessionTags, chargeSessions, places, tags } from "@odovi/db";
+import { computeAutoChargeCost } from "@odovi/core";
 import { db } from "../db";
 import { validateSession } from "../auth/session";
 // Free-text-created tags get a color from the shared preset palette, cycled
@@ -32,6 +33,7 @@ function nullableString(value: FormDataEntryValue | null): string | null {
 export interface UpdateChargeAnnotationsResult {
   ok: boolean;
   error?: string;
+  annotations?: { cost: string | null; currency: string | null; notes: string | null };
 }
 
 const ANNOTATION_FIELD_LABELS: Record<string, string> = {
@@ -104,8 +106,12 @@ export async function updateChargeAnnotations(
       currency: chargeSessions.currency,
       notes: chargeSessions.notes,
       costSource: chargeSessions.costSource,
+      energyAddedKwh: chargeSessions.energyAddedKwh,
+      pricePerKwh: places.electricityPricePerKwh,
+      priceCurrency: places.electricityPriceCurrency,
     })
     .from(chargeSessions)
+    .leftJoin(places, eq(chargeSessions.placeId, places.id))
     .where(eq(chargeSessions.id, input.chargeSessionId))
     .limit(1);
   const current = rows[0];
@@ -116,17 +122,32 @@ export async function updateChargeAnnotations(
 
   // cost is stored as numeric -> comes back as string; compare normalized values
   const currentCost = current.cost != null ? String(Number(current.cost).toFixed(2)) : null;
-  const nextCost = input.cost != null ? String(Number(input.cost).toFixed(2)) : null;
-  const nextCostSource = nextCost == null && input.currency == null ? null : "manual";
+  let nextCost = input.cost != null ? Number(input.cost).toFixed(2) : null;
+  let nextCurrency = input.currency;
+  let nextCostSource = current.costSource;
+  if (input.cost == null) {
+    // Empty means release the override, regardless of the currency selector.
+    // Recompute here so saving also repairs previously stuck manual sessions.
+    nextCurrency = null;
+    nextCostSource = null;
+    if (current.energyAddedKwh != null && current.pricePerKwh != null && current.priceCurrency != null) {
+      nextCost = computeAutoChargeCost(current.energyAddedKwh, Number(current.pricePerKwh)).toFixed(2);
+      nextCurrency = current.priceCurrency;
+      nextCostSource = "auto";
+    }
+  } else if (currentCost !== nextCost || current.currency !== nextCurrency) {
+    nextCostSource = "manual";
+  }
+  const annotations = { cost: nextCost, currency: nextCurrency, notes: input.notes };
   if (currentCost !== nextCost) {
     changes.push({ field: "cost", oldValue: currentCost, newValue: nextCost });
-    patch.cost = input.cost;
+    patch.cost = nextCost;
   }
-  if (current.currency !== input.currency) {
-    changes.push({ field: "currency", oldValue: current.currency, newValue: input.currency });
-    patch.currency = input.currency;
+  if (current.currency !== nextCurrency) {
+    changes.push({ field: "currency", oldValue: current.currency, newValue: nextCurrency });
+    patch.currency = nextCurrency;
   }
-  if ((currentCost !== nextCost || current.currency !== input.currency) && current.costSource !== nextCostSource) {
+  if (current.costSource !== nextCostSource) {
     changes.push({ field: "costSource", oldValue: current.costSource, newValue: nextCostSource });
     patch.costSource = nextCostSource;
   }
@@ -135,7 +156,7 @@ export async function updateChargeAnnotations(
     patch.notes = input.notes;
   }
 
-  if (changes.length === 0) return { ok: true };
+  if (changes.length === 0) return { ok: true, annotations };
 
   await db.transaction(async (tx) => {
     await tx
@@ -159,7 +180,7 @@ export async function updateChargeAnnotations(
   revalidatePath("/charges");
   revalidatePath("/day/[date]", "page");
 
-  return { ok: true };
+  return { ok: true, annotations };
 }
 
 /** Comma-joined, sorted tag names for a charge session — used as audit_log old/new value. */
