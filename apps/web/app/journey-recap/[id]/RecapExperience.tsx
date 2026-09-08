@@ -154,7 +154,7 @@ export function RecapExperience({ data }: { data: JourneyRecapData }) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLElement>(null);
   const layoutRef = useRef({ top: 0, unit: 1 });
-  const motion = useRef<RecapMotion>({ route: 0, overview: 1, reduced: false });
+  const motion = useRef<RecapMotion>({ route: 0, overview: 1, reduced: false, charging: false });
   const scrollAnimationRef = useRef<number | null>(null);
   const chapters = useMemo<Chapter[]>(
     () => [
@@ -213,6 +213,7 @@ export function RecapExperience({ data }: { data: JourneyRecapData }) {
       const current = recapPosition(timeline, position);
       const last = timeline.length - 1;
       motion.current.route = reducedMotion ? 1 : current.routeProgress;
+      motion.current.charging = data.items[current.index - 1]?.kind === "charge";
       motion.current.overview = reducedMotion ? 1 : current.index === 0 ?
         1 - current.fraction : current.index === last ? current.fraction : 0;
       setChapterIndex((index) => index === current.index ? index : current.index);
@@ -242,7 +243,7 @@ export function RecapExperience({ data }: { data: JourneyRecapData }) {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", resize);
     };
-  }, [timeline, reducedMotion]);
+  }, [timeline, reducedMotion, data.items]);
 
   useEffect(() => {
     const key = (event: KeyboardEvent) => {
@@ -428,11 +429,9 @@ export function RecapExperience({ data }: { data: JourneyRecapData }) {
 
     return (
       <>
-        <p className={styles.eyebrow}>
-          <BatteryCharging aria-hidden size={15} />
-          {t("chargeChapter")}
-          <span>·</span>
-          {chargeOrdinalByItemIndex[chapter.itemIndex]} / {data.totals.chargeStops}
+        <p className={`${styles.eyebrow} ${styles.chargeLabel}`}>
+          <BatteryCharging aria-hidden size={20} />
+          {t("chargeChapter", { current: chargeOrdinalByItemIndex[chapter.itemIndex], total: data.totals.chargeStops })}
         </p>
         <h2 className={styles.chapterTitle}>
           {item.place ?? t("chargingStop")}
@@ -543,6 +542,7 @@ export function RecapExperience({ data }: { data: JourneyRecapData }) {
 
       <nav
         className={styles.chapterNav}
+        data-kind={activeChapter.kind === "item" ? activeChapter.item.kind : activeChapter.kind}
         aria-label={data.presentation?.chaptersLabel ?? t("chaptersLabel")}
       >
         <button
@@ -558,12 +558,13 @@ export function RecapExperience({ data }: { data: JourneyRecapData }) {
           <div className={styles.railMeta} aria-hidden>
             <span>{String(chapterIndex + 1).padStart(2, "0")}</span>
             <strong>
+              {activeChapter.kind === "item" && activeChapter.item.kind === "charge" && <BatteryCharging aria-hidden size={14} />}
               {activeChapter.kind === "intro"
                 ? t("start")
                 : activeChapter.kind === "finale"
                   ? t("finish")
                   : activeChapter.item.kind === "charge"
-                    ? t("chargeShort")
+                    ? t("chargeChapter", { current: chargeOrdinalByItemIndex[activeChapter.itemIndex], total: data.totals.chargeStops })
                     : t("legShort", {
                         number: driveOrdinalByItemIndex[activeChapter.itemIndex],
                       })}

@@ -8,6 +8,7 @@ export interface RecapMotion {
   route: number;
   overview: number;
   reduced: boolean;
+  charging: boolean;
 }
 
 type RouteData = ReturnType<typeof buildRecapRoute>;
@@ -65,10 +66,12 @@ export function SceneCanvas({ route, plannedRoute, motion }: {
     let progress = motion.current.route, overview = motion.current.overview;
     let focus = atDistance(scene.actual, progress * scene.length);
     let dirty = true;
-    let palette = { ink: "", accent: "", muted: "", paper: "" };
+    let charging = motion.current.charging;
+    let palette = { ink: "", accent: "", muted: "", paper: "", charge: "" };
     const readPalette = () => {
       const css = getComputedStyle(canvas);
       palette = {
+        charge: css.getPropertyValue("--recap-charge").trim(),
         ink: css.getPropertyValue("--recap-ink").trim(),
         accent: css.getPropertyValue("--recap-accent").trim(),
         muted: css.getPropertyValue("--recap-muted").trim(),
@@ -142,11 +145,22 @@ export function SceneCanvas({ route, plannedRoute, motion }: {
       if (scene.actual.length && overview < 0.98) {
         const p = project(atDistance(scene.actual, progress * scene.length));
         context.globalAlpha = 0.13 * (1 - overview);
-        context.beginPath(); context.arc(p.x, p.y, 17, 0, Math.PI * 2);
-        context.fillStyle = palette.accent; context.fill();
+        context.beginPath(); context.arc(p.x, p.y, charging ? 26 : 17, 0, Math.PI * 2);
+        context.fillStyle = charging ? palette.charge : palette.accent; context.fill();
         context.globalAlpha = 1 - overview;
-        context.beginPath(); context.arc(p.x, p.y, 6, 0, Math.PI * 2); context.fill();
+        context.beginPath(); context.arc(p.x, p.y, charging ? 15 : 6, 0, Math.PI * 2); context.fill();
         context.lineWidth = 2; context.strokeStyle = palette.paper; context.stroke();
+        if (charging) {
+          context.beginPath();
+          context.moveTo(p.x + 2, p.y - 9);
+          context.lineTo(p.x - 6, p.y + 1);
+          context.lineTo(p.x, p.y + 1);
+          context.lineTo(p.x - 2, p.y + 9);
+          context.lineTo(p.x + 6, p.y - 1);
+          context.lineTo(p.x, p.y - 1);
+          context.closePath();
+          context.fillStyle = palette.paper; context.fill();
+        }
       }
       context.globalAlpha = 1;
     };
@@ -158,7 +172,8 @@ export function SceneCanvas({ route, plannedRoute, motion }: {
       const nextFocus = atDistance(scene.actual, target * scene.length);
       const moving = Math.abs(target - progress) > 0.000001 || Math.abs(targetOverview - overview) > 0.0001 ||
         Math.abs(nextFocus.x - focus.x) + Math.abs(nextFocus.z - focus.z) > 0.00001;
-      if (dirty || moving) {
+      if (dirty || moving || charging !== motion.current.charging) {
+        charging = motion.current.charging;
         progress += (target - progress) * damping;
         overview += (targetOverview - overview) * damping;
         focus = { x: focus.x + (nextFocus.x - focus.x) * damping, z: focus.z + (nextFocus.z - focus.z) * damping };

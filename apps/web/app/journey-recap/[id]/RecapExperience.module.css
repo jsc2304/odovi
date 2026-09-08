@@ -162,3 +162,18 @@
   .scrim { background: color-mix(in srgb, var(--recap-paper) 92%, transparent); }
 }
 @media (prefers-reduced-motion: reduce) { .story { animation: none; } }
+
+/* Charging is identified by text, icon and color together. */
+.chargeLabel {
+  width: fit-content;
+  gap: .6rem;
+  padding: .5rem .75rem;
+  border: 1px solid color-mix(in srgb, var(--recap-charge) 30%, transparent);
+  border-radius: .5rem;
+  background: color-mix(in srgb, var(--recap-charge) 10%, var(--recap-paper));
+  color: var(--recap-charge);
+}
+.chargeLabel svg { flex-shrink: 0; }
+.railMeta strong { display: flex; align-items: center; justify-content: center; gap: .4rem; }
+.chapterNav[data-kind="charge"] { --recap-accent: var(--recap-charge); }
+.chapterNav[data-kind="charge"] .railMeta strong { color: var(--recap-charge); }
