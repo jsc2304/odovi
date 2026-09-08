@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   formatConsumption,
   formatDuration,
@@ -25,22 +25,23 @@ function isActive(start: Date, end: Date | null, now: number): boolean {
 /** Inner card content (time, route, metrics, tags) — shared by both modes. */
 function DriveBody({ row, tz }: { row: DriveRow; tz: string }) {
   const t = useTranslations("day");
+  const locale = useLocale();
   const from = formatPlaceLabel(
     row.startPlaceName,
     row.startAddress,
     row.startLat,
-    row.startLon,
+    row.startLon, locale,
   );
   const to = formatPlaceLabel(
     row.endPlaceName,
     row.endAddress,
     row.endLat,
-    row.endLon,
+    row.endLon, locale,
   );
   const inProgress = row.endTime === null;
 
   const meta: Array<{ text: string; title?: string }> = [];
-  if (row.distanceKm != null) meta.push({ text: formatKm(row.distanceKm) });
+  if (row.distanceKm != null) meta.push({ text: formatKm(row.distanceKm, locale) });
   if (row.durationSeconds != null)
     meta.push({ text: formatDuration(row.durationSeconds) });
   if (row.avgConsumptionWhKm != null) {
@@ -55,7 +56,7 @@ function DriveBody({ row, tz }: { row: DriveRow; tz: string }) {
       <span className="tabular-nums text-sm text-neutral-500 dark:text-neutral-400">
         {inProgress
           ? t("sinceTime", { time: formatTime(row.startTime, tz) })
-          : formatTimeRange(row.startTime, row.endTime, tz)}
+          : formatTimeRange(row.startTime, row.endTime, tz, locale)}
       </span>
 
       <p className="mt-1.5 text-base font-medium">

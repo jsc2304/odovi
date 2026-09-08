@@ -52,7 +52,7 @@
     "legShort": "Leg {number}",
     "chargeShort": "Charge",
     "driveChapter": "Leg {number}",
-    "chargeChapter": "Energy stop",
+    "chargeChapter": "Charging stop {current}/{total}",
     "chargingStop": "Charging stop",
     "unknownPlace": "Unknown place",
     "distance": "Distance",

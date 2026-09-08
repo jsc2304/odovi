@@ -52,7 +52,7 @@
     "legShort": "Etappe {number}",
     "chargeShort": "Laden",
     "driveChapter": "Etappe {number}",
-    "chargeChapter": "Energiepause",
+    "chargeChapter": "Ladestopp {current}/{total}",
     "chargingStop": "Ladestopp",
     "unknownPlace": "Unbekannter Ort",
     "distance": "Distanz",

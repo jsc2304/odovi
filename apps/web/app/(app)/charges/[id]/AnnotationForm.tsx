@@ -77,6 +77,13 @@ export function AnnotationForm({
 
   useEffect(() => {
     if (state.ok && !pending) {
+      if (state.annotations) {
+        setFields({
+          cost: formatCostForInput(state.annotations.cost),
+          currency: state.annotations.currency ?? "CHF",
+          notes: state.annotations.notes ?? "",
+        });
+      }
       setSavedPulse(true);
       const t = setTimeout(() => setSavedPulse(false), 2500);
       return () => clearTimeout(t);

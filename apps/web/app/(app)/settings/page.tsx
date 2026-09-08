@@ -18,6 +18,9 @@ import { BuildInfoCard } from "./BuildInfoCard";
 import { getProviderReviewSnapshot } from "../../../lib/locationProviders/policy";
 import { ProviderReview } from "./ProviderReview";
 
+import { getDrivingProfile } from "../../../lib/drivingProfile";
+import { DrivingProfileForm } from "../../../components/DrivingProfileForm";
+
 export const dynamic = "force-dynamic";
 
 function Card({
@@ -51,6 +54,8 @@ export default async function SettingsPage() {
     getTeslaIntegrationStatus(),
     getProviderReviewSnapshot(),
   ]);
+  const drivingProfiles = await Promise.all(vehicles.map(vehicle => getDrivingProfile(vehicle.id)));
+  const tProfile = await getTranslations("dashboard.drivingProfile");
   const defaultVehicleId = vehicles[0]?.id;
   const softwareUpdates =
     defaultVehicleId != null ? await getSoftwareUpdates(defaultVehicleId) : [];
@@ -68,6 +73,14 @@ export default async function SettingsPage() {
       </p>
 
       <MoreHub />
+
+      {vehicles.length > 0 && <section id="driving-profiles" className="mt-6 scroll-mt-6 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
+        <h2 className="text-sm font-semibold">{tProfile("title")}</h2>
+        {vehicles.map((vehicle, index) => <div key={vehicle.id} className="mt-4 border-t border-neutral-200 pt-4 first:border-0 dark:border-neutral-800">
+          <p className="mb-3 text-sm font-medium">{vehicle.displayName}</p>
+          <DrivingProfileForm key={drivingProfiles[index]?.effectiveFrom ?? "new"} vehicleId={vehicle.id} profile={drivingProfiles[index]!} />
+        </div>)}
+      </section>}
 
       <DiagnosticsCard />
 

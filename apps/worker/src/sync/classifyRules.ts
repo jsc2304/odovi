@@ -1,4 +1,4 @@
-import { and, asc, eq, isNull, isNotNull } from "drizzle-orm";
+import { and, asc, eq, isNull, isNotNull, inArray, sql } from "drizzle-orm";
 import {
   auditLog,
   classificationRules,
@@ -71,6 +71,7 @@ async function loadEnabledRules(db: Db): Promise<LoadedRule[]> {
 async function loadCandidateDrives(
   db: Db,
   limit: number,
+  driveIds?: number[],
 ): Promise<CandidateDrive[]> {
   return db
     .select({
@@ -89,6 +90,8 @@ async function loadCandidateDrives(
         eq(drives.classification, "unclassified"),
         isNull(drives.classifiedByRuleId),
         isNotNull(drives.endTime),
+        driveIds ? inArray(drives.id, driveIds) : undefined,
+        sql`not exists (select 1 from ${auditLog} where ${auditLog.entityType} = 'drive' and ${auditLog.entityId} = ${drives.id} and ${auditLog.field} = 'classification')`,
       ),
     )
     .orderBy(asc(drives.id))
@@ -110,16 +113,25 @@ async function loadCandidateDrives(
 export async function applyClassificationRules(
   db: Db,
   appTimezone: string,
+  driveIds?: number[],
 ): Promise<ClassifyRulesResult> {
+  if (driveIds?.length === 0) return { applied: 0 };
   const rules = await loadEnabledRules(db);
   if (rules.length === 0) return { applied: 0 };
 
-  const candidates = await loadCandidateDrives(db, BATCH_LIMIT);
+  const candidates = await loadCandidateDrives(db, BATCH_LIMIT, driveIds);
   if (candidates.length === 0) return { applied: 0 };
 
   let applied = 0;
   await db.transaction(async (tx) => {
-    for (const drive of candidates) {
+    for (const candidate of candidates) {
+      // Re-read after locking: a user may have edited while the candidates loaded.
+      const [drive] = await tx.select().from(drives).where(eq(drives.id, candidate.id)).for("update");
+      if (!drive || drive.classification !== "unclassified" || drive.classifiedByRuleId != null || !drive.endTime) continue;
+      const [classified] = await tx.select({ id: auditLog.id }).from(auditLog).where(and(
+        eq(auditLog.entityType, "drive"), eq(auditLog.entityId, drive.id), eq(auditLog.field, "classification"),
+      )).limit(1);
+      if (classified) continue;
       const rule = findMatchingRule(
         {
           startPlaceId: drive.startPlaceId,

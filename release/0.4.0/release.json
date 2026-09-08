@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "version": "0.4.0",
+  "candidate": "0.4.0-rc.1",
+  "images": {
+    "web": "ghcr.io/jsc2304/odovi-web",
+    "worker": "ghcr.io/jsc2304/odovi-worker"
+  },
+  "compose": "release/0.4.0/docker-compose.yml",
+  "releaseNotes": "docs/releases/0.4.0.md",
+  "changelog": "CHANGELOG.md",
+  "packages": [
+    "package.json",
+    "apps/web/package.json",
+    "apps/worker/package.json",
+    "packages/core/package.json",
+    "packages/db/package.json",
+    "packages/runtime-config/package.json",
+    "dev/fixtures/package.json",
+    "acceptance/release-stack/package.json"
+  ],
+  "architectures": [
+    "linux/amd64",
+    "linux/arm64"
+  ],
+  "requiredAcceptanceIssues": [
+    27,
+    28,
+    29,
+    31,
+    32,
+    33,
+    38,
+    49,
+    50
+  ],
+  "supportedRuntimes": {
+    "application": "Node.js 22 (included in the images)",
+    "database": "PostgreSQL 17",
+    "orchestration": "Docker Engine with Docker Compose v2"
+  },
+  "teslaMateRange": "4.0.1 through 4.2.0",
+  "testedPlatforms": [
+    {
+      "platform": "linux/amd64 on GitHub-hosted Ubuntu",
+      "coverage": "Required automated gate: complete disposable-stack release acceptance"
+    },
+    {
+      "platform": "linux/arm64 through QEMU BuildKit",
+      "coverage": "Required automated gate: image build and metadata validation"
+    }
+  ],
+  "knownLimitations": [
+    "Native Raspberry Pi runtime acceptance and a 0.3.0-to-0.4.0 upgrade, backup restoration and rollback check of the exact published candidate images are required before stable promotion; source-built Pi deployments do not satisfy those release gates.",
+    "TeslaMate 4.0.2 through 4.1.x are bounded by the tested 4.0.1 and 4.2.0 endpoints rather than dedicated fixtures for every intermediate release.",
+    "One vehicle per installation is the current supported focus.",
+    "Odovi requires an existing supported TeslaMate database and does not bundle TeslaMate."
+  ]
+}

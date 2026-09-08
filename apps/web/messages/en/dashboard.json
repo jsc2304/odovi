@@ -55,8 +55,65 @@
     }
   },
   "recentDrives": {
-    "title": "Recent drives",
+    "title": "Your recent drives",
     "empty": "No drives yet",
     "dayViewCta": "Go to day view"
+  },
+  "overview": {
+    "title": "Overview",
+    "search": "Search drives",
+    "submitSearch": "Search drives",
+    "openDrives": "{count, plural, one {# drive to classify} other {# drives to classify}}",
+    "classifyNow": "Classify now",
+    "openDay": "Open day",
+    "driveCount": "Drives today",
+    "distance": "Distance",
+    "duration": "Duration",
+    "time": "Time",
+    "route": "Route",
+    "classification": "Classification",
+    "details": "Details",
+    "vehicleDetails": "Vehicle & more details",
+    "classifyRoute": "Classification: {from} to {to}",
+    "openRoute": "Open drive: {from} to {to}",
+    "saved": "Classification saved",
+    "saveFailed": "Could not save. Please try again.",
+    "undo": "Undo",
+    "undone": "Classification restored",
+    "undoFailed": "Could not undo. This drive may have been changed since.",
+    "undoUnavailable": "This classification has changed since and can no longer be undone."
+  },
+  "drivingProfile": {
+    "title": "Driving profile",
+    "question": "How do you mainly use your vehicle?",
+    "hint": "Your choice applies to new drives from now on. Your classification rules take priority; existing drives stay unchanged.",
+    "usage": {
+      "private": "Mostly private",
+      "business": "Mostly business",
+      "balanced": "Balanced"
+    },
+    "save": "Save driving profile",
+    "saving": "Saving…",
+    "saved": "Driving profile saved. Your choice applies to new drives.",
+    "editable": "You can change this later in settings.",
+    "saveFailed": "Could not save the driving profile. Please try again.",
+    "active": {
+      "private": "New drives: private",
+      "business": "New drives: business",
+      "balanced": "New drives: classify individually"
+    },
+    "apply": {
+      "private": "Mark open drives as private",
+      "business": "Mark open drives as business"
+    },
+    "applied": "{count, plural, one {# drive classified} other {# drives classified}}",
+    "applyFailed": "Could not apply. Reload the page and check your driving profile.",
+    "undone": "{restored, plural, one {# drive open again} other {# drives open again}}",
+    "undonePartial": "{restored} drives open again; kept {skipped} drives that were changed since.",
+    "undoUnavailable": "This action can no longer be undone. Newer changes are kept.",
+    "profileChanged": "The driving profile has changed. Please reload.",
+    "vehicleMissing": "Vehicle not found.",
+    "notAuthenticated": "Please sign in.",
+    "imported": "Includes {count} from historical imports"
   }
 }

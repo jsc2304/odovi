@@ -1,6 +1,6 @@
 .page {
-  --insights-midnight: #0b1020;
-  --insights-paper: #f3f0e8;
+  --insights-midnight: var(--color-neutral-950);
+  --insights-paper: var(--color-neutral-100);
   --insights-ember: #ff6b4a;
   --insights-glacier: #7bdff2;
   --insights-cobalt: #4757ff;
@@ -10,24 +10,12 @@
 }
 
 .hero {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  padding: clamp(1.5rem, 4vw, 3.25rem);
-  border: 1px solid #d7dbe5;
-  border-radius: clamp(1.5rem, 3vw, 2.25rem);
-  background:
-    radial-gradient(circle at 82% 28%, rgba(71, 87, 255, 0.1), transparent 25rem),
-    linear-gradient(145deg, #fff 0%, #f3f0e8 100%);
-  box-shadow: 0 28px 80px rgba(11, 16, 32, 0.08);
+  padding: 0 0 1.5rem;
+  border-bottom: 1px solid var(--color-neutral-200);
 }
 
 :global(.dark) .hero {
-  border-color: rgba(123, 223, 242, 0.13);
-  background:
-    radial-gradient(circle at 78% 30%, rgba(71, 87, 255, 0.24), transparent 28rem),
-    linear-gradient(145deg, #10182b 0%, var(--insights-midnight) 64%, #070b16 100%);
-  box-shadow: 0 34px 90px rgba(0, 0, 0, 0.28);
+  border-color: var(--color-neutral-800);
 }
 
 .heroTopline {
@@ -44,8 +32,8 @@
   align-items: center;
   gap: 0.5rem;
   margin: 0;
-  color: #2d9fb5;
-  font: 650 0.68rem/1 var(--font-geist-mono), monospace;
+  color: var(--color-accent-700);
+  font: 650 0.75rem/1.4 var(--font-geist-mono), monospace;
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
@@ -57,10 +45,10 @@
 .vehicleSwitcher {
   min-height: 2.35rem;
   padding: 0 2.1rem 0 0.85rem;
-  border: 1px solid #c2c9da;
+  border: 1px solid var(--color-neutral-300);
   border-radius: 999px;
   background-color: rgba(255, 255, 255, 0.68);
-  color: #0b1020;
+  color: var(--color-neutral-900);
   font-size: 0.76rem;
   backdrop-filter: blur(16px);
 }
@@ -72,20 +60,15 @@
 }
 
 .heroCopy {
-  position: relative;
-  z-index: 2;
-  width: min(43rem, 70%);
-  margin-top: clamp(3.25rem, 8vw, 6.5rem);
+  width: 100%;
+  margin-top: 1.5rem;
 }
 
 .heroCopy h1 {
-  max-width: 11ch;
   margin: 0;
-  color: #0b1020;
-  font-size: clamp(3.1rem, 6.1vw, 6.5rem);
-  font-weight: 540;
-  letter-spacing: -0.068em;
-  line-height: 0.9;
+  color: var(--color-neutral-900);
+  font: 500 2rem/1.2 var(--font-source-serif), Georgia, serif;
+  letter-spacing: -0.025em;
   text-wrap: balance;
 }
 
@@ -96,73 +79,13 @@
 .heroCopy > p {
   max-width: 37rem;
   margin: 1.35rem 0 0;
-  color: #52617f;
+  color: var(--color-neutral-500);
   font-size: clamp(0.9rem, 1.35vw, 1.08rem);
   line-height: 1.6;
 }
 
 :global(.dark) .heroCopy > p {
-  color: #9ba7c2;
-}
-
-.heroRoute {
-  position: absolute;
-  z-index: -1;
-  top: 10%;
-  right: -3%;
-  width: 47%;
-  height: 62%;
-  opacity: 0.66;
-  transform: rotate(-8deg);
-}
-
-.heroRoute::before {
-  position: absolute;
-  top: 10%;
-  right: 4%;
-  width: 72%;
-  height: 82%;
-  border-top: 3px solid var(--insights-glacier);
-  border-right: 3px solid var(--insights-glacier);
-  border-radius: 0 80% 24% 0;
-  box-shadow: 10px -10px 38px rgba(123, 223, 242, 0.18);
-  content: "";
-  transform: skew(-9deg, 4deg);
-}
-
-.heroRoute::after {
-  position: absolute;
-  right: 1%;
-  bottom: 1%;
-  width: 0.75rem;
-  height: 0.75rem;
-  border: 3px solid var(--insights-paper);
-  border-radius: 50%;
-  background: var(--insights-ember);
-  box-shadow: 0 0 28px rgba(255, 107, 74, 0.65);
-  content: "";
-}
-
-.heroRoute i {
-  position: absolute;
-  border: 1px solid rgba(71, 87, 255, 0.18);
-  border-radius: 50%;
-}
-
-.heroRoute i:nth-child(1) {
-  inset: 4% 2% 20% 22%;
-}
-
-.heroRoute i:nth-child(2) {
-  inset: 20% 12% 8% 5%;
-}
-
-.heroRoute i:nth-child(3) {
-  inset: 34% 25% -8% 32%;
-}
-
-:global(.dark) .heroRoute i {
-  border-color: rgba(123, 223, 242, 0.11);
+  color: var(--color-neutral-400);
 }
 
 .heroMetrics {
@@ -171,9 +94,9 @@
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0;
-  margin: clamp(3rem, 7vw, 5.5rem) 0 0;
-  border-top: 1px solid #cbd1dd;
-  border-bottom: 1px solid #cbd1dd;
+  margin: 1.75rem 0 0;
+  border-top: 1px solid var(--color-neutral-200);
+  border-bottom: 1px solid var(--color-neutral-200);
 }
 
 :global(.dark) .heroMetrics {
@@ -186,7 +109,7 @@
   gap: 0.25rem 0.6rem;
   min-width: 0;
   padding: 1.05rem 1.2rem;
-  border-right: 1px solid #d7dbe5;
+  border-right: 1px solid var(--color-neutral-200);
 }
 
 .heroMetric:first-child {
@@ -204,7 +127,7 @@
 .heroMetric svg {
   grid-row: 1 / span 2;
   align-self: center;
-  color: #2d9fb5;
+  color: var(--color-accent-700);
 }
 
 :global(.dark) .heroMetric svg {
@@ -213,8 +136,8 @@
 
 .heroMetric dt {
   overflow: hidden;
-  color: #73809e;
-  font: 600 0.56rem/1.2 var(--font-geist-mono), monospace;
+  color: var(--color-neutral-500);
+  font: 600 0.75rem/1.4 var(--font-geist-mono), monospace;
   letter-spacing: 0.08em;
   text-overflow: ellipsis;
   text-transform: uppercase;
@@ -224,7 +147,7 @@
 .heroMetric dd {
   overflow: hidden;
   margin: 0;
-  color: #0b1020;
+  color: var(--color-neutral-900);
   font-size: clamp(0.92rem, 1.35vw, 1.1rem);
   font-weight: 620;
   font-variant-numeric: tabular-nums;
@@ -251,27 +174,14 @@
   position: relative;
   overflow: hidden;
   padding: clamp(1.15rem, 2.4vw, 1.7rem);
-  border: 1px solid #d7dbe5;
-  border-radius: 1.5rem;
-  background: rgba(255, 255, 255, 0.82);
-  box-shadow: 0 18px 54px rgba(11, 16, 32, 0.055);
-}
-
-.card::before {
-  position: absolute;
-  inset: 0 auto auto 0;
-  width: 100%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(71, 87, 255, 0.38), transparent);
-  content: "";
+  border: 1px solid var(--color-neutral-200);
+  border-radius: .625rem;
+  background: var(--color-white);
 }
 
 :global(.dark) .card {
-  border-color: rgba(123, 223, 242, 0.12);
-  background:
-    radial-gradient(circle at 88% 8%, rgba(71, 87, 255, 0.1), transparent 16rem),
-    linear-gradient(145deg, rgba(24, 34, 56, 0.86), rgba(11, 16, 32, 0.96));
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.18);
+  border-color: var(--color-neutral-800);
+  background: var(--color-neutral-900);
 }
 
 .tempCard {
@@ -304,8 +214,8 @@
 
 .cardHeader > span {
   padding-top: 0.18rem;
-  color: #2d9fb5;
-  font: 600 0.6rem/1 var(--font-geist-mono), monospace;
+  color: var(--color-accent-700);
+  font: 600 0.75rem/1.4 var(--font-geist-mono), monospace;
   letter-spacing: 0.06em;
 }
 
@@ -315,9 +225,10 @@
 
 .cardHeader h2 {
   margin: 0;
-  color: #0b1020;
-  font-size: clamp(1rem, 1.4vw, 1.22rem);
-  font-weight: 640;
+  color: var(--color-neutral-900);
+  font-family: var(--font-source-serif), Georgia, serif;
+  font-size: 1.4375rem;
+  font-weight: 500;
   letter-spacing: -0.025em;
 }
 
@@ -328,13 +239,13 @@
 .cardHeader p {
   max-width: 46rem;
   margin: 0.42rem 0 0;
-  color: #52617f;
+  color: var(--color-neutral-500);
   font-size: 0.76rem;
   line-height: 1.5;
 }
 
 :global(.dark) .cardHeader p {
-  color: #9ba7c2;
+  color: var(--color-neutral-400);
 }
 
 .cardBody {
@@ -364,7 +275,7 @@
   align-items: center;
   gap: 0.35rem 1rem;
   margin-top: 0.35rem;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
 }
 
 .legendItem,
@@ -374,14 +285,14 @@
   display: inline-flex;
   align-items: center;
   gap: 0.42rem;
-  color: #52617f;
+  color: var(--color-neutral-500);
 }
 
 :global(.dark) .legendItem,
 :global(.dark) .legendRoute,
 :global(.dark) .legendCobalt,
 :global(.dark) .legendEmber {
-  color: #9ba7c2;
+  color: var(--color-neutral-400);
 }
 
 .legendItem::before,
@@ -405,12 +316,12 @@
 }
 
 .legendValue {
-  color: #29344d;
+  color: var(--color-neutral-700);
   font-variant-numeric: tabular-nums;
 }
 
 :global(.dark) .legendValue {
-  color: #c2c9da;
+  color: var(--color-neutral-300);
 }
 
 .donutLayout {
@@ -432,13 +343,13 @@
 
 .donutCopy {
   min-width: 0;
-  color: #52617f;
+  color: var(--color-neutral-500);
   font-size: 0.78rem;
   line-height: 1.55;
 }
 
 :global(.dark) .donutCopy {
-  color: #9ba7c2;
+  color: var(--color-neutral-400);
 }
 
 .donutCopy p {
@@ -447,7 +358,7 @@
 
 .donutCopy strong,
 .donutCopy b {
-  color: #0b1020;
+  color: var(--color-neutral-900);
 }
 
 :global(.dark) .donutCopy strong,
@@ -479,14 +390,13 @@
   }
 
   .heroCopy {
-    width: min(40rem, 78%);
+    width: 100%;
   }
 }
 
 @media (max-width: 720px) {
   .hero {
-    padding: 1.25rem;
-    border-radius: 1.5rem;
+    padding: 0 0 1.25rem;
   }
 
   .heroTopline {
@@ -495,25 +405,17 @@
 
   .heroCopy {
     width: 100%;
-    margin-top: 4.75rem;
+    margin-top: 1.5rem;
   }
 
   .heroCopy h1 {
-    max-width: 9ch;
-    font-size: clamp(3rem, 14vw, 4.6rem);
+    max-width: none;
+    font-size: 1.875rem;
   }
 
-  .heroRoute {
-    top: 7%;
-    right: -20%;
-    width: 76%;
-    height: 48%;
-    opacity: 0.45;
-  }
-
-  .heroMetrics {
+    .heroMetrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    margin-top: 3rem;
+    margin-top: 1.75rem;
   }
 
   .heroMetric:nth-child(2) {
@@ -521,7 +423,7 @@
   }
 
   .heroMetric:nth-child(-n + 2) {
-    border-bottom: 1px solid #d7dbe5;
+    border-bottom: 1px solid var(--color-neutral-200);
   }
 
   :global(.dark) .heroMetric:nth-child(-n + 2) {
@@ -568,11 +470,5 @@
 
   .donut {
     margin: 0 auto;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .heroRoute::after {
-    box-shadow: none;
   }
 }

@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { assertReleaseMetadata, readJson, resolveFrom } from "./lib/release.mjs";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const metadataPath = resolve(repoRoot, process.argv[2] ?? "release/0.3.0/release.json");
+const metadataPath = resolve(repoRoot, process.argv[2] ?? "release/0.4.0/release.json");
 const metadata = assertReleaseMetadata(readJson(metadataPath));
 const failures = [];
 

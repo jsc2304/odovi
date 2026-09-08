@@ -24,13 +24,14 @@ function statusLine(
   t: VehicleCardTranslator,
   openSession: OpenSessionStatus | null,
   status: VehicleStatusRow,
+  locale: string,
 ): string {
   if (openSession) {
     if (openSession.kind === "driving") return t("vehicleCard.drivingNow");
     if (openSession.kind === "charging") {
       return openSession.energyAddedKwh != null
         ? t("vehicleCard.chargingNowWithEnergy", {
-            energy: formatKwh(openSession.energyAddedKwh, { sign: true }),
+            energy: formatKwh(openSession.energyAddedKwh, { sign: true }, locale),
           })
         : t("vehicleCard.chargingNow");
     }
@@ -77,9 +78,9 @@ export async function VehicleCard({
     <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
       <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-400">
         <CarIcon aria-hidden size={18} />
-        <h1 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+        <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
           {status.displayName}
-        </h1>
+        </h2>
       </div>
 
       {soc != null ? (
@@ -116,7 +117,7 @@ export async function VehicleCard({
 
       <p className="mt-1.5 flex items-center gap-1.5 text-sm font-medium text-neutral-900 dark:text-neutral-100">
         <BatteryCharging aria-hidden size={15} className="shrink-0 text-neutral-400" />
-        {statusLine(t, openSession, status)}
+        {statusLine(t, openSession, status, locale)}
       </p>
 
       {(displayedPark || parkDrain.totalSinceLastChargePct != null) && (
@@ -146,7 +147,7 @@ export async function VehicleCard({
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-neutral-100 pt-3 text-sm text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
         <span>
           {status.odometerKm != null
-            ? formatOdometer(status.odometerKm)
+            ? formatOdometer(status.odometerKm, locale)
             : t("vehicleCard.odometerUnknown")}
         </span>
         <span>

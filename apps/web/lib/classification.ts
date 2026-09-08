@@ -22,13 +22,13 @@ export const CLASSIFICATION_SHORT: Record<Classification, string> = {
 /** Badge colour classes per classification (light + dark). */
 export const CLASSIFICATION_BADGE: Record<Classification, string> = {
   unclassified:
-    "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300",
+    "bg-[#f6f0e6] text-[#746148] dark:bg-amber-950 dark:text-amber-300",
   private:
-    "bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300",
+    "bg-[#eaf0e2] text-[#4c7054] dark:bg-emerald-950 dark:text-emerald-300",
   business:
-    "bg-violet-100 text-violet-800 dark:bg-violet-950 dark:text-violet-300",
+    "bg-[#e9eff0] text-[#316d86] dark:bg-sky-950 dark:text-sky-300",
   commute:
-    "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
+    "bg-[#eaf0e2] text-[#4c7054] dark:bg-emerald-950 dark:text-emerald-300",
 };
 
 // Button order for the quick-classify row: Privat / Geschäftlich / Arbeitsweg / Unklass.

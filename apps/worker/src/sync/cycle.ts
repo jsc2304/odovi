@@ -13,6 +13,7 @@ import { loadMatchablePlaces } from "./places.js";
 import { syncElevations } from "./elevation.js";
 import { syncDriveWeather } from "./driveWeather.js";
 import { applyClassificationRules } from "./classifyRules.js";
+import { applyDrivingDefaults } from "./drivingDefaults.js";
 import { applyAutoChargeCosts } from "./chargeCosts.js";
 import { loadWorkerLocationProviderPolicy } from "../locationProviders/policy.js";
 
@@ -37,6 +38,7 @@ export async function runSyncCycle(
   const chargePointsResult = await syncChargePoints(db, tm, chargeResult.upsertedRefs);
   const parkResult = await syncParks(db, matchablePlaces);
   const rulesResult = await applyClassificationRules(db, options.appTimezone);
+  const defaultsResult = await applyDrivingDefaults(db, options.appTimezone);
   const chargeCostsResult = await applyAutoChargeCosts(db);
   const softwareUpdatesResult = await syncSoftwareUpdates(db, tm, vehicleMap);
   const providerPolicy = await loadWorkerLocationProviderPolicy(db);
@@ -75,6 +77,9 @@ export async function runSyncCycle(
         : "") +
       (rulesResult.applied > 0
         ? `, ${rulesResult.applied} drive(s) per Regel klassifiziert`
+        : "") +
+      (defaultsResult.applied > 0
+        ? `, ${defaultsResult.applied} drive(s) classified by driving profile`
         : "") +
       (chargeCostsResult.updated > 0
         ? `, ${chargeCostsResult.updated} Ladekosten automatisch gesetzt`

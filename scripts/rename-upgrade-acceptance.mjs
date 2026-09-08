@@ -57,7 +57,7 @@ try {
   commit = await run('git',['rev-parse','HEAD'],{capture:true});
   dirty = (await run('git',['status','--porcelain'],{capture:true})) !== '';
   if(dirty && process.env.ODOVI_UPGRADE_ALLOW_DIRTY !== '1') throw new Error('Commit the complete worktree before exact release acceptance (or use ODOVI_UPGRADE_ALLOW_DIRTY=1 only for development).');
-  version = process.env.ODOVI_ACCEPTANCE_VERSION ?? `0.3.0-dev.${commit.slice(0,12)}`;
+  version = process.env.ODOVI_ACCEPTANCE_VERSION ?? `0.4.0-dev.${commit.slice(0,12)}`;
   const port = await new Promise(r => { const s=createServer();s.listen(0,'127.0.0.1',()=>{ const p=s.address().port;s.close(()=>r(p)); }); });
   const base = `http://127.0.0.1:${port}`;
   const sourceDir = join(evidence,`odovi-${artifact.commit}`);
@@ -97,7 +97,7 @@ try {
     ODOVI_WEB_DIGEST:`sha256:${'0'.repeat(64)}`, ODOVI_WORKER_DIGEST:`sha256:${'0'.repeat(64)}` };
   writeFileSync(envFile,'# Synthetic-only acceptance configuration\n',{mode:0o600});
   const oldModel = JSON.parse(await docker(['compose','--project-name',project,'--file',join(sourceDir,'docker-compose.yml'),'config','--format','json'],{env,capture:true}));
-  const newModel = JSON.parse(await docker(['compose','--project-name',project,'--file',join(root,'release/0.3.0/docker-compose.yml'),'config','--format','json'],{env,capture:true}));
+  const newModel = JSON.parse(await docker(['compose','--project-name',project,'--file',join(root,'release/0.4.0/docker-compose.yml'),'config','--format','json'],{env,capture:true}));
   const volume = `${project}_tripatlas-db-data`;
   const guard = join(root,'acceptance/release-stack/egress-guard.cjs');
   for (const [model,images,legacy] of [[oldModel,oldImages,true],[newModel,newImages,false]]) {

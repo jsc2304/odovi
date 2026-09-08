@@ -21,7 +21,7 @@ function itemClasses(active: boolean, layout: "bottom" | "side" | "header"): str
       ? "flex flex-1 flex-col items-center gap-0.5 py-2 text-xs"
       : layout === "header"
         ? "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg"
-        : "flex items-center gap-3 rounded-lg px-3 py-2 text-sm";
+        : "flex min-h-11 items-center gap-4 rounded-lg px-3.5 py-2.5 text-[15px]";
   const state = active
     ? "font-medium text-violet-700 dark:text-violet-300"
     : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white";
@@ -80,21 +80,23 @@ export function SideNav() {
   const pathname = usePathname();
   const t = useTranslations("nav");
   return (
-    <nav className="min-h-0 flex-1 overflow-y-auto p-3">
-      <div className="flex flex-col gap-1">
+    <nav className="min-h-0 flex-1 overflow-y-auto px-5 pb-4">
+      <div className="flex flex-col gap-0.5">
       {sidebarItems.map((item) => {
         const active = item.match(pathname);
         const Icon = item.icon;
         return (
+          <React.Fragment key={item.href}>
+          {["journeys", "reports", "settings"].includes(item.id) && <div aria-hidden className="my-3 border-t border-neutral-200 dark:border-neutral-800" />}
           <Link
-            key={item.href}
             href={item.href}
             aria-current={active ? "page" : undefined}
             className={itemClasses(active, "side")}
           >
-            <Icon aria-hidden size={20} strokeWidth={active ? 2.25 : 2} className="shrink-0" />
+            <Icon aria-hidden size={20} strokeWidth={active ? 2.25 : 2} className={`shrink-0 ${active && item.id === "start" ? "fill-current" : ""}`} />
             <span>{t(item.labelKey)}</span>
           </Link>
+          </React.Fragment>
         );
       })}
       </div>

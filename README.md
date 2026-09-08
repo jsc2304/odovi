@@ -20,6 +20,7 @@ Tessie and similar services are good, but they come with subscription costs, ove
 - **Daily view** - Pick a date -> every trip as an atomic entry: `08:14-08:47 · Home -> Client Miller · 27.3 km · Business`; parking and charging are interleaved in one timeline
 - **Classify and annotate** - Private / business / commute via segmented control, purpose, client, project, notes, tags; every change is recorded in the audit log
 - **Auto-classification rules** - "Home -> Office, Mon-Fri = commute": rules with place and weekday conditions classify new trips automatically, and never touch anything you decided manually (provenance in the audit log)
+- **Driving profile** - Default new drives to private or business, or classify them individually. Your rules take priority; applying a default to the existing backlog is a separate action with Undo. See [driving profiles](docs/driving-profile.md).
 - **Bulk editing** - Select and classify/tag many trips at once in the daily view and search
 - **Places** - Geofences with map picker and address search (OSM/Nominatim); manual corrections with locks that survive every re-sync
 - **Calendar, search, reports** - Monthly grid with trip intensity; full-text search across places/clients/projects/tags with filters; monthly reports with CSV/PDF export in logbook style
