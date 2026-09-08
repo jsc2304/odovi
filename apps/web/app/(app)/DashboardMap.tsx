@@ -24,7 +24,7 @@ export interface DashboardMapProps {
 function carIcon(): L.DivIcon {
   return L.divIcon({
     className: "",
-    html: '<span style="display:block;width:16px;height:16px;border-radius:9999px;background:#3441e3;border:2px solid #f3f0e8;box-shadow:0 0 0 4px rgba(71,87,255,0.24);"></span>',
+    html: '<span style="display:block;width:16px;height:16px;border-radius:9999px;background:#176b62;border:2px solid #f3f0e8;box-shadow:0 0 0 4px rgba(23,107,98,0.18);"></span>',
     iconSize: [16, 16],
     iconAnchor: [8, 8],
   });
@@ -33,7 +33,7 @@ function carIcon(): L.DivIcon {
 function endDotIcon(): L.DivIcon {
   return L.divIcon({
     className: "",
-    html: '<span style="display:block;width:10px;height:10px;border-radius:9999px;background:#7bdff2;border:2px solid #f3f0e8;box-shadow:0 0 0 3px rgba(71,87,255,0.28);"></span>',
+    html: '<span style="display:block;width:10px;height:10px;border-radius:9999px;background:#99ccbb;border:2px solid #f3f0e8;box-shadow:0 0 0 3px rgba(23,107,98,0.18);"></span>',
     iconSize: [10, 10],
     iconAnchor: [5, 5],
   });
@@ -61,6 +61,7 @@ export function DashboardMap({ tracks, car, onSelectDrive, mapTiles }: Dashboard
     const map = createConfiguredMap(containerRef.current, {
       scrollWheelZoom: false,
       zoomControl: true,
+      zoomSnap: 0.25,
     });
 
     addConfiguredMapTiles(map, mapTiles);
@@ -73,31 +74,33 @@ export function DashboardMap({ tracks, car, onSelectDrive, mapTiles }: Dashboard
     for (const track of older) {
       const latLngs: L.LatLngTuple[] = track.points.map((p) => [p[0], p[1]]);
       if (latLngs.length < 2) continue;
+      L.polyline(latLngs, { color: "#ffffff", weight: 7, opacity: 0.85, interactive: false }).addTo(map);
       const line = L.polyline(latLngs, {
-        color: "#a3a3a3", // neutral-400
-        weight: 3,
-        opacity: 0.5,
+        color: "#176b62",
+        weight: 3.5,
+        opacity: 0.8,
       }).addTo(map);
       line.on("click", () => onSelectDrive(track.driveId));
-      line.on("mouseover", () => line.setStyle({ opacity: 0.8 }));
-      line.on("mouseout", () => line.setStyle({ opacity: 0.5 }));
+      line.on("mouseover", () => line.setStyle({ opacity: 1 }));
+      line.on("mouseout", () => line.setStyle({ opacity: 0.8 }));
       bounds.extend(line.getBounds());
     }
 
     if (newest && newest.points.length >= 2) {
       const latLngs: L.LatLngTuple[] = newest.points.map((p) => [p[0], p[1]]);
+      L.polyline(latLngs, { color: "#ffffff", weight: 8, opacity: 0.9, interactive: false }).addTo(map);
       const line = L.polyline(latLngs, {
-        color: "#3441e3", // Odovi Route Cobalt
+        color: "#176b62", // Primary route accent
         weight: 4,
         opacity: 0.9,
       }).addTo(map);
       line.on("click", () => onSelectDrive(newest.driveId));
-      L.marker(latLngs[latLngs.length - 1], { icon: END_ICON }).addTo(map);
+      L.marker(latLngs[latLngs.length - 1], { icon: END_ICON, keyboard: false, interactive: false }).addTo(map);
       bounds.extend(line.getBounds());
     }
 
     if (car) {
-      const marker = L.marker([car.lat, car.lon], { icon: CAR_ICON }).addTo(map);
+      const marker = L.marker([car.lat, car.lon], { icon: CAR_ICON, keyboard: false, title: car.displayName }).addTo(map);
       const label = car.placeName ? `${car.displayName} · ${car.placeName}` : car.displayName;
       marker.bindTooltip(label);
       bounds.extend([car.lat, car.lon]);
@@ -113,18 +116,13 @@ export function DashboardMap({ tracks, car, onSelectDrive, mapTiles }: Dashboard
     };
     fit();
 
-    // Das Dashboard streamt sein Layout — beim Map-Init kann der Container
-    // noch 0 Höhe haben, dann rechnet fitBounds auf degenerierter Größe und
-    // klemmt auf Max-Zoom. Nach dem ersten echten Layout einmal nachziehen,
-    // danach abmelden (sonst würde jedes Fenster-Resize Pan/Zoom resetten).
+    // Refit the same recorded routes when the responsive map dimensions change.
+    // Observer callbacks do not run for map pan/zoom, so those stay under user control.
     const ro = new ResizeObserver(() => {
       const el = containerRef.current;
-      if (el && el.clientHeight > 0) {
-        fit();
-        ro.disconnect();
-      }
+      if (el && el.clientHeight > 0 && el.clientWidth > 0) fit();
     });
-    if (containerRef.current) ro.observe(containerRef.current);
+    ro.observe(containerRef.current);
 
     // Enable scroll-to-zoom only once the user has clicked into the map,
     // otherwise a page-scroll gesture over the map hijacks the scroll.
@@ -143,7 +141,7 @@ export function DashboardMap({ tracks, car, onSelectDrive, mapTiles }: Dashboard
   return (
     <div
       ref={containerRef}
-      className="h-[300px] w-full rounded-lg border border-neutral-300 dark:border-neutral-700 sm:h-[340px]"
+      className="h-[220px] w-full rounded-lg border border-neutral-300 dark:border-neutral-700 sm:h-[230px]"
     />
   );
 }

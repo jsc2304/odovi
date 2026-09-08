@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
 import { Sun, Moon, Monitor, type LucideIcon } from "lucide-react";
 
@@ -26,6 +26,18 @@ function applyTheme(choice: ThemeChoice) {
 
 function persist(choice: ThemeChoice) {
   document.cookie = `${COOKIE}=${choice}; path=/; max-age=${ONE_YEAR}; SameSite=Lax`;
+  window.dispatchEvent(new Event("odovi-theme-change"));
+}
+
+function subscribeTheme(listener: () => void) {
+  window.addEventListener("odovi-theme-change", listener);
+  return () => window.removeEventListener("odovi-theme-change", listener);
+}
+
+function readTheme(): ThemeChoice {
+  const values = Object.fromEntries(document.cookie.split(";").map((part) => part.trim().split("=")));
+  const value = values[COOKIE] ?? values.tripatlas_theme;
+  return value === "light" || value === "dark" ? value : "system";
 }
 
 /**
@@ -43,7 +55,8 @@ export function ThemeToggle({
   initial?: ThemeChoice;
   variant?: "segmented" | "compact";
 }) {
-  const [choice, setChoice] = useState<ThemeChoice>(initial);
+  // Shared browser preference: https://react.dev/reference/react/useSyncExternalStore
+  const choice = useSyncExternalStore(subscribeTheme, readTheme, () => initial);
   const t = useTranslations("ui");
 
   // Im System-Modus auf Wechsel der Systemeinstellung reagieren.
@@ -56,7 +69,6 @@ export function ThemeToggle({
   }, [choice]);
 
   const select = useCallback((next: ThemeChoice) => {
-    setChoice(next);
     persist(next);
     applyTheme(next);
   }, []);
@@ -76,7 +88,7 @@ export function ThemeToggle({
           next: t(`theme.${next.labelKey}`),
         })}
         title={t("theme.currentTitle", { current: t(`theme.${current.labelKey}`) })}
-        className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-neutral-500 transition-colors hover:bg-violet-100 hover:text-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:text-neutral-400 dark:hover:bg-violet-950 dark:hover:text-violet-300 dark:focus-visible:ring-cyan-300 dark:focus-visible:ring-offset-neutral-950"
+        className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-neutral-500 transition-colors hover:bg-violet-100 hover:text-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:text-neutral-400 dark:hover:bg-violet-950 dark:hover:text-violet-300 dark:focus-visible:ring-cyan-300 dark:focus-visible:ring-offset-neutral-950"
       >
         <Icon aria-hidden size={18} />
       </button>
@@ -100,7 +112,7 @@ export function ThemeToggle({
             onClick={() => select(o.value)}
             aria-pressed={active}
             title={label}
-            className={`inline-flex flex-1 items-center justify-center rounded-md px-2 py-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-cyan-300 dark:focus-visible:ring-offset-neutral-950 ${
+            className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-md px-2 py-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-cyan-300 dark:focus-visible:ring-offset-neutral-950 ${
               active
                 ? "bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300"
                 : "text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"

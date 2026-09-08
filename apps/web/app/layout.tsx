@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import { cookies } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
@@ -16,8 +17,17 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const THEME_LIGHT = "#f3f0e8";
-const THEME_DARK = "#0b1020";
+// Self-hosted font: https://nextjs.org/docs/15/app/api-reference/components/font#local-fonts
+const sourceSerif = localFont({
+  src: "../public/fonts/source-serif-4.woff2",
+  variable: "--font-source-serif",
+  weight: "400 700",
+  display: "swap",
+  fallback: ["Georgia"],
+});
+
+const THEME_LIGHT = "#faf9f5";
+const THEME_DARK = "#141d1b";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("ui");
@@ -76,7 +86,7 @@ export default async function RootLayout({
       className={explicitDark ? "dark" : undefined}
       suppressHydrationWarning
     >
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} ${sourceSerif.variable}`}>
         <ServiceWorkerRegistration />
         {isSystem && (
           <script

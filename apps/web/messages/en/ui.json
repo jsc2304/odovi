@@ -25,5 +25,6 @@
   "comingSoon": "Coming in a later milestone.",
   "meta": {
     "description": "Self-hosted trip logbook for Tesla"
-  }
+  },
+  "skipToContent": "Skip to content"
 }

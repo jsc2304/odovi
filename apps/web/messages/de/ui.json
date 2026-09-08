@@ -25,5 +25,6 @@
   "comingSoon": "Kommt in einem späteren Milestone.",
   "meta": {
     "description": "Self-hosted Fahrtenarchiv für Tesla"
-  }
+  },
+  "skipToContent": "Zum Inhalt springen"
 }

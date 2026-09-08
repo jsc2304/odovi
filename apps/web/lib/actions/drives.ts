@@ -1,6 +1,6 @@
 "use server";
 import { revalidatePath } from "next/cache";
-import { and, asc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import { getTranslations } from "next-intl/server";
 import { auditLog, driveTags, drives, places, tags } from "@odovi/db";
@@ -23,46 +23,76 @@ const inputSchema = z.object({
   classification: classificationSchema,
 });
 
-/**
- * Sets a drive's classification and records the change in audit_log. No-op if
- * the value is unchanged. Requires an authenticated session.
- */
+export interface ClassificationChange {
+  auditId: number;
+  driveId: number;
+  previous: z.infer<typeof classificationSchema>;
+}
+
+function refreshClassificationViews(driveId: number) {
+  revalidatePath("/");
+  revalidatePath("/search");
+  revalidatePath("/day/[date]", "page");
+  revalidatePath(`/drives/${driveId}`);
+}
+
+/** The row lock keeps the classification and its audit entry in one order. */
 export async function setDriveClassification(
   driveId: number,
   classification: z.infer<typeof classificationSchema>,
-): Promise<void> {
+): Promise<ClassificationChange | null> {
   const t = await getTranslations("drives");
   const user = await validateSession();
   if (!user) throw new Error(t("errors.notAuthenticated"));
-
   const parsed = inputSchema.parse({ driveId, classification });
 
-  const rows = await db
-    .select({ classification: drives.classification })
-    .from(drives)
-    .where(eq(drives.id, parsed.driveId))
-    .limit(1);
-  const current = rows[0];
-  if (!current) throw new Error(t("errors.driveNotFound"));
-  if (current.classification === parsed.classification) return;
+  const change = await db.transaction(async (tx) => {
+    const [current] = await tx.select({ classification: drives.classification }).from(drives)
+      .where(eq(drives.id, parsed.driveId)).limit(1).for("update");
+    if (!current) throw new Error(t("errors.driveNotFound"));
+    if (current.classification === parsed.classification) return null;
 
-  await db.transaction(async (tx) => {
-    await tx
-      .update(drives)
-      .set({ classification: parsed.classification, updatedAt: new Date() })
+    await tx.update(drives).set({ classification: parsed.classification, updatedAt: new Date() })
       .where(eq(drives.id, parsed.driveId));
-
-    await tx.insert(auditLog).values({
-      entityType: "drive",
-      entityId: parsed.driveId,
-      field: "classification",
-      oldValue: current.classification,
-      newValue: parsed.classification,
-      changedBy: user.username,
-    });
+    const [entry] = await tx.insert(auditLog).values({
+      entityType: "drive", entityId: parsed.driveId, field: "classification",
+      oldValue: current.classification, newValue: parsed.classification, changedBy: user.username,
+    }).returning({ id: auditLog.id });
+    return { auditId: entry!.id, driveId: parsed.driveId, previous: current.classification };
   });
+  refreshClassificationViews(parsed.driveId);
+  return change;
+}
 
-  revalidatePath("/day/[date]", "page");
+/** Undo only the latest classification edit, never a newer edit from another tab. */
+export async function undoDriveClassification(auditId: number): Promise<void> {
+  const [t, tDashboard] = await Promise.all([getTranslations("drives"), getTranslations("dashboard")]);
+  const user = await validateSession();
+  if (!user) throw new Error(t("errors.notAuthenticated"));
+  const id = z.number().int().positive().parse(auditId);
+
+  const driveId = await db.transaction(async (tx) => {
+    const [entry] = await tx.select().from(auditLog).where(and(
+      eq(auditLog.id, id), eq(auditLog.entityType, "drive"), eq(auditLog.field, "classification"),
+      eq(auditLog.changedBy, user.username),
+    )).limit(1);
+    const previous = classificationSchema.safeParse(entry?.oldValue);
+    if (!entry || !previous.success) throw new Error(tDashboard("overview.undoUnavailable"));
+    const [current] = await tx.select({ classification: drives.classification }).from(drives)
+      .where(eq(drives.id, entry.entityId)).limit(1).for("update");
+    const [latest] = await tx.select({ id: auditLog.id }).from(auditLog).where(and(
+      eq(auditLog.entityType, "drive"), eq(auditLog.entityId, entry.entityId), eq(auditLog.field, "classification"),
+    )).orderBy(desc(auditLog.id)).limit(1);
+    if (!current || latest?.id !== id || current.classification !== entry.newValue) {
+      throw new Error(tDashboard("overview.undoUnavailable"));
+    }
+    await tx.update(drives).set({ classification: previous.data, updatedAt: new Date() })
+      .where(eq(drives.id, entry.entityId));
+    await tx.insert(auditLog).values({ entityType: "drive", entityId: entry.entityId, field: "classification",
+      oldValue: current.classification, newValue: previous.data, changedBy: user.username });
+    return entry.entityId;
+  });
+  refreshClassificationViews(driveId);
 }
 
 const annotationsSchema = z.object({
@@ -119,45 +149,45 @@ export async function updateDriveAnnotations(
   }
   const input = parsed.data;
 
-  const rows = await db
-    .select({
-      classification: drives.classification,
-      purpose: drives.purpose,
-      customer: drives.customer,
-      project: drives.project,
-      notes: drives.notes,
-    })
-    .from(drives)
-    .where(eq(drives.id, input.driveId))
-    .limit(1);
-  const current = rows[0];
-  if (!current) return { ok: false, error: t("errors.driveNotFound") };
+  const result = await db.transaction(async (tx): Promise<UpdateAnnotationsResult> => {
+    const rows = await tx
+      .select({
+        classification: drives.classification,
+        purpose: drives.purpose,
+        customer: drives.customer,
+        project: drives.project,
+        notes: drives.notes,
+      })
+      .from(drives)
+      .where(eq(drives.id, input.driveId))
+      .limit(1).for("update");
+    const current = rows[0];
+    if (!current) return { ok: false, error: t("errors.driveNotFound") };
 
-  const changes: Array<{ field: string; oldValue: string | null; newValue: string | null }> = [];
-  const patch: Record<string, unknown> = {};
+    const changes: Array<{ field: string; oldValue: string | null; newValue: string | null }> = [];
+    const patch: Record<string, unknown> = {};
 
-  if (current.classification !== input.classification) {
-    changes.push({
-      field: "classification",
-      oldValue: current.classification,
-      newValue: input.classification,
-    });
-    patch.classification = input.classification;
-  }
-  for (const field of ["purpose", "customer", "project", "notes"] as const) {
-    if (current[field] !== input[field]) {
+    if (current.classification !== input.classification) {
       changes.push({
-        field: ANNOTATION_FIELD_LABELS[field],
-        oldValue: current[field],
-        newValue: input[field],
+        field: "classification",
+        oldValue: current.classification,
+        newValue: input.classification,
       });
-      patch[field] = input[field];
+      patch.classification = input.classification;
     }
-  }
+    for (const field of ["purpose", "customer", "project", "notes"] as const) {
+      if (current[field] !== input[field]) {
+        changes.push({
+          field: ANNOTATION_FIELD_LABELS[field],
+          oldValue: current[field],
+          newValue: input[field],
+        });
+        patch[field] = input[field];
+      }
+    }
 
-  if (changes.length === 0) return { ok: true };
+    if (changes.length === 0) return { ok: true };
 
-  await db.transaction(async (tx) => {
     await tx
       .update(drives)
       .set({ ...patch, updatedAt: new Date() })
@@ -173,12 +203,14 @@ export async function updateDriveAnnotations(
         changedBy: user.username,
       })),
     );
+    return { ok: true };
   });
 
   revalidatePath(`/drives/${input.driveId}`);
   revalidatePath("/day/[date]", "page");
 
-  return { ok: true };
+  revalidatePath("/");
+  return result;
 }
 
 function nullableString(value: FormDataEntryValue | null): string | null {
@@ -588,7 +620,8 @@ export async function bulkUpdateDrives(
     });
 
   await db.transaction(async (tx) => {
-    for (const row of currentRows) {
+    const lockedRows = await tx.select().from(drives).where(inArray(drives.id, existingIds)).orderBy(asc(drives.id)).for("update");
+    for (const row of lockedRows) {
       const patch: Record<string, unknown> = {};
 
       if (
@@ -638,6 +671,7 @@ export async function bulkUpdateDrives(
   });
 
   if (changedIds.size > 0) {
+    revalidatePath("/");
     revalidatePath("/day/[date]", "page");
     revalidatePath("/search");
     for (const id of changedIds) revalidatePath(`/drives/${id}`);

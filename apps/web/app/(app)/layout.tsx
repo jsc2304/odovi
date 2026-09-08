@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { validateSession } from "../../lib/auth/session";
 import { getVehicles } from "../../lib/queries";
 import { BottomNav, HeaderSearch, SideNav } from "../../components/Nav";
@@ -29,7 +29,7 @@ export default async function AppLayout({
   ]);
   const vehicleName = vehicles[0]?.displayName ?? "—";
 
-  const [cookieStore, requestLocale] = await Promise.all([cookies(), getLocale()]);
+  const [cookieStore, requestLocale, t] = await Promise.all([cookies(), getLocale(), getTranslations("ui")]);
   const locale = isLocale(requestLocale) ? requestLocale : DEFAULT_LOCALE;
   const cookieTheme =
     cookieStore.get("odovi_theme")?.value ??
@@ -38,19 +38,17 @@ export default async function AppLayout({
     cookieTheme === "light" || cookieTheme === "dark" ? cookieTheme : "system";
   return (
     <LocationProviderClientConfigProvider config={providerReview.clientConfig}>
+      <a href="#main-content" className="skip-link">{t("skipToContent")}</a>
       <div className="min-h-dvh bg-neutral-50 text-neutral-900 md:flex dark:bg-neutral-950 dark:text-neutral-100">
         {/* Sidebar on md+ */}
-        <aside className="sticky top-0 hidden h-dvh w-56 shrink-0 flex-col border-r border-neutral-200 bg-white/80 backdrop-blur-xl md:flex dark:border-neutral-800 dark:bg-neutral-950/88">
-          <div className="shrink-0 px-5 py-5">
+        <aside className="sticky top-0 hidden h-dvh w-56 shrink-0 flex-col border-r border-neutral-200 bg-neutral-50 md:flex dark:border-neutral-800 dark:bg-neutral-950">
+          <div className="flex h-[126px] shrink-0 items-center px-7 py-7">
             <Link href="/" aria-label="Odovi start">
               <BrandWordmark size="md" />
             </Link>
-            <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
-              {vehicleName}
-            </p>
           </div>
           <SideNav />
-          <div className="shrink-0 border-t border-neutral-200 p-3 dark:border-neutral-800">
+          <div className="shrink-0 border-t border-neutral-200 p-5 dark:border-neutral-800">
             <div className="flex flex-col gap-2">
               <ThemeToggle initial={theme} variant="segmented" />
               <LocaleSwitcher initial={locale} variant="segmented" />
@@ -60,7 +58,7 @@ export default async function AppLayout({
 
         <div className="flex min-w-0 flex-1 flex-col">
           {/* Mobile header */}
-          <header className="flex items-center gap-2 border-b border-neutral-200 bg-white/82 px-4 py-3 backdrop-blur-xl md:hidden dark:border-neutral-800 dark:bg-neutral-950/88">
+          <header className="flex items-center gap-2 border-b border-neutral-200 bg-neutral-50/95 px-4 py-3 backdrop-blur-xl md:hidden dark:border-neutral-800 dark:bg-neutral-950">
             <Link href="/" aria-label="Odovi start" className="shrink-0">
               <BrandWordmark size="sm" />
             </Link>
@@ -76,7 +74,7 @@ export default async function AppLayout({
             </div>
           </header>
 
-          <main className="min-w-0 flex-1 px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-4 md:px-8 md:pb-8 md:pt-6">
+          <main id="main-content" tabIndex={-1} className="app-main min-w-0 flex-1 px-5 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-6 md:px-9 md:pb-9 md:pt-9">
             {providerReview.requiresReview && <ProviderReviewNotice />}
             {children}
           </main>

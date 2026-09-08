@@ -12,7 +12,7 @@ import { MapTileGate } from "../../components/LocationProviderClientConfig";
 const DashboardMap = dynamic(() => import("./DashboardMap").then((m) => m.DashboardMap), {
   ssr: false,
   loading: () => (
-    <div className="h-[300px] w-full animate-pulse rounded-lg border border-neutral-300 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800 sm:h-[340px]" />
+    <div className="h-[220px] w-full animate-pulse rounded-lg border border-neutral-300 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800 sm:h-[230px]" />
   ),
 });
 
@@ -29,7 +29,7 @@ export interface DashboardMapLoaderProps {
 export function DashboardMapLoader({ tracks, car }: DashboardMapLoaderProps) {
   const router = useRouter();
   return (
-    <MapTileGate className="h-[300px] w-full sm:h-[340px]">
+    <MapTileGate className="h-[220px] w-full sm:h-[230px]">
       {(mapTiles) => (
         <DashboardMap
           tracks={tracks}

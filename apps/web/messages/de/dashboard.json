@@ -55,8 +55,65 @@
     }
   },
   "recentDrives": {
-    "title": "Letzte Fahrten",
+    "title": "Deine letzten Fahrten",
     "empty": "Noch keine Fahrten",
     "dayViewCta": "Zur Tagesansicht"
+  },
+  "overview": {
+    "title": "Übersicht",
+    "search": "Fahrten suchen",
+    "submitSearch": "Fahrten suchen",
+    "openDrives": "{count, plural, one {# Fahrt noch offen} other {# Fahrten noch offen}}",
+    "classifyNow": "Jetzt klassifizieren",
+    "openDay": "Tag öffnen",
+    "driveCount": "Fahrten heute",
+    "distance": "Distanz",
+    "duration": "Dauer",
+    "time": "Zeit",
+    "route": "Route",
+    "classification": "Klassifikation",
+    "details": "Details",
+    "vehicleDetails": "Fahrzeug & weitere Werte",
+    "classifyRoute": "Klassifikation: {from} nach {to}",
+    "openRoute": "Fahrt öffnen: {from} nach {to}",
+    "saved": "Klassifikation gespeichert",
+    "saveFailed": "Speichern fehlgeschlagen. Bitte erneut versuchen.",
+    "undo": "Rückgängig",
+    "undone": "Klassifikation zurückgesetzt",
+    "undoFailed": "Rückgängig nicht möglich. Die Fahrt wurde möglicherweise inzwischen geändert.",
+    "undoUnavailable": "Diese Klassifikation wurde inzwischen geändert und kann nicht mehr zurückgenommen werden."
+  },
+  "drivingProfile": {
+    "title": "Fahrprofil",
+    "question": "Wie nutzt du dein Fahrzeug überwiegend?",
+    "hint": "Deine Auswahl gilt für neue Fahrten ab jetzt. Eigene Klassifizierungsregeln haben Vorrang; bestehende Fahrten bleiben unverändert.",
+    "usage": {
+      "private": "Überwiegend privat",
+      "business": "Überwiegend geschäftlich",
+      "balanced": "Ausgeglichen"
+    },
+    "save": "Fahrprofil speichern",
+    "saving": "Wird gespeichert …",
+    "saved": "Fahrprofil gespeichert. Die Auswahl gilt für neue Fahrten.",
+    "editable": "Später in den Einstellungen änderbar.",
+    "saveFailed": "Das Fahrprofil konnte nicht gespeichert werden. Bitte erneut versuchen.",
+    "active": {
+      "private": "Neue Fahrten: privat",
+      "business": "Neue Fahrten: geschäftlich",
+      "balanced": "Neue Fahrten: einzeln klassifizieren"
+    },
+    "apply": {
+      "private": "Offene als privat markieren",
+      "business": "Offene als geschäftlich markieren"
+    },
+    "applied": "{count, plural, one {# Fahrt klassifiziert} other {# Fahrten klassifiziert}}",
+    "applyFailed": "Nicht übernommen. Bitte die Seite neu laden und das Fahrprofil prüfen.",
+    "undone": "{restored, plural, one {# Fahrt wieder offen} other {# Fahrten wieder offen}}",
+    "undonePartial": "{restored} Fahrten wieder offen; {skipped} inzwischen geänderte Fahrten beibehalten.",
+    "undoUnavailable": "Diese Aktion lässt sich nicht mehr rückgängig machen. Neuere Änderungen bleiben erhalten.",
+    "profileChanged": "Das Fahrprofil wurde inzwischen geändert. Bitte neu laden.",
+    "vehicleMissing": "Fahrzeug nicht gefunden.",
+    "notAuthenticated": "Bitte anmelden.",
+    "imported": "Davon {count} aus historischen Importen"
   }
 }

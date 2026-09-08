@@ -1,5 +1,5 @@
 import "server-only";
-import { and, asc, desc, eq, gte, inArray, isNull, lt, notInArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, isNull, isNotNull, lt, notInArray, sql } from "drizzle-orm";
 import {
   chargeSessions,
   drives,
@@ -295,6 +295,7 @@ function thinPoints<T>(rows: T[], max: number): T[] {
 }
 
 export interface TodayStats {
+  durationSeconds: number | null;
   distanceKm: number;
   driveCount: number;
   energyKwh: number;
@@ -340,6 +341,7 @@ async function getDriveStatsInRange(
   const rows = await db
     .select({
       distanceKm: drives.distanceKm,
+      durationSeconds: drives.durationSeconds,
       consumedEnergyKwh: drives.consumedEnergyKwh,
       energyIsEstimated: drives.energyIsEstimated,
     })
@@ -353,6 +355,9 @@ async function getDriveStatsInRange(
     );
   const energy = summarizeDriveEnergy(rows);
   return {
+    durationSeconds: rows.every((row) => row.durationSeconds != null)
+      ? rows.reduce((total, row) => total + (row.durationSeconds ?? 0), 0)
+      : null,
     distanceKm: energy.totalDistanceKm,
     driveCount: rows.length,
     energyKwh: energy.totalEnergyKwh,
@@ -428,7 +433,7 @@ const IMPORTED_SOURCES = ["tessie"];
 
 /** Count of unclassified drives — live drives power the dashboard CTA. */
 export async function getUnclassifiedCount(vehicleId: number): Promise<UnclassifiedCount> {
-  const baseWhere = and(eq(drives.vehicleId, vehicleId), eq(drives.classification, "unclassified"));
+  const baseWhere = and(eq(drives.vehicleId, vehicleId), eq(drives.classification, "unclassified"), isNotNull(drives.endTime));
   const [liveRows, importedRows] = await Promise.all([
     db
       .select({ count: sql<number>`count(*)::int` })

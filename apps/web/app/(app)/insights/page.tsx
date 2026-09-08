@@ -254,11 +254,6 @@ export default async function InsightsPage({
   return (
     <div className={styles.page}>
       <section className={styles.hero}>
-        <div className={styles.heroRoute} aria-hidden>
-          <i />
-          <i />
-          <i />
-        </div>
         <div className={styles.heroTopline}>
           <p>
             <Sparkles aria-hidden size={14} />

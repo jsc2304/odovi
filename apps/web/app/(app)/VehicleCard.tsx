@@ -77,9 +77,9 @@ export async function VehicleCard({
     <section className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
       <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-400">
         <CarIcon aria-hidden size={18} />
-        <h1 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+        <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
           {status.displayName}
-        </h1>
+        </h2>
       </div>
 
       {soc != null ? (

@@ -53,7 +53,7 @@ export function DriveMap({ points, mapTiles }: DriveMapProps) {
     addConfiguredMapTiles(map, mapTiles);
 
     const polyline = L.polyline(latLngs, {
-      color: "#3441e3", // Odovi Route Cobalt
+      color: "#176b62", // Primary route accent
       weight: 4,
       opacity: 0.8,
     }).addTo(map);

@@ -66,7 +66,7 @@ export function JourneyMap({ tracks, charges, color, mapTiles }: JourneyMapProps
 
     addConfiguredMapTiles(map, mapTiles);
 
-    const lineColor = color ?? "#3441e3"; // Odovi Route Cobalt
+    const lineColor = color ?? "#176b62"; // Primary route accent
     const bounds = L.latLngBounds([]);
 
     drawable.forEach((track, i) => {

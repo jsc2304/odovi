@@ -5,13 +5,13 @@ export type ButtonVariant = "primary" | "secondary" | "ghost" | "destructive";
 export type ButtonSize = "sm" | "md";
 
 const base =
-  "inline-flex items-center justify-center gap-1.5 rounded-xl font-medium transition-colors disabled:opacity-60 disabled:pointer-events-none " +
+  "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors disabled:opacity-60 disabled:pointer-events-none " +
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-neutral-950";
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-gradient-to-br from-violet-600 to-violet-400 text-white shadow-[0_14px_34px_rgba(71,87,255,0.24)] hover:from-violet-500 hover:to-violet-300 active:from-violet-700 active:to-violet-500 " +
-    "focus-visible:ring-cyan-300 dark:focus-visible:ring-cyan-300",
+    "bg-accent-700 text-white hover:bg-accent-800 active:bg-accent-900 dark:bg-accent-300 dark:text-neutral-950 dark:hover:bg-accent-200 " +
+    "focus-visible:ring-accent-700 dark:focus-visible:ring-accent-300",
   secondary:
     "border border-neutral-300 text-neutral-700 hover:bg-neutral-100 active:bg-neutral-200 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:active:bg-neutral-700 " +
     "focus-visible:ring-cyan-300 dark:focus-visible:ring-cyan-300",
@@ -24,8 +24,8 @@ const variantClasses: Record<ButtonVariant, string> = {
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: "px-2.5 py-1 text-xs",
-  md: "px-4 py-2 text-sm",
+  sm: "min-h-9 px-3 py-1.5 text-xs",
+  md: "min-h-11 px-4 py-2 text-sm",
 };
 
 /**

@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import {
   getVehicleStatus,
   getOpenSessionStatus,
@@ -17,9 +17,15 @@ import { WeatherCard } from "./WeatherCard";
 import { TpmsCard } from "./TpmsCard";
 import { RecentDrivesCard } from "./RecentDrivesCard";
 import { StatsRow } from "./StatsRow";
-import { EmptyState } from "../../components/ui/EmptyState";
 import { Button } from "../../components/ui/Button";
-import { Car, Rocket, Stethoscope } from "lucide-react";
+import { ArrowRight, Car, Clock3, Rocket, Route, Search, Stethoscope } from "lucide-react";
+import { formatDuration, formatKm } from "@odovi/core";
+import { APP_TIMEZONE } from "../../lib/config";
+import { toIntlLocale } from "../../lib/i18nLocale";
+import { getDrivingProfile } from "../../lib/drivingProfile";
+import { DrivingProfileForm } from "../../components/DrivingProfileForm";
+import { ClassificationTask } from "./ClassificationTask";
+import { VehicleSummary } from "./VehicleSummary";
 
 export const dynamic = "force-dynamic";
 
@@ -97,22 +103,23 @@ async function OnboardingCard() {
 
 export default async function DashboardPage() {
   const vehicleId = await getDefaultVehicleId();
-  const t = await getTranslations("dashboard");
+  const [t, locale] = await Promise.all([getTranslations("dashboard"), getLocale()]);
 
   if (vehicleId == null) {
     return <OnboardingCard />;
   }
 
-  const [status, openSession, parkDrain, recentDrives, today, week, lastCharge, unclassifiedCount] =
+  const [status, openSession, parkDrain, recentDrives, today, week, lastCharge, unclassifiedCount, drivingProfile] =
     await Promise.all([
       getVehicleStatus(vehicleId),
       getOpenSessionStatus(vehicleId),
       getDashboardParkDrain(vehicleId),
-      getRecentDrives(vehicleId, 5),
+      getRecentDrives(vehicleId, 4),
       getTodayStats(vehicleId),
       getWeekStats(vehicleId),
       getLastCharge(vehicleId),
       getUnclassifiedCount(vehicleId),
+      getDrivingProfile(vehicleId),
     ]);
 
   const driveTracks = await getRecentDriveTracks(recentDrives.map((d) => d.id));
@@ -131,33 +138,49 @@ export default async function DashboardPage() {
     weather = await getCurrentWeather(status.lat, status.lon);
   }
 
+  const date = new Intl.DateTimeFormat(toIntlLocale(locale), {
+    weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: APP_TIMEZONE,
+  }).format(new Date());
+
   return (
-    <div className="flex flex-col gap-4 md:grid md:grid-cols-3 md:gap-4">
-      <div className="md:col-span-2">
-        {status ? (
-          <VehicleCard status={status} openSession={openSession} parkDrain={parkDrain} />
-        ) : (
-          <EmptyState icon={Car} title={t("vehicleStatusEmpty")} />
-        )}
-      </div>
+    <div className="dashboard-overview">
+      <header className="overview-header">
+        <div>
+          <h1>{t("overview.title")}</h1>
+          <p className="mt-2 text-[13px] text-neutral-500 dark:text-neutral-400">{date}</p>
+        </div>
+        <form action="/search" role="search" className="overview-search">
+          <Search aria-hidden size={18} />
+          <input type="search" name="q" aria-label={t("overview.search")} placeholder={t("overview.search")} />
+          <button type="submit" aria-label={t("overview.submitSearch")} className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800">
+            <ArrowRight aria-hidden size={17} />
+          </button>
+        </form>
+        {status && <VehicleSummary status={status} openSession={openSession} />}
+      </header>
 
-      <div className="flex flex-col gap-4 md:col-span-1">
-        <WeatherCard result={weather} />
-        {status && <TpmsCard status={status} />}
-      </div>
+      {!drivingProfile && <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
+        <DrivingProfileForm vehicleId={vehicleId} profile={null} />
+      </div>}
+      <ClassificationTask vehicleId={vehicleId} count={unclassifiedCount.live + unclassifiedCount.imported}
+        imported={unclassifiedCount.imported} profile={drivingProfile} />
 
-      <div className="md:col-span-3">
-        <StatsRow
-          today={today}
-          week={week}
-          lastCharge={lastCharge}
-          unclassifiedCount={unclassifiedCount}
-        />
-      </div>
+      <dl className="overview-summary" aria-label={t("stats.today")}>
+        <div><Car aria-hidden /><dt className="sr-only">{t("overview.driveCount")}</dt><dd>{t("stats.driveCount", { count: today.driveCount })}</dd></div>
+        <div><Route aria-hidden /><dt className="sr-only">{t("overview.distance")}</dt><dd>{formatKm(today.distanceKm)}</dd></div>
+        <div><Clock3 aria-hidden /><dt className="sr-only">{t("overview.duration")}</dt><dd>{today.durationSeconds == null ? "—" : formatDuration(today.durationSeconds)}</dd></div>
+      </dl>
 
-      <div className="md:col-span-3">
-        <RecentDrivesCard drives={recentDrives} tracks={driveTracks} car={car} />
-      </div>
+      <RecentDrivesCard drives={recentDrives} tracks={driveTracks} car={car} />
+
+      <details id="vehicle-details" className="overview-details group">
+        <summary className="cursor-pointer py-5 text-sm font-medium text-neutral-600 dark:text-neutral-300">{t("overview.vehicleDetails")}</summary>
+        <div className="grid gap-4 pb-5 md:grid-cols-3">
+          {status && <div className="md:col-span-2"><VehicleCard status={status} openSession={openSession} parkDrain={parkDrain} /></div>}
+          <div className="flex flex-col gap-4"><WeatherCard result={weather} />{status && <TpmsCard status={status} />}</div>
+          <div className="md:col-span-3"><StatsRow today={today} week={week} lastCharge={lastCharge} unclassifiedCount={unclassifiedCount} /></div>
+        </div>
+      </details>
     </div>
   );
 }
