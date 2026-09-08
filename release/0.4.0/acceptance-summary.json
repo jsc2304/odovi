@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "version": "0.4.0",
+  "sourceCommit": "60e0d7185fe7d33d8762148c42f3b5e899e0c085",
+  "date": "2026-09-08",
+  "images": {
+    "web": "ghcr.io/jsc2304/odovi-web@sha256:d4fcb513e6e852ee34d7d136ce09a99ba46e4a62bd196e94e66c9942b16e4cf2",
+    "worker": "ghcr.io/jsc2304/odovi-worker@sha256:1a60d878eac7dc84b670cad8c4bc4e7569306c5d1aee937e1a0c15105edb30a2"
+  },
+  "checks": [
+    {
+      "environment": "GitHub-hosted Ubuntu, linux/amd64",
+      "result": "passed",
+      "coverage": "Complete CI, production dependency audit, Compose and release consistency, published-image application acceptance, and image identity/license checks for amd64 and arm64",
+      "workflowRun": "https://github.com/jsc2304/odovi/actions/runs/34267788089",
+      "workflowRunAttempt": 1,
+      "enforcedAcceptanceIssues": [
+        27,
+        28,
+        29,
+        31,
+        32,
+        33,
+        38,
+        49,
+        50
+      ]
+    },
+    {
+      "environment": "Raspberry Pi 5, native linux/arm64",
+      "result": "passed",
+      "coverage": "Fresh administrator setup, synchronization, classification, exports, DC comparison, yearly destinations, Wrapped, desktop/mobile UI, printing, controlled provider contracts, restart and readiness recovery against the published candidate images",
+      "acceptanceIssuesExercised": [
+        27,
+        28,
+        29,
+        31,
+        32,
+        33,
+        49,
+        50
+      ],
+      "teslaMateSchemaFixture": "4.0.1",
+      "compatibilityEndpointMatrix": "4.0.1 and 4.2.0 validated in the candidate GitHub CI run",
+      "readinessRecoveryObservations": 13,
+      "browser": {
+        "name": "Chromium"
+      },
+      "browserTests": {
+        "passed": 26,
+        "skipped": 1,
+        "failed": 0,
+        "flaky": 0,
+        "skipReason": "Duplicate mobile browser-locale negotiation is covered by the desktop variant."
+      },
+      "sourceAndImageIdentityVerified": true,
+      "filesystemAndLabelsVerified": true,
+      "unexpectedProviderRequests": 0,
+      "controlledFixtureProviderRequests": 107
+    },
+    {
+      "environment": "Raspberry Pi 5, isolated linux/arm64 containers",
+      "result": "passed",
+      "coverage": "Published 0.3.0 baseline, upgrade to the accepted 0.4.0 images with preserved records and sessions, restored current checkpoint, and rollback to the exact original images and checkpoint; preserved CSV/GPX exports and fresh-login checks after restore and rollback",
+      "phasesPassed": 4,
+      "finalizationPassed": true,
+      "exactTableSnapshotsCompared": 23,
+      "backupChecksumsVerified": 2,
+      "preservedExports": {
+        "csv": 2,
+        "gpx": 1
+      },
+      "sourceAndImageIdentityVerified": true,
+      "unexpectedProviderRequests": 0
+    }
+  ],
+  "promotionWorkflowRun": "https://github.com/jsc2304/odovi/actions/runs/34272058269",
+  "testData": "Synthetic fixtures only. Raw logs, traces, account state and database backups are not included."
+}
