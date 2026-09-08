@@ -36,6 +36,38 @@ The worker needs `DATABASE_URL` and `TESLAMATE_DATABASE_URL`; see
 `.env.development.example` for the expected local values. The web app runs at
 `http://localhost:3000` by default.
 
+## File placement
+
+Use the existing owner of a feature or workflow when adding files:
+
+| Location | Responsibility |
+| --- | --- |
+| `apps/` | Deployable applications: web and worker. |
+| `packages/` | Shared application logic, database schema and runtime configuration. |
+| `acceptance/` | Release-stack browser checks and rename/upgrade scenarios. |
+| `tests/` | Shared test inputs, currently runtime-configuration fixtures. |
+| `dev/` | Local development tools and the synthetic-data fixture workspace. |
+| `deploy/` | Installation integrations, currently the TeslaMate Compose example. |
+| `release/` | Versioned release manifests and their matching Compose files. |
+| `scripts/` | Repository checks, release tooling and maintenance commands. |
+| `security/` | Reviewed dependency-audit exceptions. |
+| `docs/` | Reviewed public usage, operations and architecture documentation. |
+| `.github/` and `.githooks/` | Automation, contribution templates and local Git checks. |
+
+Keep module-specific tests beside the code they exercise, including tests of
+repository scripts. Extend the existing acceptance harness for release-wide
+scenarios; avoid creating a second harness in `tests/`.
+
+Keep root entry points such as the README, license notices, workspace
+configuration and default Compose files in place. Add a new top-level
+directory only when no existing location owns the responsibility, and explain
+that choice in the change. Update this map when responsibilities change.
+
+Treat directory moves as functional changes: check workspace membership,
+Docker build contexts, Compose-relative paths, script entry points, workflow
+filters, documentation links and publication checks together. Preserve
+published release paths and verify affected commands before merging.
+
 ## Checks
 
 Run the repository checks before opening a pull request:
