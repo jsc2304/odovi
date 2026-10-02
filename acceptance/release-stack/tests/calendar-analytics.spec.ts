@@ -1,6 +1,8 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page, type Locator } from "@playwright/test";
 import { installBrowserEgressGuard } from "../egress";
 import { login } from "./helpers";
+
+test.use({ hasTouch: true });
 
 const day = process.env.ODOVI_ACCEPTANCE_DAY;
 const month = day?.slice(0, 7);
@@ -8,6 +10,13 @@ const year = process.env.ODOVI_ACCEPTANCE_INSIGHTS_YEAR ?? day?.slice(0, 4);
 
 async function fitsViewport(page: Page) {
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
+}
+
+async function openDataView(view: Locator) {
+  const summary = view.locator("summary");
+  await summary.scrollIntoViewIfNeeded();
+  await summary.press("Space");
+  await expect(view).toHaveAttribute("open", "");
 }
 
 for (const locale of ["en", "de"] as const) {
@@ -99,12 +108,17 @@ for (const locale of ["en", "de"] as const) {
       const dataViews = page.locator("[data-chart-data]");
       await expect.poll(() => dataViews.count()).toBeGreaterThanOrEqual(4);
       for (const view of await dataViews.all()) {
-        await view.locator("summary").press("Enter");
+        await openDataView(view);
         await expect(view.getByRole("table")).toBeVisible();
         await expect.poll(() => view.locator("tbody tr").count()).toBeGreaterThan(0);
         await view.getByRole("region").focus();
         await expect(view.getByRole("region")).toBeFocused();
       }
+      const firstDataView = dataViews.first();
+      await firstDataView.locator("summary").tap();
+      await expect(firstDataView).not.toHaveAttribute("open", "");
+      await firstDataView.locator("summary").tap();
+      await expect(firstDataView.getByRole("table")).toBeVisible();
       await fitsViewport(page);
 
       await page.goto("/charges/analysis?count=10");
@@ -112,7 +126,7 @@ for (const locale of ["en", "de"] as const) {
       const curves = page.locator("details").filter({ has: page.locator("summary", { hasText: /Recorded curve values|Erfasste Kurvenwerte/ }) });
       await expect.poll(() => curves.count()).toBeGreaterThan(0);
       const first = curves.first();
-      await first.locator("summary").press("Enter");
+      await openDataView(first);
       // The synthetic charging fixture has 36 plotted samples; all remain accessible.
       await expect(first.locator("tbody tr")).toHaveCount(36);
       await expect(first.getByRole("table")).toContainText(locale === "en" ? "Segment" : "Abschnitt");
@@ -120,7 +134,7 @@ for (const locale of ["en", "de"] as const) {
 
       await page.goto(`/wrapped?year=${year}&classification=private`);
       const destinationData = page.locator("[data-destination-data]");
-      await destinationData.locator("summary").press("Enter");
+      await openDataView(destinationData);
       await expect(destinationData.getByRole("table")).toBeVisible();
       await expect(destinationData.getByRole("table")).toContainText(year!);
       await expect(destinationData.getByRole("table")).toContainText(locale === "en" ? "Private" : "Privat");
