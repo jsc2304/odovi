@@ -1,9 +1,10 @@
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
+import { request as httpRequest } from "node:http";
 import { expect, test } from "@playwright/test";
 import { installBrowserEgressGuard } from "../egress";
 import { login } from "./helpers";
-import { fixturePdf } from "../../../apps/web/lib/invoices/fixtures.test-support";
+import { fixturePdf, fixtureZip } from "../../../apps/web/lib/invoices/fixtures.test-support";
 
 for (const locale of ["en", "de"] as const) for (const theme of ["light", "dark"] as const) for (const width of [393, 1280]) {
   test(`invoice originals, review, export and deletion ${locale}/${theme}/${width}`, async ({ context, page }, testInfo) => {
@@ -74,3 +75,86 @@ for (const locale of ["en", "de"] as const) for (const theme of ["light", "dark"
     await expect(section).toHaveCount(0);
   });
 }
+
+test("large invoice ZIP preserves every original and rejects chunked upload overflow", async ({ context, page }, testInfo) => {
+  test.setTimeout(90_000);
+  await installBrowserEgressGuard(context);
+  await login(page);
+  const origin = new URL(process.env.ODOVI_ACCEPTANCE_BASE_URL!).origin;
+  const headers = { origin, "x-odovi-invoice": "1" };
+  expect((await page.request.patch("/api/invoices/settings", { data: { enabled: true }, headers })).ok()).toBe(true);
+  const index = async () => {
+    const response = await page.request.get("/api/invoices");
+    expect(response.ok()).toBe(true);
+    return response.json();
+  };
+  const before = await index();
+  const mib = 1024 * 1024;
+  const nonce = Date.now().toString(36).toUpperCase();
+  const files: [string, Buffer][] = Array.from({ length: 4 }, (_, i) => {
+    const pdf = fixturePdf(`Tesla Invoice number: BODY-${nonce}-${i} Total amount: 12.34 EUR`);
+    const startxref = pdf.lastIndexOf("startxref\n");
+    expect(startxref).toBeGreaterThan(0);
+    // Comments before startxref preserve object/xref offsets and extracted text.
+    const padding = Buffer.concat([Buffer.from("%"), Buffer.alloc(3 * mib - pdf.length - 2, 65 + i), Buffer.from("\n")]);
+    return [`body-${i}.pdf`, Buffer.concat([pdf.subarray(0, startxref), padding, pdf.subarray(startxref)])];
+  });
+  const original = await fixtureZip(files, false);
+  expect(original.length).toBeGreaterThan(10 * mib);
+  expect(original.length).toBeLessThan(20 * mib);
+  const digest = (data: Buffer) => createHash("sha256").update(data).digest("hex");
+  let ownedUpload: number | null = null;
+  try {
+    const uploaded = await page.request.post("/api/invoices", {
+      data: original,
+      headers: { ...headers, "content-type": "application/zip", "x-invoice-filename": "acceptance-body-limit.zip" },
+    });
+    const result = await uploaded.json();
+    if (uploaded.status() === 201) ownedUpload = result.uploadId;
+    expect(uploaded.status(), JSON.stringify(result)).toBe(201);
+    expect(result.duplicate).toBe(false);
+    expect(Number.isSafeInteger(ownedUpload)).toBe(true);
+    const stored = await index();
+    const upload = stored.uploads.find((record: { id: number }) => record.id === ownedUpload);
+    expect(upload).toMatchObject({ byteSize: original.length, sha256: digest(original) });
+    const zipDownload = await page.request.get(`/api/invoices/upload/${ownedUpload}`);
+    expect(zipDownload.status()).toBe(200);
+    const zipBytes = await zipDownload.body();
+    expect(zipBytes.length).toBe(original.length);
+    expect(digest(zipBytes)).toBe(digest(original));
+    const invoices = stored.invoices.filter((record: { uploadId: number }) => record.uploadId === ownedUpload);
+    expect(invoices).toHaveLength(4);
+    for (const [filename, pdf] of files) {
+      const record = invoices.find((invoice: { filename: string }) => invoice.filename === filename);
+      expect(record).toMatchObject({ byteSize: 3 * mib, sha256: digest(pdf) });
+      const download = await page.request.get(`/api/invoices/invoice/${record.id}`);
+      expect(download.status()).toBe(200);
+      const bytes = await download.body();
+      expect(bytes.length).toBe(3 * mib);
+      expect(digest(bytes)).toBe(digest(pdf));
+    }
+    const cookie = (await context.cookies(origin)).map(({ name, value }) => `${name}=${value}`).join("; ");
+    const rejected = await new Promise<{ status: number; body: Buffer }>((resolve, reject) => {
+      const request = httpRequest(new URL("/api/invoices", origin), {
+        method: "POST", headers: { ...headers, cookie, "content-type": "application/zip", "x-invoice-filename": "overflow.zip", "transfer-encoding": "chunked" },
+      }, (response) => {
+        const chunks: Buffer[] = [];
+        response.on("data", (chunk: Buffer) => chunks.push(chunk));
+        response.once("error", reject);
+        response.once("end", () => resolve({ status: response.statusCode!, body: Buffer.concat(chunks) }));
+      });
+      expect(request.getHeader("content-length")).toBeUndefined();
+      request.once("error", reject);
+      request.setTimeout(30_000, () => request.destroy(new Error("Chunked upload timed out")));
+      request.write(Buffer.alloc(20 * mib, 32));
+      request.end(Buffer.from("!"));
+    });
+    expect(rejected.status, rejected.body.toString()).toBe(413);
+    expect(JSON.parse(rejected.body.toString())).toEqual({ error: "upload-too-large" });
+    expect(await index()).toEqual(stored);
+    await testInfo.attach("invoice-body-limit", { body: JSON.stringify({ zipBytes: original.length, pdfBytes: files.map(([, pdf]) => pdf.length), overflowBytes: 20 * mib + 1, overflowStatus: rejected.status }), contentType: "application/json" });
+  } finally {
+    if (ownedUpload !== null) expect((await page.request.delete(`/api/invoices/upload/${ownedUpload}`, { headers })).status()).toBe(200);
+    expect(await index()).toEqual(before);
+  }
+});
