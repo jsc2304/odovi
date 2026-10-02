@@ -168,7 +168,7 @@ export default async function ChargeAnalysisPage({ searchParams }: {
                     {curvePoints.length > 0 && (
                       <details className="mt-3">
                         <summary className="min-h-11 cursor-pointer py-3 text-xs font-medium underline-offset-4 hover:underline">{t("analysis.samples.title")}</summary>
-                        <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">{t("analysis.samples.description", { count: curvePoints.length, total: curvePoints.length })}</p>
+                        <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">{t("analysis.samples.description", { total: curvePoints.length })}</p>
                         <div className="mt-2 max-h-96 overflow-auto overscroll-contain" tabIndex={0} role="region" aria-label={t("analysis.samples.caption", { session: series[index]!.label })}>
                         <table className="w-full text-left text-xs tabular-nums">
                           <caption className="sr-only">{t("analysis.samples.caption", { session: series[index]!.label })}</caption>

@@ -193,7 +193,7 @@ export function ScatterBinnedChart({
             strokeLinecap="round"
           />
         )}
-        {/* Bin-Punkte (klickbar/hoverbar) */}
+        {/* Group means; exact values remain available in the data tables. */}
         {bins.map((b, i) => (
           <circle
             key={`bin-${i}`}

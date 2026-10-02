@@ -25,6 +25,7 @@ for (const locale of ["en", "de"] as const) {
         await page.goto(`/calendar?month=${month}`);
         await expect(page.locator("html")).toHaveAttribute("lang", locale);
         await fitsViewport(page);
+        await expect(page.locator(`[data-date="${day}"]`)).toBeVisible();
         const cells = page.getByTestId("calendar-day-cell");
         for (const cell of await cells.all()) {
           const box = await cell.boundingBox();
