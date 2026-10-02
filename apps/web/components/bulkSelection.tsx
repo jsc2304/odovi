@@ -49,11 +49,6 @@ export function BulkSelectionProvider({
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Keep the current id list in a ref so selectAll never closes over stale data
-  // (search results change as the query changes).
-  const allIdsRef = useRef(allIds);
-  allIdsRef.current = allIds;
-
   useEffect(() => {
     const currentIds = new Set(allIds);
     setSelected((prev) => {
@@ -92,8 +87,8 @@ export function BulkSelectionProvider({
   }, []);
 
   const selectAll = useCallback(() => {
-    setSelected(new Set(allIdsRef.current));
-  }, []);
+    setSelected(new Set(allIds));
+  }, [allIds]);
 
   const clear = useCallback(() => setSelected(new Set()), []);
 

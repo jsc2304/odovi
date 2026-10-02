@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run --passWithNoTests"
@@ -21,7 +21,7 @@
     "drizzle-orm": "^0.45.2",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.23.0",
-    "next": "15.5.24",
+    "next": "16.3.8",
     "next-intl": "^4.13.1",
     "pdfjs-dist": "6.3.289",
     "postgres": "^3.4.5",
@@ -33,8 +33,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.5",
-    "@next/eslint-plugin-next": "15.5.24",
+    "@next/eslint-plugin-next": "16.3.8",
     "@tailwindcss/postcss": "^4",
     "@types/leaflet": "^1.9.21",
     "@types/node": "^20",
@@ -43,7 +42,7 @@
     "@types/yauzl": "2.10.3",
     "@types/yazl": "3.3.0",
     "eslint": "^9",
-    "eslint-config-next": "15.5.24",
+    "eslint-config-next": "16.3.8",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^3.0.5"

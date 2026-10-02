@@ -3,12 +3,12 @@ import { LEGACY_SESSION_COOKIE, SESSION_COOKIE } from "./lib/config";
 
 /**
  * Presence-only auth gate. Redirects to /login when no session cookie is set.
- * No DB access happens here (middleware runs on the edge runtime); the actual
+ * No DB access happens here; the proxy only checks cookie presence. Actual
  * session validation is done in server components/actions via validateSession.
  */
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // Match server-side session validation during the supported rename window.
-  // https://nextjs.org/docs/15/app/api-reference/file-conventions/middleware#using-cookies
+  // https://nextjs.org/docs/app/api-reference/file-conventions/proxy#using-cookies
   const hasCookie = request.cookies.has(SESSION_COOKIE) || request.cookies.has(LEGACY_SESSION_COOKIE);
   if (!hasCookie) {
     const url = request.nextUrl.clone();

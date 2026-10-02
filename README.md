@@ -131,7 +131,7 @@ Details: [docs/demo.md](docs/demo.md)
 
 ## Stack
 
-pnpm monorepo: Next.js 15 (`apps/web`) · sync worker (`apps/worker`) · Drizzle schema (`packages/db`) · pure domain logic (`packages/core`) · PostgreSQL 17 · Docker Compose.
+pnpm monorepo: Next.js 16 (`apps/web`) · sync worker (`apps/worker`) · Drizzle schema (`packages/db`) · pure domain logic (`packages/core`) · PostgreSQL 17 · Docker Compose.
 
 ## Development
 

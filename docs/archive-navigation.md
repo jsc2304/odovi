@@ -52,3 +52,9 @@ The shared Paper & Ink palette, page typography, cards and buttons are the
 visual reference for compact and wide archive views. Forms use visible
 boundaries, keyboard focus, native controls, and the existing reduced-motion
 and zoom settings. Charts and the recap retain their task-specific layouts.
+
+The source uses Next.js 16.3.8 to include React's
+[hydration cursor fix](https://github.com/react/react/pull/35494). Earlier
+Next.js 15 runtimes can incorrectly replay a server-rendered wrapper during
+interrupted hydration even when its HTML matches the browser tree. Node 22
+and the existing Webpack standalone build remain supported.
