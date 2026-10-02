@@ -34,5 +34,6 @@
     "fri": "Fr",
     "sat": "Sa",
     "sun": "So"
-  }
+  },
+  "gridLabel": "Kalendertage im {month}"
 }

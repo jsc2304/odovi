@@ -13,6 +13,7 @@ import {
 import { toIntlLocale } from "../../../lib/i18nLocale";
 import {
   applyCalendarMetric,
+  formatMonthLabel,
   type CalendarCell,
   type CalendarDayStats,
   type CalendarMetric,
@@ -152,6 +153,9 @@ export function MonthGrid({
       </div>
 
       <div className="rounded-2xl border border-neutral-200 bg-white p-2 dark:border-neutral-800 dark:bg-neutral-900 sm:p-3">
+        <p className="my-2 text-xs text-neutral-500 dark:text-neutral-400">{t("preview.hint")}</p>
+        <div className="overflow-x-auto overscroll-contain" role="region" tabIndex={0} aria-label={t("gridLabel", { month: formatMonthLabel(month, locale) })}>
+        <div className="min-w-[16rem]">
         <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400">
           {WEEKDAY_KEYS.map((key) => (
             <div key={key} className="py-1">
@@ -160,7 +164,6 @@ export function MonthGrid({
           ))}
         </div>
 
-        <p className="my-2 text-xs text-neutral-500 dark:text-neutral-400">{t("preview.hint")}</p>
         <div className="mt-1 grid grid-cols-7 gap-1">
           {metricCells.map((cell) => {
             const contents = (
@@ -192,6 +195,8 @@ export function MonthGrid({
               <Link key={cell.date} data-testid="calendar-day-cell" href={`/day/${cell.date}${dayQuery}`} aria-label={t("preview.openDayDate", { date: cell.date })} className={cellClass}>{contents}</Link>
             );
           })}
+        </div>
+        </div>
         </div>
       </div>
 
