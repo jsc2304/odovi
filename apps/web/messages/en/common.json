@@ -3,7 +3,8 @@
     "unclassified": "Unclassified",
     "private": "Private",
     "business": "Business",
-    "commute": "Commute"
+    "commute": "Commute",
+    "saveImmediately": "Choosing a category saves the selected drive immediately."
   },
   "actions": {
     "save": "Save",

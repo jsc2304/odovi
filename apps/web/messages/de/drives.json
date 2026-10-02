@@ -42,7 +42,10 @@
     "project": "Projekt",
     "notes": "Notizen",
     "saving": "Speichert…",
-    "saved": "Gespeichert"
+    "saved": "Gespeichert",
+    "discard": "Änderungen verwerfen",
+    "unsaved": "Du hast ungespeicherte Änderungen. Verlassen und verwerfen?",
+    "saveFailed": "Speichern konnte nicht bestätigt werden. Deine Änderungen bleiben hier; prüfe vor einem neuen Versuch die gespeicherten Werte."
   },
   "auditLog": {
     "noChanges": "Noch keine Änderungen protokolliert."
@@ -80,5 +83,21 @@
     "invalidInput": "Ungültige Eingabe.",
     "tagCreateFailed": "Tag konnte nicht angelegt werden.",
     "tagNotFound": "Tag nicht gefunden."
+  },
+  "undo": {
+    "title": "Letzte Schnellklassifizierung",
+    "saved": "{count, plural, one {# Fahrt als {classification} gespeichert.} other {# Fahrten als {classification} gespeichert.}}",
+    "lifetime": "Rückgängig ist in dieser Anmeldung 30 Minuten lang verfügbar, auch nach Navigation und Neuladen. Eine neue Schnellklassifizierung ersetzt die vorherige.",
+    "action": "Klassifizierung rückgängig",
+    "pending": "Klassifizierungen werden wiederhergestellt…",
+    "undone": "Klassifizierung wiederhergestellt. Andere Angaben und Tags bleiben erhalten.",
+    "expired": "Die 30 Minuten zum Rückgängigmachen sind abgelaufen. Keine Klassifizierung wurde geändert.",
+    "superseded": "Eine neuere Schnellklassifizierung hat diese Änderung ersetzt. Keine Klassifizierung wurde geändert.",
+    "conflict": "Mindestens eine Fahrt wurde erneut klassifiziert oder ist nicht mehr verfügbar. Rückgängig wurde für die ganze Auswahl abgebrochen. Prüfe die aktuellen Klassifizierungen.",
+    "unavailable": "Diese Änderung kann in dieser Anmeldung nicht rückgängig gemacht werden. Keine Klassifizierung wurde geändert.",
+    "failed": "Rückgängig konnte nicht bestätigt werden. Lade neu, um das Ergebnis zu prüfen; dieselbe Änderung erneut rückgängig zu machen ist sicher.",
+    "scope": "Eine Kategorie speichert diese Fahrt sofort.",
+    "bulkScope": "Eine Kategorie klassifiziert sofort alle {count} ausgewählten Fahrten.",
+    "saveFailed": "Klassifizierung konnte nicht gespeichert werden. Prüfe die aktuelle Kategorie und versuche es erneut."
   }
 }

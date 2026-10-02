@@ -13,6 +13,9 @@ import { ProviderReviewNotice } from "./ProviderReviewNotice";
 import { LocationProviderClientConfigProvider } from "../../components/LocationProviderClientConfig";
 import { DEFAULT_LOCALE, isLocale } from "../../lib/locale";
 
+import { getLatestClassificationOperation } from "../../lib/actions/drives";
+import { ClassificationUndoNotice, ClassificationUndoProvider } from "../../components/ClassificationUndo";
+
 export const dynamic = "force-dynamic";
 
 export default async function AppLayout({
@@ -23,9 +26,10 @@ export default async function AppLayout({
   const user = await validateSession();
   if (!user) redirect("/login");
 
-  const [vehicles, providerReview] = await Promise.all([
+  const [vehicles, providerReview, classificationOperation] = await Promise.all([
     getVehicles(),
     getProviderReviewSnapshot(),
+    getLatestClassificationOperation(),
   ]);
   const vehicleName = vehicles[0]?.displayName ?? "—";
 
@@ -37,6 +41,7 @@ export default async function AppLayout({
   const theme: ThemeChoice =
     cookieTheme === "light" || cookieTheme === "dark" ? cookieTheme : "system";
   return (
+    <ClassificationUndoProvider initial={classificationOperation}>
     <LocationProviderClientConfigProvider config={providerReview.clientConfig}>
       <a href="#main-content" className="skip-link">{t("skipToContent")}</a>
       <div className="min-h-dvh bg-neutral-50 text-neutral-900 md:flex dark:bg-neutral-950 dark:text-neutral-100">
@@ -76,6 +81,7 @@ export default async function AppLayout({
 
           <main id="main-content" tabIndex={-1} className="app-main min-w-0 flex-1 px-5 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-6 md:px-9 md:pb-9 md:pt-9">
             {providerReview.requiresReview && <ProviderReviewNotice />}
+            <ClassificationUndoNotice />
             {children}
           </main>
         </div>
@@ -83,5 +89,6 @@ export default async function AppLayout({
         <BottomNav />
       </div>
     </LocationProviderClientConfigProvider>
+    </ClassificationUndoProvider>
   );
 }

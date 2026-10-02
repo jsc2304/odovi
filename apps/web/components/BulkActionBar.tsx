@@ -2,7 +2,8 @@
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { ChevronDown, Loader2, X } from "lucide-react";
-import { bulkUpdateDrives } from "../lib/actions/drives";
+import { bulkSetDriveClassification, bulkUpdateDrives } from "../lib/actions/drives";
+import { useClassificationUndo } from "./ClassificationUndo";
 import { buttonClasses } from "./ui/Button";
 import type { Classification } from "../lib/classification";
 import type { TagLite } from "../lib/queries";
@@ -35,6 +36,8 @@ export function BulkActionBar({
   onApplied: (count: number) => void;
 }) {
   const count = selectedIds.length;
+  const { recordOperation, reportError } = useClassificationUndo();
+  const tDrives = useTranslations("drives");
   const t = useTranslations("bulk");
   const tCommon = useTranslations("common");
   const [pending, startTransition] = useTransition();
@@ -47,12 +50,15 @@ export function BulkActionBar({
     setError(null);
     startTransition(async () => {
       try {
-        const n = await bulkUpdateDrives({ driveIds: selectedIds, ...patch });
+        const operation = patch.classification ? await bulkSetDriveClassification(selectedIds, patch.classification) : null;
+        const n = patch.classification ? operation?.count ?? 0 : await bulkUpdateDrives({ driveIds: selectedIds, ...patch });
+        if (operation) recordOperation(operation);
         setCustomer("");
         setProject("");
         onApplied(n);
       } catch {
         setError(t("applyError"));
+        reportError(t("applyError"));
       }
     });
   }
@@ -71,9 +77,9 @@ export function BulkActionBar({
         }`}
       >
         <div className="flex items-center justify-between gap-2">
-          <span className="flex items-center gap-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+          <span role="status" className="flex items-center gap-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
             {pending && <Loader2 aria-hidden size={15} className="animate-spin" />}
-            {t("selectedCount", { count })}
+            {pending ? tCommon("state.loading") : t("selectedCount", { count })}
           </span>
           <button
             type="button"
@@ -84,6 +90,8 @@ export function BulkActionBar({
             {tCommon("actions.cancel")}
           </button>
         </div>
+
+        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">{tDrives("undo.bulkScope", { count })}</p>
 
         {/* Klassifizierung — Segmented-Control, wendet sofort an */}
         <div
@@ -182,7 +190,7 @@ export function BulkActionBar({
         )}
 
         {error && (
-          <p className="mt-2 text-sm text-red-600 dark:text-red-400">{error}</p>
+          <p role="alert" className="mt-2 text-sm text-red-600 dark:text-red-400">{error}</p>
         )}
       </div>
     </div>

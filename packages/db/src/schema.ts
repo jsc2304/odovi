@@ -143,6 +143,7 @@ export const drives = pgTable(
     classification: driveClassification("classification")
       .notNull()
       .default("unclassified"),
+    classificationRevision: integer("classification_revision").notNull().default(0),
     // Provenance: gesetzt, wenn eine Auto-Regel klassifiziert hat (Vision §5.6
     // Nachvollziehbarkeit). Regeln fassen nur unclassified-Drives ohne diesen
     // Marker an; manuelle Änderungen lassen ihn als Historie stehen.
@@ -540,3 +541,16 @@ export const sessions = pgTable(
   },
   (t) => [index("sessions_user_idx").on(t.userId)],
 );
+
+// Session-bound quick classification operations. Membership/previous values are
+// written only by server actions; revisions detect every later classification edit.
+export const classificationOperations = pgTable("classification_operations", {
+  id: id(),
+  sessionId: text("session_id").notNull().references(() => sessions.id, { onDelete: "cascade" }),
+  userId: bigint("user_id", { mode: "number" }).notNull().references(() => users.id, { onDelete: "cascade" }),
+  classification: driveClassification("classification").notNull(),
+  changes: jsonb("changes").$type<Array<{ driveId: number; previous: "unclassified" | "private" | "business" | "commute"; revision: number }>>().notNull(),
+  createdAt: createdAt(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  undoneAt: timestamp("undone_at", { withTimezone: true }),
+}, (t) => [index("classification_operations_session_idx").on(t.sessionId, t.id)]);

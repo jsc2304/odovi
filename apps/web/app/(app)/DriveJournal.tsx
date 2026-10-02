@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useOptimistic, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { ArrowRight, Check, ChevronDown, ChevronRight, MapPin, Undo2, X } from "lucide-react";
-import { setDriveClassification, undoDriveClassification, type ClassificationChange } from "../../lib/actions/drives";
+import { ArrowRight, Check, ChevronDown, ChevronRight, MapPin, X } from "lucide-react";
+import { setDriveClassification } from "../../lib/actions/drives";
+import { useClassificationUndo } from "../../components/ClassificationUndo";
 import { CLASSIFICATION_BADGE, QUICK_ORDER, type Classification } from "../../lib/classification";
 
 export interface JournalDrive {
@@ -23,9 +23,9 @@ export interface JournalDrive {
 export function DriveJournal({ drives }: { drives: JournalDrive[] }) {
   const t = useTranslations("dashboard.overview");
   const common = useTranslations("common");
-  const router = useRouter();
+  const { recordOperation, reportError } = useClassificationUndo();
   const [pending, startTransition] = useTransition();
-  const [feedback, setFeedback] = useState<{ message: string; error?: boolean; change?: ClassificationChange } | null>(null);
+  const [feedback, setFeedback] = useState<{ message: string; error?: boolean } | null>(null);
   const [rows, updateRow] = useOptimistic(drives, (current, update: { id: number; classification: Classification }) =>
     current.map((row) => row.id === update.id ? { ...row, classification: update.classification } : row));
 
@@ -36,28 +36,18 @@ export function DriveJournal({ drives }: { drives: JournalDrive[] }) {
       updateRow({ id: row.id, classification });
       try {
         const change = await setDriveClassification(row.id, classification);
-        setFeedback({ message: t("saved"), change: change ?? undefined });
+        recordOperation(change);
+        setFeedback({ message: t("saved") });
       } catch {
+        reportError(t("saveFailed"));
         setFeedback({ message: t("saveFailed"), error: true });
-      }
-    });
-  }
-
-  function undo(change: ClassificationChange) {
-    startTransition(async () => {
-      updateRow({ id: change.driveId, classification: change.previous });
-      try {
-        await undoDriveClassification(change.auditId);
-        setFeedback({ message: t("undone") });
-      } catch {
-        setFeedback({ message: t("undoFailed"), error: true });
-        router.refresh();
       }
     });
   }
 
   return (
     <>
+      <p className="mb-2 text-sm text-neutral-600 dark:text-neutral-400">{common("classification.saveImmediately")}</p>
       <table className="drive-journal" aria-busy={pending}>
         <thead><tr>
           <th scope="col">{t("time")}</th><th scope="col">{t("route")}</th>
@@ -87,11 +77,10 @@ export function DriveJournal({ drives }: { drives: JournalDrive[] }) {
           <td className="journal-detail"><Link href={`/drives/${row.id}`} aria-label={t("openRoute", { from: row.from, to: row.to })} className="inline-flex h-11 w-8 items-center justify-center rounded-md text-neutral-500 hover:text-accent-700 dark:text-neutral-400"><ChevronRight aria-hidden size={17} /></Link></td>
         </tr>)}</tbody>
       </table>
-      <div className="sr-only" aria-live="polite" aria-atomic="true">{feedback?.message}</div>
+      <div className="sr-only" aria-live="polite" aria-atomic="true">{pending ? common("state.loading") : feedback?.message}</div>
       {feedback && <div className={`journal-feedback ${feedback.error ? "journal-feedback-error" : ""}`}>
         {!feedback.error && <Check aria-hidden size={18} />}
         <p>{feedback.message}</p>
-        {feedback.change && <button type="button" disabled={pending} onClick={() => undo(feedback.change!)} className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-2 font-medium underline underline-offset-4 disabled:opacity-50"><Undo2 aria-hidden size={16} />{t("undo")}</button>}
         <button type="button" disabled={pending} aria-label={common("actions.close")} onClick={() => setFeedback(null)} className="inline-flex h-11 w-9 shrink-0 items-center justify-center rounded-md"><X aria-hidden size={16} /></button>
       </div>}
     </>

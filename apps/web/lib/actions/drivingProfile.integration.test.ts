@@ -1,15 +1,15 @@
 import { randomUUID } from "node:crypto";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { and, eq, inArray } from "drizzle-orm";
-import { auditLog, createDbConnection, drives, settings, vehicles, type Db } from "@odovi/db";
+import { auditLog, createDbConnection, drives, settings, sessions, users, vehicles, type Db } from "@odovi/db";
 import { drivingProfileKey, parseDrivingProfile } from "@odovi/core";
 
 vi.mock("server-only", () => ({}));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key }));
-const state = vi.hoisted(() => ({ db: null as Db | null, user: "profile-test-user" as string | null }));
+const state = vi.hoisted(() => ({ db: null as Db | null, user: "profile-test-user" as string | null, userId: 0, sessionId: "" }));
 vi.mock("../db", () => ({ get db() { return state.db; } }));
-vi.mock("../auth/session", () => ({ validateSession: async () => state.user ? { id: 1, username: state.user } : null }));
+vi.mock("../auth/session", () => ({ validateSession: async () => state.user ? { id: state.userId, username: state.user, sessionId: state.sessionId } : null }));
 
 const databaseUrl = process.env.ODOVI_CLASSIFICATION_TEST_DATABASE_URL;
 
@@ -26,6 +26,9 @@ describe.skipIf(!databaseUrl)("driving profile actions", () => {
     if (!["127.0.0.1", "localhost"].includes(url.hostname) || !["/odovi_classification_test", "/odovi_paper_ink_test"].includes(url.pathname)) throw new Error("Use a disposable local classification test database.");
     connection = createDbConnection(databaseUrl!);
     state.db = connection.db;
+    const [account] = await connection.db.insert(users).values({ username: source, passwordHash: "synthetic" }).returning();
+    state.userId = account!.id; state.sessionId = randomUUID();
+    await connection.db.insert(sessions).values({ id: state.sessionId, userId: state.userId, expiresAt: new Date(Date.now() + 86400000) });
     actions = await import("./drivingProfile");
     setClassification = (await import("./drives")).setDriveClassification;
   });
@@ -47,7 +50,7 @@ describe.skipIf(!databaseUrl)("driving profile actions", () => {
     await connection.db.delete(settings).where(inArray(settings.key, ids.map(drivingProfileKey)));
     await connection.db.delete(vehicles).where(inArray(vehicles.id, ids));
   });
-  afterAll(async () => { if (connection) await connection.close(); });
+  afterAll(async () => { if (connection) { if (state.userId) await connection.db.delete(users).where(eq(users.id, state.userId)); await connection.close(); } });
   const drive = async (patch: Partial<typeof drives.$inferInsert> = {}) => {
     const [row] = await connection.db.insert(drives).values({ vehicleId, source, sourceId: randomUUID(),
       startTime: new Date("2020-01-01T10:00:00Z"), endTime: new Date("2020-01-01T10:30:00Z"), notes: "Keep this", ...patch }).returning();
