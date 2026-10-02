@@ -11,6 +11,24 @@ function database(sql: string) {
 
 test.beforeEach(async ({ context }) => { await installBrowserEgressGuard(context); });
 
+test("day and month refresh identify retained content until navigation completes", async ({ page }) => {
+  await login(page);
+  for (const view of ["day", "month"] as const) {
+    await page.goto(view === "day" ? `/day/${process.env.ODOVI_ACCEPTANCE_DAY}` : `/calendar?month=${process.env.ODOVI_ACCEPTANCE_DAY!.slice(0, 7)}`);
+    let release!: () => void;
+    const held = new Promise<void>((resolve) => { release = resolve; });
+    const target = view === "day" ? "**/day/2000-01-01*" : "**/calendar?month=2000-01*";
+    await page.route(target, async (route) => { await held; await route.fallback(); });
+    try {
+      await page.locator(`input[type="${view === "day" ? "date" : "month"}"]`).fill(view === "day" ? "2000-01-01" : "2000-01");
+      await expect(page.getByRole("status").filter({ hasText: /Showing the previous view|bisherige Ansicht/ })).toBeVisible();
+    } finally { release(); }
+    await expect(page).toHaveURL(view === "day" ? /\/day\/2000-01-01$/ : /\/calendar\?month=2000-01$/);
+    await expect(page.getByRole("status").filter({ hasText: /Showing the previous view|bisherige Ansicht/ })).toHaveCount(0);
+    await page.unroute(target);
+  }
+});
+
 test("explicit result types, filter reset and contextual detail return", async ({ page }) => {
   await login(page);
   await page.goto("/search");

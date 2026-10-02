@@ -236,7 +236,8 @@ export ODOVI_EXPECT_CLASSIFICATION_UNDO=1
 export ODOVI_ACCEPTANCE_PHASE="backlog"
 run_playwright --project=desktop \
   tests/backlog-core.spec.ts tests/calendar-analytics.spec.ts \
-  tests/classification-undo.spec.ts tests/invoice-archive.spec.ts
+  tests/classification-undo.spec.ts tests/day-navigation.spec.ts \
+  tests/invoice-archive.spec.ts
 
 verify_upgrade_path
 node "$repo_root/acceptance/release-stack/verify-egress.mjs" --expect-zero \
