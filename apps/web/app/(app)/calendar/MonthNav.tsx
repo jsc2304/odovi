@@ -1,10 +1,12 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { shiftMonth } from "../../../lib/calendarGrid";
 import { toIntlLocale } from "../../../lib/i18nLocale";
 import { buttonClasses } from "../../../components/ui/Button";
+import { RouteRefresh } from "../../../components/ui/RouteFeedback";
 
 interface Props {
   month: string; // YYYY-MM
@@ -14,16 +16,17 @@ interface Props {
 
 export function MonthNav({ month, currentMonth, vehicleQuery }: Props) {
   const router = useRouter();
+  const [pending, startTransition] = useTransition();
   const t = useTranslations("calendar");
   const locale = useLocale();
 
   function goTo(nextMonth: string) {
     const suffix = vehicleQuery ? `&${vehicleQuery.slice(1)}` : "";
-    router.push(`/calendar?month=${nextMonth}${suffix}`);
+    startTransition(() => router.push(`/calendar?month=${nextMonth}${suffix}`));
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <><div className="flex flex-wrap items-center gap-3" aria-busy={pending}>
       <div className="flex items-center gap-1">
         <button
           type="button"
@@ -67,7 +70,7 @@ export function MonthNav({ month, currentMonth, vehicleQuery }: Props) {
           className="min-h-11 min-w-0 max-w-full rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm text-neutral-900 outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:focus-visible:ring-white dark:focus-visible:ring-offset-neutral-950"
         />
       </div>
-    </div>
+    </div><RouteRefresh pending={pending} /></>
   );
 }
 

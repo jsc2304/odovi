@@ -19,6 +19,7 @@ import { TpmsCard } from "./TpmsCard";
 import { RecentDrivesCard } from "./RecentDrivesCard";
 import { StatsRow } from "./StatsRow";
 import { Button } from "../../components/ui/Button";
+import { RouteLoading } from "../../components/ui/RouteFeedback";
 import { ArrowRight, Car, Clock3, Rocket, Route, Search, Stethoscope } from "lucide-react";
 import { formatDuration, formatKm } from "@odovi/core";
 import { APP_TIMEZONE } from "../../lib/config";
@@ -181,7 +182,7 @@ export default async function DashboardPage() {
         <div className="grid gap-4 pb-5 md:grid-cols-3">
           {status && <div className="md:col-span-2"><VehicleCard status={status} openSession={openSession} parkDrain={parkDrain} /></div>}
           <div className="flex flex-col gap-4">
-            <Suspense fallback={<div className="card min-h-32 p-5" role="status">{t("overview.weatherLoading")}</div>}>
+            <Suspense fallback={<RouteLoading label={t("overview.weatherLoading")} />}>
               <OptionalWeather lat={status?.lat ?? null} lon={status?.lon ?? null} />
             </Suspense>
             {status && <TpmsCard status={status} />}

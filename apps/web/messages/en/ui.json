@@ -29,6 +29,7 @@
   "skipToContent": "Skip to content",
   "feedback": {
     "loading": "Loading this view…",
+    "refreshing": "Updating… Showing the previous view until the new data is ready.",
     "failedTitle": "This view could not be loaded",
     "failedHint": "Try again to reload this view from your server.",
     "retry": "Try again"

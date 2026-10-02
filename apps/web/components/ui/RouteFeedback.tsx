@@ -4,13 +4,16 @@ import { useTranslations } from "next-intl";
 import { Button } from "./Button";
 
 /** Pending content has no fabricated freshness timestamp or cached metrics. */
-export function RouteLoading() {
+export function RouteLoading({ label }: { label?: string }) {
   const t = useTranslations("ui.feedback");
-  return <section className="mx-auto max-w-2xl" aria-busy="true">
-    <p role="status" className="mb-6 text-sm text-neutral-600 dark:text-neutral-300">{t("loading")}</p>
-    <div aria-hidden className="card min-h-32 bg-neutral-100 dark:bg-neutral-900" />
-    <div aria-hidden className="card mt-4 min-h-64 bg-neutral-100 dark:bg-neutral-900" />
+  return <section className="card min-h-32 p-5" aria-busy="true">
+    <p role="status" className="text-sm text-neutral-600 dark:text-neutral-300">{label ?? t("loading")}</p>
   </section>;
+}
+
+export function RouteRefresh({ pending }: { pending: boolean }) {
+  const t = useTranslations("ui.feedback");
+  return pending ? <p role="status" className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">{t("refreshing")}</p> : null;
 }
 
 export function RouteError({ reset }: { reset: () => void }) {

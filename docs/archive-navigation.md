@@ -39,8 +39,10 @@ forms ask before discarding unsaved edits and warn on reload or tab close.
 
 ## Feedback
 
-Route loading reserves content space and announces a short status without
-inventing freshness information. Local view failures offer retry. Required
+Optional data loading reserves content space and announces a short status.
+Day, month and search navigation retain the previous content while refreshing,
+with an explicit pending message and no invented freshness information.
+Local view failures offer retry. Required
 application-service failures retain the global readiness recovery surface.
 Optional-provider failures stay with their content and do not mark the archive
 unavailable. Classification, annotation and undo errors remain accessible until
