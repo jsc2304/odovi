@@ -112,7 +112,7 @@ test("vehicle switching clears selection and exports only the selected archive",
     expect((await page.request.get(`/api/export/day/${process.env.ODOVI_ACCEPTANCE_DAY}?format=csv&vehicle=999999`)).status()).toBe(404);
     await page.setViewportSize({ width: 320, height: 852 });
     await page.goto("/insights");
-    await expect(page.getByRole("combobox", { name: /Vehicle|Fahrzeug/ })).toContainText("Acceptance Second Vehicle");
+    await expect(page.getByRole("combobox", { name: /Vehicle|Fahrzeug/i })).toContainText("Acceptance Second Vehicle");
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   } finally {
     try { if (vehicleId != null) database(`delete from park_sessions where vehicle_id=${vehicleId}; delete from drives where vehicle_id=${vehicleId}; delete from vehicles where id=${vehicleId};`); }
