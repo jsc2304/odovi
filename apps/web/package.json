@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "eslint && next typegen && tsc --noEmit",
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {

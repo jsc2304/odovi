@@ -8,6 +8,8 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Production image contains web sources; full-repo test types run in `lint`.
+  typescript: { tsconfigPath: "tsconfig.build.json" },
   serverExternalPackages: ["pdfjs-dist", "yauzl"],
   outputFileTracingIncludes: {
     "/api/invoices/*": ["./lib/invoices/extract.mjs", "../../node_modules/.pnpm/pdfjs-dist@*/node_modules/pdfjs-dist/**/*",
