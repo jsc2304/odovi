@@ -39,7 +39,10 @@
     "approximate": "Ungefähres Ziel ({lat}, {lon})",
     "home": "Zuhause",
     "noCoordinates": "Keine Kartenkoordinaten",
-    "grouping": "Gespeicherte Orte werden anhand ihrer Orts-ID gruppiert. Andere Ziele liegen in einem Raster, das Breiten- und Längengrad auf 0,001° rundet (etwa 111 m in Nord-Süd-Richtung; die Ost-West-Größe hängt vom Breitengrad ab). Nahe Punkte an einer Rastergrenze können getrennte Ziele sein. Die Liste zeigt bis zu 10 Ziele."
+    "grouping": "Gespeicherte Orte werden anhand ihrer Orts-ID gruppiert. Andere Ziele liegen in einem Raster, das Breiten- und Längengrad auf 0,001° rundet (etwa 111 m in Nord-Süd-Richtung; die Ost-West-Größe hängt vom Breitengrad ab). Nahe Punkte an einer Rastergrenze können getrennte Ziele sein. Die Liste zeigt bis zu 10 Ziele. Die Datentabelle enthält alle Ziele dieser Auswahl.",
+    "allValues": "Alle Zielwerte anzeigen",
+    "allCaption": "Alle Ziele in {year} · {classification}; Ankünfte mit und ohne Koordinaten aus derselben Auswahl.",
+    "coordinates": "Kartenkoordinaten"
   },
   "wrapped": {
     "entry": "Dein Jahres-Wrapped",

@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import { List, X, Zap } from "lucide-react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { X, Zap } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import {
   formatConsumption,
@@ -35,21 +35,18 @@ function metricText(
   metric: CalendarMetric,
   compact: boolean,
   driveCountLabel: (count: number) => string,
+  locale: string,
 ): string {
   const partial = stats.hasIncompleteEnergy ? "†" : "";
   switch (metric) {
     case "distance":
-      return compact
-        ? formatKm(stats.totalKm)
-        : `${stats.driveCount} · ${formatKm(stats.totalKm)}`;
+      return formatKm(stats.totalKm, locale);
     case "consumption":
       if (stats.avgConsumptionWhKm == null) return "–";
-      return compact
-        ? `${Math.round(stats.avgConsumptionWhKm)}${stats.anyEstimated ? "~" : ""}${partial}`
-        : `${formatConsumption(stats.avgConsumptionWhKm, stats.anyEstimated)}${partial}`;
+      return `${formatConsumption(stats.avgConsumptionWhKm, stats.anyEstimated)}${partial}`;
     case "energy":
       return stats.totalEnergyKwh > 0
-        ? formatKwh(stats.totalEnergyKwh)
+        ? `${stats.anyEstimated ? "~" : ""}${formatKwh(stats.totalEnergyKwh, {}, locale)}${partial}`
         : "–";
     case "trips":
       return compact
@@ -68,10 +65,12 @@ function placeLabel(
 
 export function MonthGrid({
   cells,
+  month,
   vehicleQuery,
   timeZone,
 }: {
   cells: CalendarCell[];
+  month: string;
   vehicleQuery: string;
   timeZone: string;
 }) {
@@ -79,6 +78,11 @@ export function MonthGrid({
   const locale = useLocale();
   const [metric, setMetric] = useState<CalendarMetric>("distance");
   const [preview, setPreview] = useState<CalendarCell | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const metricRef = useRef<HTMLDivElement>(null);
+  const dayQuery = `${vehicleQuery || "?"}${vehicleQuery ? "&" : ""}month=${month}`;
 
   useEffect(() => {
     const saved =
@@ -91,13 +95,23 @@ export function MonthGrid({
   }, []);
 
   useEffect(() => {
-    if (!preview) return;
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setPreview(null);
-    }
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    const dialog = dialogRef.current;
+    if (!preview || !dialog) return;
+    // showModal provides focus containment and makes the document background inert.
+    dialog.showModal();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      dialog.close();
+      document.body.style.overflow = previousOverflow;
+    };
   }, [preview]);
+
+  function restoreFocus() {
+    setPreview(null);
+    if (triggerRef.current?.isConnected) triggerRef.current.focus();
+    else metricRef.current?.querySelector<HTMLButtonElement>('button[aria-pressed="true"]')?.focus();
+  }
 
   const metricCells = useMemo(
     () => applyCalendarMetric(cells, metric),
@@ -114,7 +128,8 @@ export function MonthGrid({
     <>
       <div className="mb-3 flex justify-end">
         <div
-          className="inline-flex items-center rounded-lg border border-neutral-200 bg-white p-0.5 dark:border-neutral-800 dark:bg-neutral-900"
+          className="inline-flex flex-wrap items-center rounded-lg border border-neutral-200 bg-white p-0.5 dark:border-neutral-800 dark:bg-neutral-900"
+          ref={metricRef}
           aria-label={t("metric.label")}
           role="group"
         >
@@ -124,7 +139,7 @@ export function MonthGrid({
               type="button"
               aria-pressed={metric === value}
               onClick={() => selectMetric(value)}
-              className={`rounded-md px-2 py-1 text-xs font-medium transition sm:px-2.5 ${
+              className={`min-h-11 min-w-11 rounded-md px-2 py-1 text-xs font-medium transition sm:px-2.5 ${
                 metric === value
                   ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
                   : "text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
@@ -145,84 +160,53 @@ export function MonthGrid({
           ))}
         </div>
 
+        <p className="my-2 text-xs text-neutral-500 dark:text-neutral-400">{t("preview.hint")}</p>
         <div className="mt-1 grid grid-cols-7 gap-1">
-          {metricCells.map((cell) => (
-            <div
-              key={cell.date}
-              data-testid="calendar-day-cell"
-              className={`group relative aspect-square rounded-lg border text-xs transition hover:border-neutral-400 dark:hover:border-neutral-600 sm:aspect-auto sm:min-h-20 ${
-                cell.isToday
-                  ? "border-2 border-neutral-900 dark:border-white"
-                  : "border-neutral-200 dark:border-neutral-800"
-              } ${intensityClasses(cell.intensity)} ${cell.inMonth ? "" : "opacity-40"}`}
-            >
-              <Link
-                href={`/day/${cell.date}${vehicleQuery}`}
-                className="flex h-full min-h-11 w-full flex-col items-center justify-start rounded-lg p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-neutral-900 dark:focus-visible:ring-white sm:items-start sm:p-2"
-                aria-label={
-                  cell.stats
-                    ? t("daySummary", {
-                        date: cell.date,
-                        metric: metricText(cell.stats, metric, false, driveCountLabel),
-                      })
-                    : cell.date
-                }
-              >
-                <div className="flex w-full items-center justify-between">
-                  <span
-                    className={`tabular-nums ${
-                      cell.inMonth
-                        ? "text-neutral-900 dark:text-neutral-100"
-                        : "text-neutral-400 dark:text-neutral-600"
-                    }`}
-                  >
-                    {cell.dayOfMonth}
-                  </span>
-                  {cell.stats && cell.stats.chargeCount > 0 && (
-                    <Zap aria-label={t("chargeIcon")} size={12} className="text-amber-500" />
-                  )}
-                </div>
+          {metricCells.map((cell) => {
+            const contents = (
+              <>
+                <span className="flex w-full flex-wrap items-center justify-between gap-0.5">
+                  <span className="min-w-0 tabular-nums [overflow-wrap:anywhere]">{cell.dayOfMonth}</span>
+                  {cell.stats && cell.stats.chargeCount > 0 && <Zap aria-label={t("chargeIcon")} size={12} className="shrink-0 text-amber-700 dark:text-amber-400" />}
+                </span>
                 {cell.stats && cell.stats.driveCount > 0 && (
-                  <>
-                    <span className="mt-auto max-w-full truncate pr-4 text-[10px] font-medium tabular-nums text-neutral-600 dark:text-neutral-400 sm:hidden">
-                      {metricText(cell.stats, metric, true, driveCountLabel)}
-                    </span>
-                    <span className="mt-auto hidden max-w-full truncate pr-5 text-[11px] tabular-nums text-neutral-600 dark:text-neutral-400 sm:block">
-                      {metricText(cell.stats, metric, false, driveCountLabel)}
-                    </span>
-                  </>
+                  <span className="mt-auto block w-full text-[10px] font-medium tabular-nums text-neutral-600 [overflow-wrap:anywhere] dark:text-neutral-400 sm:text-xs">
+                    {metricText(cell.stats, metric, true, driveCountLabel, toIntlLocale(locale))}
+                  </span>
                 )}
-              </Link>
-
-              {cell.stats && cell.stats.driveCount > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setPreview(cell)}
-                  aria-label={t("preview.open", { date: cell.date })}
-                  className="absolute bottom-0.5 right-0.5 z-[1] flex h-5 w-5 items-center justify-center rounded text-neutral-400 hover:bg-white/80 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 dark:hover:bg-neutral-900/80 dark:hover:text-white dark:focus-visible:ring-white sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
-                >
-                  <List aria-hidden size={12} />
-                </button>
-              )}
-            </div>
-          ))}
+              </>
+            );
+            const cellClass = `flex min-h-16 min-w-[24px] flex-col items-start gap-1 rounded-lg border p-1 text-left text-xs transition hover:border-neutral-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-neutral-900 dark:hover:border-neutral-600 dark:focus-visible:ring-white sm:min-h-20 sm:p-2 ${
+              cell.isToday || selectedDate === cell.date ? "border-2 border-neutral-900 dark:border-white" : "border-neutral-200 dark:border-neutral-800"
+            } ${intensityClasses(cell.intensity)} ${cell.inMonth ? "text-neutral-900 dark:text-neutral-100" : "text-neutral-500 dark:text-neutral-400"}`;
+            const summary = cell.stats ? t("daySummary", { date: cell.date, metric: `${t(`metric.${metric}`)}: ${metricText(cell.stats, metric, false, driveCountLabel, toIntlLocale(locale))}` }) : `${cell.date}: ${t("preview.empty")}`;
+            return cell.inMonth ? (
+              <button key={cell.date} data-testid="calendar-day-cell" data-date={cell.date} type="button"
+                aria-label={`${t("preview.open", { date: cell.date })}. ${summary}${cell.stats?.chargeCount ? `. ${t("preview.charges", { count: cell.stats.chargeCount })}` : ""}`}
+                aria-haspopup="dialog" aria-expanded={preview?.date === cell.date} aria-current={cell.isToday ? "date" : undefined}
+                className={cellClass}
+                onClick={(event) => { triggerRef.current = event.currentTarget; setSelectedDate(cell.date); setPreview(cell); }}>
+                {contents}
+              </button>
+            ) : (
+              <Link key={cell.date} data-testid="calendar-day-cell" href={`/day/${cell.date}${dayQuery}`} aria-label={t("preview.openDayDate", { date: cell.date })} className={cellClass}>{contents}</Link>
+            );
+          })}
         </div>
       </div>
 
-      {preview?.stats && (
-        <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4"
-          role="presentation"
-          onMouseDown={(event) => {
-            if (event.currentTarget === event.target) setPreview(null);
+      {preview && (
+        <dialog
+          ref={dialogRef}
+          aria-labelledby="calendar-preview-title"
+          aria-describedby="calendar-preview-summary"
+          onClose={restoreFocus}
+          onClick={(event) => {
+            const box = event.currentTarget.getBoundingClientRect();
+            if (event.target === event.currentTarget && (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom)) dialogRef.current?.close();
           }}
+          className="m-auto max-h-[80dvh] w-[calc(100%_-_2rem)] max-w-md overflow-y-auto overscroll-contain rounded-2xl border border-neutral-200 bg-white p-4 text-neutral-900 shadow-xl backdrop:bg-black/40 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-100 sm:p-5"
         >
-          <section
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="calendar-preview-title"
-            className="max-h-[80dvh] w-full max-w-md overflow-y-auto rounded-t-2xl bg-white p-4 shadow-xl dark:bg-neutral-900 sm:rounded-2xl sm:p-5"
-          >
             <div className="flex items-start justify-between gap-3">
               <div>
                 <h2 id="calendar-preview-title" className="font-semibold">
@@ -234,30 +218,39 @@ export function MonthGrid({
                     timeZone: "UTC",
                   }).format(new Date(`${preview.date}T12:00:00Z`))}
                 </h2>
-                <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+                <p id="calendar-preview-summary" className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
                   {t("preview.summary", {
-                    count: preview.stats.driveCount,
-                    distance: formatKm(preview.stats.totalKm),
+                    count: preview.stats?.driveCount ?? 0,
+                    distance: formatKm(preview.stats?.totalKm ?? 0, toIntlLocale(locale)),
                   })}
                 </p>
               </div>
               <button
                 type="button"
                 autoFocus
-                onClick={() => setPreview(null)}
+                onClick={() => dialogRef.current?.close()}
                 aria-label={t("preview.close")}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-neutral-500 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg text-neutral-500 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800"
               >
                 <X aria-hidden size={18} />
               </button>
             </div>
 
+            <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
+              {METRICS.map((value) => <div key={value}>
+                <dt className="text-xs text-neutral-500 dark:text-neutral-400">{t(`metric.${value}`)}</dt>
+                <dd className="mt-1 break-words font-medium tabular-nums">{preview.stats ? metricText(preview.stats, value, false, driveCountLabel, toIntlLocale(locale)) : value === "distance" ? formatKm(0, toIntlLocale(locale)) : value === "trips" ? driveCountLabel(0) : "–"}</dd>
+              </div>)}
+              <div className="col-span-2"><dt className="text-xs text-neutral-500 dark:text-neutral-400">{t("chargeIcon")}</dt><dd className="mt-1">{t("preview.charges", { count: preview.stats?.chargeCount ?? 0 })}</dd></div>
+            </dl>
+            {!preview.stats?.driveCount && <p className="mt-4 text-sm text-neutral-500 dark:text-neutral-400">{t("preview.empty")}</p>}
+
             <ol className="mt-4 divide-y divide-neutral-100 dark:divide-neutral-800">
-              {preview.stats.drives.map((drive) => (
+              {(preview.stats?.drives ?? []).map((drive) => (
                 <li key={drive.id}>
                   <Link
-                    href={`/drives/${drive.id}`}
-                    className="block py-3 hover:text-neutral-600 dark:hover:text-neutral-300"
+                    href={`/drives/${drive.id}?returnTo=${encodeURIComponent(`/day/${preview.date}${dayQuery}#drive-${drive.id}`)}`}
+                    className="block min-h-11 py-3 hover:text-neutral-600 dark:hover:text-neutral-300"
                   >
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-xs tabular-nums text-neutral-500 dark:text-neutral-400">
@@ -265,11 +258,11 @@ export function MonthGrid({
                       </span>
                       {drive.distanceKm != null && (
                         <span className="text-xs tabular-nums text-neutral-500 dark:text-neutral-400">
-                          {formatKm(drive.distanceKm)}
+                          {formatKm(drive.distanceKm, toIntlLocale(locale))}
                         </span>
                       )}
                     </div>
-                    <p className="mt-0.5 truncate text-sm font-medium">
+                    <p className="mt-0.5 break-words text-sm font-medium">
                       {placeLabel(
                         drive.startPlaceName,
                         drive.startAddress,
@@ -295,20 +288,19 @@ export function MonthGrid({
               ))}
             </ol>
 
-            {preview.stats.hasIncompleteEnergy && (
+            {preview.stats?.hasIncompleteEnergy && (
               <p className="mt-2 text-xs text-neutral-400 dark:text-neutral-500">
                 {t("preview.partialEnergy")}
               </p>
             )}
 
             <Link
-              href={`/day/${preview.date}${vehicleQuery}`}
+              href={`/day/${preview.date}${dayQuery}`}
               className="mt-4 flex min-h-11 items-center justify-center rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white dark:bg-white dark:text-neutral-900"
             >
               {t("preview.openDay")}
             </Link>
-          </section>
-        </div>
+        </dialog>
       )}
     </>
   );

@@ -8,7 +8,7 @@
     "consumption": "Ø Verbrauch",
     "months": "Monate im Blick"
   },
-  "subtitleWithData": "Basiert auf {count, plural, one {# Fahrt} other {# Fahrten}} seit {date}.",
+  "subtitleWithData": "Basiert auf {count, plural, one {# Fahrt} other {# Fahrten}} vom {date} bis {end}.",
   "subtitleNoData": "Muster und Zusammenhänge aus deinen Fahrten.",
   "notEnoughTitle": "Noch nicht genug Daten",
   "notEnoughHint": "Odovi sammelt weiter — sobald mehr Fahrten vorliegen, erscheint hier eine Auswertung.",
@@ -19,12 +19,12 @@
     "temp": {
       "title": "Verbrauch vs. Außentemperatur",
       "ariaLabel": "Streudiagramm Verbrauch über Außentemperatur mit Mittelwertlinie je 5-°C-Bereich",
-      "subtitleDefault": "Kälte kostet Reichweite — bei niedrigen Temperaturen steigt der Verbrauch typischerweise.",
+      "subtitleDefault": "Erfasster Verbrauch nach Außentemperatur gruppiert.",
       "subtitleWithDelta": "Bei ~{cold} °C verbrauchst du im Schnitt +{pct} % gegenüber ~{mild} °C."
     },
     "speed": {
       "title": "Verbrauch vs. Durchschnittstempo",
-      "subtitle": "Effektives Tempo (Strecke ÷ Fahrtdauer). Hohes Tempo treibt den Verbrauch.",
+      "subtitle": "Effektives Tempo (Strecke ÷ Fahrtdauer). Das Diagramm zeigt Beobachtungen, nicht den Einfluss des Tempos allein.",
       "ariaLabel": "Streudiagramm Verbrauch über Durchschnittstempo mit Mittelwertlinie je 10-km/h-Bereich"
     },
     "month": {
@@ -43,7 +43,7 @@
   "charts": {
     "scatterLegend": "Ø je {step}-{unit}-Bereich",
     "monthChartAriaLabel": "Monatsverlauf: gefahrene Kilometer und Durchschnittsverbrauch",
-    "monthChartConsumptionLegend": "Ø Wh/km",
+    "monthChartConsumptionLegend": "Linie: mittlerer Verbrauch (Wh/km)",
     "weekdayChartAriaLabel": "Wochentagsmuster: gefahrene Kilometer je Wochentag",
     "weekdayChartLegend": "km je Wochentag",
     "shortTripAriaLabel": "Kurzstrecken-Anteil: {pct} Prozent der Fahrten unter 5 km",
@@ -52,6 +52,21 @@
     "avgShortTrip": "Ø Kurzstrecke:",
     "avgOverall": "Ø gesamt:",
     "surplusPrefix": "Kurzstrecken verbrauchen im Schnitt",
-    "surplusSuffix": "— kalter Antriebsstrang ist ein Verbrauchstreiber."
-  }
+    "surplusSuffix": "gegenüber dem Gesamtschnitt; der Vergleich benennt keine Ursache.",
+    "dataView": "Datentabelle anzeigen",
+    "rounding": "Die Werte entsprechen der Diagrammauswahl und sind auf eine Nachkommastelle gerundet.",
+    "noData": "Keine Werte für diese Auswahl.",
+    "individualPoints": "Punkte: {count} einzelne Fahrten",
+    "binLimit": "Linien zeigen Mittelwerte nur für Bereiche mit mindestens 3 Fahrten. Kleinere Gruppen bleiben einzelne Punkte; daraus wird kein Trend abgeleitet.",
+    "groupedValues": "Mittelwerte nach Bereich",
+    "meanConsumption": "Mittlerer Verbrauch",
+    "consumption": "Verbrauch",
+    "temperature": "Außentemperatur",
+    "speed": "Durchschnittstempo",
+    "drives": "Fahrten",
+    "month": "Monat",
+    "weekday": "Wochentag",
+    "distanceBars": "Balken: Strecke (km)"
+  },
+  "dataLimitations": "Abgeschlossene Fahrten ab 2 km mit Verbrauchsdaten; kürzere Fahrten und fehlender Verbrauch sind ausgeschlossen. {estimated, plural, one {# Fahrt nutzt geschätzte Energie} other {# Fahrten nutzen geschätzte Energie}}. Temperatur stammt aus Fahrzeug- oder Wetterdaten; Tempo aus Strecke ÷ Dauer. Die Beobachtungen belegen keine Ursachen."
 }

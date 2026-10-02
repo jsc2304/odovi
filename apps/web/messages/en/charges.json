@@ -137,7 +137,7 @@
       "title": "Compare charging curves",
       "subtitle": "Power at the same battery level. Numbers and line patterns identify each session.",
       "chartTitle": "Charging power by state of charge",
-      "chartDescription": "Recorded charging power in kilowatts on the vertical axis and battery state of charge from 0 to 100 percent on the horizontal axis. Each line matches a pattern in the numbered legend. Gaps remain unconnected. Session details below provide selected recorded values in a table.",
+      "chartDescription": "Recorded charging power in kilowatts on the vertical axis and battery state of charge from 0 to 100 percent on the horizontal axis. Each line matches a pattern in the numbered legend. Gaps remain unconnected. Session details below provide all recorded values in a table.",
       "socAxis": "State of charge (%)",
       "powerAxis": "Power (kW)",
       "noData": "There are not enough continuous power and state-of-charge measurements to draw a curve.",
@@ -170,9 +170,10 @@
     },
     "samples": {
       "title": "Recorded curve values",
-      "description": "{count} selected recorded points out of {total}. Values are not interpolated; elapsed time is measured from session start.",
-      "caption": "Selected charging measurements for {session}",
-      "elapsed": "Elapsed time"
+      "description": "All {total} recorded points shown in the chart. Values are not interpolated; elapsed time is measured from session start. Separate numbered segments preserve gaps.",
+      "caption": "Recorded charging measurements for {session}",
+      "elapsed": "Elapsed time",
+      "segment": "Segment"
     },
     "locations": {
       "title": "Location ranking",

@@ -132,14 +132,13 @@ describe("destination heat layer", () => {
     expect(Number(manyVisits!.attributes.get("opacity"))).toBeGreaterThan(Number(oneVisit!.attributes.get("opacity")));
   });
 
-  it("keeps exact visit counts and hostile destination names as safe tooltip text", () => {
+  it("keeps exact visit counts and hostile destination names as safe accessible labels", () => {
     const label = '<img src=x onerror="alert(1)">';
     mount([point({ label, visits: 1234 })], "de");
     const marker = mocks.marker.mock.results[0]!.value;
-    const tooltip = marker.bindTooltip.mock.calls[0][0] as ElementFixture;
-    expect(tooltip.textContent).toBe(`${label} · 1.234 visits`);
-    expect(tooltip.children).toEqual([]);
-    expect(marker.getElement().attributes.get("aria-label")).toBe(tooltip.textContent);
+    expect(marker.bindTooltip).not.toHaveBeenCalled();
+    expect(marker.getElement().attributes.get("aria-label")).toBe(`${label} · 1.234 visits`);
+    expect(mocks.marker.mock.calls[0][1].title).toBe(`${label} · 1.234 visits`);
   });
 
   it("omits invalid coordinates or visit counts without fabricating destination positions", () => {

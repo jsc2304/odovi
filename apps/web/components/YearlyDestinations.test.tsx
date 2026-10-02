@@ -41,6 +41,17 @@ describe("yearly destination presentation", () => {
     expect(html).toContain("0.001°");
   });
 
+  it("includes destinations beyond the top ten in the complete filtered data view", async () => {
+    const analysis = insight(Array.from({ length: 12 }, (_, index) => drive(index + 1, null, 48 + index * 0.01, 11)));
+    const html = renderToStaticMarkup(await YearlyDestinations({ analysis, locale: "en" }));
+    expect(analysis.destinations).toHaveLength(12);
+    expect(mocks.loader.mock.calls[0]?.[0].points).toHaveLength(12);
+    expect(html).toContain("Show all destination values");
+    expect(html).toContain("All destinations in 2025");
+    expect(html.match(/<th scope="row"/g)).toHaveLength(12);
+    expect(html).toContain("48.110");
+  });
+
   it("submits native year and classification filters and retains an older selected year", async () => {
     const html = renderToStaticMarkup(await YearlyFilters({ action: "/wrapped", year: 2024, classification: "business", years: [2026, 2025, 2025] }));
     expect(html).toContain('action="/wrapped"');

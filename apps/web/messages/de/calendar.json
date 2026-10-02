@@ -20,7 +20,11 @@
     "summary": "{count, plural, one {# Fahrt} other {# Fahrten}} · {distance}",
     "unknownPlace": "Unbekannter Ort",
     "partialEnergy": "† Der Verbrauch berücksichtigt nur Fahrten mit verfügbaren Energiedaten.",
-    "openDay": "Ganzen Tag öffnen"
+    "openDay": "Ganzen Tag öffnen",
+    "hint": "Tag auswählen, um vollständige Werte und Fahrten zu sehen.",
+    "empty": "Keine aufgezeichneten Fahrten an diesem Tag.",
+    "charges": "{count, plural, one {# Ladevorgang} other {# Ladevorgänge}}",
+    "openDayDate": "Ganzen Tag öffnen: {date}"
   },
   "weekday": {
     "mon": "Mo",

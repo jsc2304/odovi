@@ -20,7 +20,11 @@
     "summary": "{count, plural, one {# drive} other {# drives}} · {distance}",
     "unknownPlace": "Unknown place",
     "partialEnergy": "† Consumption only covers drives with available energy data.",
-    "openDay": "Open full day"
+    "openDay": "Open full day",
+    "hint": "Select a day to see complete values and drives.",
+    "empty": "No recorded drives on this day.",
+    "charges": "{count, plural, one {# charging session} other {# charging sessions}}",
+    "openDayDate": "Open full day: {date}"
   },
   "weekday": {
     "mon": "Mo",

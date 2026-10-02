@@ -111,8 +111,9 @@ describe("DC charge analysis page", () => {
     expect(html).toContain('aria-describedby="charge-comparison-description"');
     expect(html).toContain("Charging power by state of charge");
     expect(html).toContain("Recorded curve values");
-    expect(html).toContain("20 selected recorded points out of 31");
+    expect(html).toContain("All 31 recorded points shown in the chart");
     expect(html).toContain('<th scope="col"');
+    expect(html.match(/<tr class="border-b border-neutral-100 last:border-0/g)).toHaveLength(31);
     expect(html).toContain("100% of the session duration");
     expect(html).toContain("Not ranked · fewer than 2 timings");
     expect(html).not.toContain("Longer than comparable recent sessions");

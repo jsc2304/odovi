@@ -67,6 +67,8 @@ export default async function CalendarPage({
 
       <div className="mt-6">
         <MonthGrid
+          key={`${month}-${current.id}`}
+          month={month}
           cells={cells}
           vehicleQuery={vehicleQuery}
           timeZone={APP_TIMEZONE}

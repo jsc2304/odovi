@@ -137,7 +137,7 @@
       "title": "Ladekurven vergleichen",
       "subtitle": "Leistung bei gleichem Ladestand. Nummern und Linienmuster kennzeichnen die Ladevorgänge.",
       "chartTitle": "Ladeleistung nach Ladestand",
-      "chartDescription": "Erfasste Ladeleistung in Kilowatt auf der senkrechten Achse und Ladestand von 0 bis 100 Prozent auf der waagerechten Achse. Jede Linie entspricht einem Muster in der nummerierten Legende. Lücken bleiben offen. Die Details darunter enthalten ausgewählte Messwerte als Tabelle.",
+      "chartDescription": "Erfasste Ladeleistung in Kilowatt auf der senkrechten Achse und Ladestand von 0 bis 100 Prozent auf der waagerechten Achse. Jede Linie entspricht einem Muster in der nummerierten Legende. Lücken bleiben offen. Die Details darunter enthalten alle erfassten Messwerte als Tabelle.",
       "socAxis": "Ladestand (%)",
       "powerAxis": "Leistung (kW)",
       "noData": "Es gibt nicht genug zusammenhängende Messungen von Leistung und Ladestand für eine Kurve.",
@@ -170,9 +170,10 @@
     },
     "samples": {
       "title": "Erfasste Kurvenwerte",
-      "description": "{count} ausgewählte Messpunkte von {total}. Die Werte sind nicht interpoliert; die verstrichene Zeit zählt ab Beginn des Ladevorgangs.",
-      "caption": "Ausgewählte Lademesswerte für {session}",
-      "elapsed": "Verstrichene Zeit"
+      "description": "Alle {total} erfassten Punkte aus dem Diagramm. Die Werte sind nicht interpoliert; die verstrichene Zeit zählt ab Beginn des Ladevorgangs. Getrennte nummerierte Abschnitte erhalten Messlücken.",
+      "caption": "Erfasste Lademesswerte für {session}",
+      "elapsed": "Verstrichene Zeit",
+      "segment": "Abschnitt"
     },
     "locations": {
       "title": "Standortvergleich",

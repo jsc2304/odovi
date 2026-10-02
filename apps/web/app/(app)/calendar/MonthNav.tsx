@@ -29,7 +29,7 @@ export function MonthNav({ month, currentMonth, vehicleQuery }: Props) {
           type="button"
           aria-label={t("prevMonth")}
           onClick={() => goTo(shiftMonth(month, -1))}
-          className={buttonClasses("secondary", "md", "!h-9 !w-9 !p-0")}
+          className={buttonClasses("secondary", "md", "!h-11 !w-11 !p-0")}
         >
           <ChevronLeft aria-hidden size={18} />
         </button>
@@ -37,7 +37,7 @@ export function MonthNav({ month, currentMonth, vehicleQuery }: Props) {
           type="button"
           aria-label={t("nextMonth")}
           onClick={() => goTo(shiftMonth(month, 1))}
-          className={buttonClasses("secondary", "md", "!h-9 !w-9 !p-0")}
+          className={buttonClasses("secondary", "md", "!h-11 !w-11 !p-0")}
         >
           <ChevronRight aria-hidden size={18} />
         </button>
@@ -64,7 +64,7 @@ export function MonthNav({ month, currentMonth, vehicleQuery }: Props) {
           onChange={(e) => {
             if (e.target.value) goTo(e.target.value);
           }}
-          className="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm text-neutral-900 outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:focus-visible:ring-white dark:focus-visible:ring-offset-neutral-950"
+          className="min-h-11 min-w-0 max-w-full rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm text-neutral-900 outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:focus-visible:ring-white dark:focus-visible:ring-offset-neutral-950"
         />
       </div>
     </div>

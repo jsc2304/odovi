@@ -22,6 +22,7 @@ export interface InsightDrive {
   distanceKm: number;
   durationSeconds: number | null;
   avgConsumptionWhKm: number;
+  energyIsEstimated: boolean;
   /** outside_temp_avg mit Fallback auf weather_temp_c. */
   tempC: number | null;
   /** Effektives Durchschnittstempo in km/h (distance/duration*3.6), null falls Dauer fehlt/0. */
@@ -85,6 +86,7 @@ export async function getInsightsData(vehicleId: number): Promise<InsightsData> 
       distanceKm: drives.distanceKm,
       durationSeconds: drives.durationSeconds,
       avgConsumptionWhKm: drives.avgConsumptionWhKm,
+      energyIsEstimated: drives.energyIsEstimated,
       outsideTempAvg: drives.outsideTempAvg,
       weatherTempC: drives.weatherTempC,
     })
@@ -111,6 +113,7 @@ export async function getInsightsData(vehicleId: number): Promise<InsightsData> 
       distanceKm,
       durationSeconds: r.durationSeconds,
       avgConsumptionWhKm: r.avgConsumptionWhKm!,
+      energyIsEstimated: r.energyIsEstimated,
       tempC: r.outsideTempAvg ?? r.weatherTempC,
       avgSpeedKmh,
       monthKey: monthKeyInAppTz(r.startTime),

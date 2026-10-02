@@ -258,7 +258,6 @@
   display: block;
   width: 100%;
   height: 14rem;
-  touch-action: none;
 }
 
 .monthChart {
@@ -315,13 +314,12 @@
   background: var(--insights-ember);
 }
 
-.legendValue {
-  color: var(--color-neutral-700);
-  font-variant-numeric: tabular-nums;
-}
-
-:global(.dark) .legendValue {
-  color: var(--color-neutral-300);
+.legendRoute::before {
+  width: 1.2rem;
+  height: 0;
+  border-bottom: 2px solid currentColor;
+  border-radius: 0;
+  background: none;
 }
 
 .donutLayout {

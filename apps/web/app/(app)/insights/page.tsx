@@ -248,6 +248,7 @@ export default async function InsightsPage({
       ? t("subtitleWithData", {
           count: total,
           date: formatFirstDate(firstDriveDate, locale),
+          end: formatFirstDate(drives[drives.length - 1]!.startTime, locale),
         })
       : t("subtitleNoData");
 
@@ -266,6 +267,7 @@ export default async function InsightsPage({
         <div className={styles.heroCopy}>
           <h1>{t("hero.title")}</h1>
           <p>{basisLabel}</p>
+          <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">{t("dataLimitations", { estimated: drives.filter((drive) => drive.energyIsEstimated).length })}</p>
           <Link href="/wrapped" className="mt-3 inline-flex min-h-11 items-center text-sm font-medium underline-offset-4 hover:underline">{tYearly("wrapped.entry")}</Link>
         </div>
         <dl className={styles.heroMetrics}>
@@ -318,6 +320,7 @@ export default async function InsightsPage({
             <ScatterBinnedChart
               points={tempPoints}
               bins={tempBins}
+              xLabel={t("charts.temperature")}
               xUnit="°C"
               yUnit="Wh/km"
               xStep={TEMP_BIN_WIDTH}
@@ -339,6 +342,7 @@ export default async function InsightsPage({
             <ScatterBinnedChart
               points={speedPoints}
               bins={speedBins}
+              xLabel={t("charts.speed")}
               xUnit="km/h"
               yUnit="Wh/km"
               xStep={SPEED_BIN_WIDTH}

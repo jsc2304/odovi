@@ -155,9 +155,6 @@ export function mountDestinationHeatmap(
 
   for (const point of points) {
     const text = pointLabel(point);
-    const tooltip = document.createElement("span");
-    // Leaflet interprets string tooltips as HTML. Destination labels stay text.
-    tooltip.textContent = text;
     const dot = document.createElement("span");
     dot.setAttribute("aria-hidden", "true");
     dot.style.cssText = "display:block;width:10px;height:10px;border-radius:50%;background:#0f766e;border:2px solid white;box-shadow:0 0 0 1px #115e59";
@@ -166,7 +163,7 @@ export function mountDestinationHeatmap(
       keyboard: true,
       title: text,
       alt: text,
-    }).addTo(map).bindTooltip(tooltip, { direction: "top", offset: [0, -8] });
+    }).addTo(map);
     const icon = marker.getElement();
     if (icon) {
       icon.setAttribute("role", "img");
