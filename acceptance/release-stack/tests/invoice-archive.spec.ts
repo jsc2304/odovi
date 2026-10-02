@@ -16,20 +16,21 @@ for (const locale of ["en", "de"] as const) for (const theme of ["light", "dark"
     await page.goto("/settings");
     await page.getByRole("link", { name: /Tesla invoices|Tesla-Rechnungen/ }).click();
     await expect(page.getByRole("heading", { name: /Tesla invoice archive|Tesla-Rechnungsarchiv/ })).toBeVisible();
+    const archive = page.getByRole("region", { name: /Tesla invoice archive|Tesla-Rechnungsarchiv/ });
     await expect(page.getByRole("link", { name: /^(More|Mehr)$/ })).toHaveAttribute("aria-current", "page");
     const enable = page.getByRole("checkbox", { name: /Enable invoice imports|Rechnungsimporte aktivieren/ });
-    if (!await enable.isChecked()) { await enable.check(); await expect(page.getByRole("status")).toHaveText(/Saved\.|Gespeichert\./); }
+    if (!await enable.isChecked()) { await enable.check(); await expect(archive.getByRole("status")).toHaveText(/Saved\.|Gespeichert\./); }
     const filename = `acceptance-${locale}-${theme}-${width}.pdf`;
     const original = fixturePdf(`Tesla Invoice number: ACCEPT-${locale}-${theme}-${width} Invoice date: 2026-09-01 Total amount: 12.34 EUR`);
     const digest = createHash("sha256").update(original).digest("hex");
     await page.locator('input[type="file"]').setInputFiles({ name: "invalid.pdf", mimeType: "application/pdf", buffer: Buffer.from("not a PDF") });
-    await expect(page.getByRole("alert")).toHaveText(/invalid|ungültig/);
-    await expect(page.getByRole("alert")).toBeVisible();
+    await expect(archive.getByRole("alert")).toHaveText(/invalid|ungültig/);
+    await expect(archive.getByRole("alert")).toBeVisible();
     await page.locator('input[type="file"]').setInputFiles({ name: filename, mimeType: "application/pdf", buffer: original });
-    await expect(page.getByRole("region", { name: /Tesla invoice archive|Tesla-Rechnungsarchiv/ })).toHaveAttribute("aria-busy", "true");
-    await expect(page.getByRole("status")).toHaveText(/Saved\.|Gespeichert\./);
-    await expect(page.getByRole("region", { name: /Tesla invoice archive|Tesla-Rechnungsarchiv/ })).toHaveAttribute("aria-busy", "false");
-    await expect(page.getByRole("alert")).toHaveCount(0);
+    await expect(archive).toHaveAttribute("aria-busy", "true");
+    await expect(archive.getByRole("status")).toHaveText(/Saved\.|Gespeichert\./);
+    await expect(archive).toHaveAttribute("aria-busy", "false");
+    await expect(archive.getByRole("alert")).toHaveCount(0);
     const section = page.locator("section").filter({ has: page.getByRole("link", { name: filename, exact: true }) });
     await expect(section).toBeVisible();
     await section.locator("summary").click();
@@ -37,20 +38,20 @@ for (const locale of ["en", "de"] as const) for (const theme of ["light", "dark"
     await expect(section.getByLabel(/Total amount|Gesamtbetrag/)).toHaveValue("12.34");
     await section.getByLabel(/Total amount|Gesamtbetrag/).fill("1.005");
     await section.getByRole("button", { name: /Save reviewed|Geprüfte Angaben/ }).click();
-    await expect(page.getByRole("alert")).toHaveText(/Check the entered values|Angaben prüfen/);
+    await expect(archive.getByRole("alert")).toHaveText(/Check the entered values|Angaben prüfen/);
     await expect(section.getByLabel(/Total amount|Gesamtbetrag/)).toHaveValue("1.005");
     await section.getByLabel(/Total amount|Gesamtbetrag/).fill("12,3");
     await section.getByRole("button", { name: /Save reviewed|Geprüfte Angaben/ }).click();
-    await expect(page.getByRole("status")).toHaveText(/Saved\.|Gespeichert\./);
+    await expect(archive.getByRole("status")).toHaveText(/Saved\.|Gespeichert\./);
     await expect(section.getByLabel(/Total amount|Gesamtbetrag/)).toHaveValue("12.30");
     await section.getByLabel(/Total amount|Gesamtbetrag/).fill("00012,30");
     await section.getByRole("button", { name: /Save reviewed|Geprüfte Angaben/ }).click();
-    await expect(page.getByRole("status")).toHaveText(/Saved\.|Gespeichert\./);
+    await expect(archive.getByRole("status")).toHaveText(/Saved\.|Gespeichert\./);
     await expect(section.getByLabel(/Total amount|Gesamtbetrag/)).toHaveValue("12.30");
     await expect(section.getByText(`SHA-256: ${digest}`, { exact: true })).toHaveCount(2);
     await section.getByLabel(/Invoice date|Rechnungsdatum/, { exact: true }).fill("2026-08-01");
     await section.getByRole("button", { name: /Save reviewed|Geprüfte Angaben/ }).click();
-    await expect(page.getByRole("status")).toHaveText(/Saved\.|Gespeichert\./);
+    await expect(archive.getByRole("status")).toHaveText(/Saved\.|Gespeichert\./);
     const pdfPromise = page.waitForEvent("download");
     await section.getByRole("link", { name: /Download original PDF|Original-PDF/ }).click();
     const downloaded = await pdfPromise;
@@ -62,14 +63,14 @@ for (const locale of ["en", "de"] as const) for (const theme of ["light", "dark"
     expect(exported.suggestedFilename()).toBe("odovi-invoices-2026-08.zip");
     expect((await readFile((await exported.path())!)).subarray(0, 2).toString()).toBe("PK");
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-    for (const button of await page.getByRole("region", { name: /Tesla invoice archive|Tesla-Rechnungsarchiv/ }).getByRole("button").all()) {
+    for (const button of await archive.getByRole("button").all()) {
       if (await button.isVisible()) expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     }
     expect(await page.locator("html").evaluate((element) => element.classList.contains("dark"))).toBe(theme === "dark");
     await testInfo.attach("invoice-archive", { body: await page.screenshot({ fullPage: true }), contentType: "image/png" });
     page.once("dialog", (dialog) => dialog.accept());
     await section.getByRole("button", { name: /Delete entire upload|Gesamten Upload löschen/ }).click();
-    await expect(page.getByRole("status")).toHaveText(/Upload deleted|Upload gelöscht/);
+    await expect(archive.getByRole("status")).toHaveText(/Upload deleted|Upload gelöscht/);
     await expect(section).toHaveCount(0);
   });
 }
