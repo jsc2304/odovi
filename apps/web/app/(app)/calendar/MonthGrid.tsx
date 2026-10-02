@@ -169,7 +169,7 @@ export function MonthGrid({
             const contents = (
               <>
                 <span className="flex w-full flex-wrap items-center justify-between gap-0.5">
-                  <span className="min-w-0 tabular-nums [overflow-wrap:anywhere]">{cell.dayOfMonth}</span>
+                  <span data-calendar-date className="min-w-0 tabular-nums [overflow-wrap:anywhere]">{cell.dayOfMonth}</span>
                   {cell.stats && cell.stats.chargeCount > 0 && <Zap aria-label={t("chargeIcon")} size={12} className="shrink-0 text-amber-700 dark:text-amber-400" />}
                 </span>
                 {cell.stats && cell.stats.driveCount > 0 && (

@@ -80,8 +80,11 @@ for (const locale of ["en", "de"] as const) {
         // Text enlargement, rather than a compositor scale, exercises real layout reflow.
         await page.addStyleTag({ content: "html { font-size: 200%; }" });
         await fitsViewport(page);
+        for (const dateLabel of await page.locator("[data-calendar-date]").all()) {
+          expect(await dateLabel.evaluate((label) => label.getBoundingClientRect().height <= Number.parseFloat(getComputedStyle(label).lineHeight) + 1)).toBe(true);
+        }
         const trigger = page.locator(`[data-date="${day}"]`);
-        await trigger.click();
+        await trigger.tap();
         await expect(page.getByRole("dialog")).toBeVisible();
         await page.keyboard.press("Escape");
         await expect(trigger).toBeFocused();
