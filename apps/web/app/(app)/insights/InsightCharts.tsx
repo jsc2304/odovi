@@ -177,7 +177,7 @@ export function ScatterBinnedChart({
             cx={toX(p.x)}
             cy={toY(p.y)}
             r={2}
-            className="fill-sky-600/15 dark:fill-sky-500/20"
+            className="fill-sky-700 dark:fill-sky-500"
           />
         ))}
 
