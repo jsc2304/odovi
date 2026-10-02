@@ -298,7 +298,7 @@ export function MonthGrid({
             </ol>
 
             {preview.stats?.hasIncompleteEnergy && (
-              <p className="mt-2 text-xs text-neutral-400 dark:text-neutral-500">
+              <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
                 {t("preview.partialEnergy")}
               </p>
             )}

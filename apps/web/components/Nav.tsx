@@ -18,9 +18,9 @@ const mobileItems = [
 function itemClasses(active: boolean, layout: "bottom" | "side" | "header"): string {
   const base =
     layout === "bottom"
-      ? "flex flex-1 flex-col items-center gap-0.5 py-2 text-xs"
+      ? "flex min-w-0 flex-1 basis-0 flex-col items-center gap-0.5 py-2 text-xs"
       : layout === "header"
-        ? "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg"
+        ? "inline-flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-lg"
         : "flex min-h-11 items-center gap-4 rounded-lg px-3.5 py-2.5 text-[15px]";
   const state = active
     ? "font-medium text-violet-700 dark:text-violet-300"
@@ -29,7 +29,7 @@ function itemClasses(active: boolean, layout: "bottom" | "side" | "header"): str
   const sideActiveBg =
     layout === "side" && active ? "bg-violet-100 dark:bg-violet-950" : "";
   const focus =
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-cyan-300 dark:focus-visible:ring-offset-neutral-950";
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-700 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-accent-300 dark:focus-visible:ring-offset-neutral-950";
   return `${base} ${state} ${sideActiveBg} ${motion} ${focus}`.trim();
 }
 
@@ -68,7 +68,7 @@ export function BottomNav() {
             className={itemClasses(active, "bottom")}
           >
             <Icon aria-hidden size={20} strokeWidth={active ? 2.25 : 2} />
-            <span>{t(item.labelKey)}</span>
+            <span className="max-w-full text-center [overflow-wrap:anywhere]">{t(item.labelKey)}</span>
           </Link>
         );
       })}

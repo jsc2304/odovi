@@ -16,6 +16,7 @@ export function InvoiceArchive({ initial }: { initial: Archive }) {
   const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
   const refresh = async () => { const response = await fetch("/api/invoices", { cache: "no-store" }); if (!response.ok) throw new Error("archive-unavailable"); setArchive(await response.json()); };
   async function mutate(url: string, method: string, body?: BodyInit, headers?: HeadersInit) {
+    if (url !== "/api/invoices" && !url.startsWith("/api/invoices/")) throw new Error("archive-unavailable");
     setBusy(true); setMessage("");
     try {
       const response = await fetch(url, { method, headers: { "x-odovi-invoice": "1", ...headers }, body });

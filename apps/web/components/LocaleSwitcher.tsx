@@ -67,7 +67,7 @@ export function LocaleSwitcher({
           next: other.toUpperCase(),
         })}
         title={t("language.currentTitle", { current: locale.toUpperCase() })}
-        className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-xs font-semibold text-neutral-500 transition-colors hover:bg-violet-100 hover:text-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:text-neutral-400 dark:hover:bg-violet-950 dark:hover:text-violet-300 dark:focus-visible:ring-cyan-300 dark:focus-visible:ring-offset-neutral-950"
+        className="inline-flex h-[44px] w-[44px] items-center justify-center rounded-lg text-xs font-semibold text-neutral-500 transition-colors hover:bg-violet-100 hover:text-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-700 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:text-neutral-400 dark:hover:bg-violet-950 dark:hover:text-violet-300 dark:focus-visible:ring-accent-300 dark:focus-visible:ring-offset-neutral-950"
       >
         {locale.toUpperCase()}
       </button>
@@ -94,7 +94,7 @@ export function LocaleSwitcher({
                 disabled={pending}
                 onClick={() => select(o.value)}
                 aria-pressed={active}
-                className={`rounded font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-cyan-300 dark:focus-visible:ring-offset-neutral-950 ${
+                className={`rounded font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-700 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-accent-300 dark:focus-visible:ring-offset-neutral-950 ${
                   active
                     ? "text-neutral-900 dark:text-neutral-100"
                     : "text-neutral-400 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-300"
@@ -125,7 +125,7 @@ export function LocaleSwitcher({
             onClick={() => select(o.value)}
             aria-pressed={active}
             title={o.label}
-            className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-md px-2 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-cyan-300 dark:focus-visible:ring-offset-neutral-950 ${
+            className={`inline-flex min-h-9 flex-1 items-center justify-center rounded-md px-2 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-700 focus-visible:ring-offset-1 focus-visible:ring-offset-white dark:focus-visible:ring-accent-300 dark:focus-visible:ring-offset-neutral-950 ${
               active
                 ? "bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300"
                 : "text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"

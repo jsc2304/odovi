@@ -15,6 +15,9 @@ test("explicit result types, filter reset and contextual detail return", async (
   }
   await page.goto("/search?type=invalid");
   await expect(page.getByTestId("search-summary")).toHaveCount(0);
+  await page.goto("/search?type=charges&vehicle=999999");
+  await expect(page.getByTestId("search-summary")).toHaveCount(0);
+  await expect(page.getByText(/No vehicle available|Kein Fahrzeug vorhanden/).last()).toBeVisible();
   await page.goto("/search?q=never-matches-odovi-fixture&type=all&from=2026-01-01&classification=business");
   await expect(page.getByText(/No results found|Keine Ergebnisse/i)).toBeVisible();
   await page.getByRole("button", { name: /Reset to all drives|Zurücksetzen auf alle Fahrten/ }).click();

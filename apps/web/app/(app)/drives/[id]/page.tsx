@@ -249,9 +249,9 @@ export default async function DriveDetailPage({
       <Card title={t("page.cardMetrics")}>
         <dl className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2">
           {kennzahlen.map(([label, value]) => (
-            <div key={label} className="flex justify-between gap-4 text-sm">
-              <dt className="text-neutral-500 dark:text-neutral-400">{label}</dt>
-              <dd className="text-right font-medium tabular-nums">{value}</dd>
+            <div key={label} className="flex flex-wrap justify-between gap-x-4 gap-y-1 text-sm">
+              <dt className="max-w-full [overflow-wrap:anywhere] text-neutral-500 dark:text-neutral-400">{label}</dt>
+              <dd className="max-w-full text-right font-medium tabular-nums [overflow-wrap:anywhere]">{value}</dd>
             </div>
           ))}
         </dl>
@@ -347,7 +347,7 @@ export default async function DriveDetailPage({
       </section>
 
       <Card title={t("page.cardExport")}>
-        <div className="flex gap-1.5">
+        <div className="flex flex-wrap gap-1.5">
           <a
             href={`/api/export/drive/${drive.id}?format=csv`}
             className={buttonClasses("ghost", "sm")}

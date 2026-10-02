@@ -90,8 +90,9 @@ export function SearchControls({
         {t("scope", { vehicle: vehicle?.displayName ?? t("noVehicle"), type: t(`type.${type}`) })}
         {(from || to) && ` · ${from || "…"} – ${to || "…"}`}
       </p>
-      {vehicles.length > 1 && <select aria-label={t("vehicle")} value={vehicle?.id} onChange={(e) => pushParams({ vehicle: e.target.value })}
+      {vehicles.length > 1 && <select aria-label={t("vehicle")} value={vehicle?.id ?? ""} onChange={(e) => pushParams({ vehicle: e.target.value })}
         className="min-h-11 rounded-lg border border-neutral-300 px-3 text-base dark:border-neutral-700 dark:bg-neutral-900">
+        {!vehicle && <option value="" disabled>{t("noVehicle")}</option>}
         {vehicles.map((v) => <option key={v.id} value={v.id}>{v.displayName}</option>)}
       </select>}
       <input

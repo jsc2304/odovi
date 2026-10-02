@@ -33,7 +33,7 @@ export default async function SearchPage({
   const { q, from, to, classifications, type, shouldSearch } = parseSearchCriteria(sp);
   const trimmedQ = q;
   const vehicles = await getVehicles();
-  const vehicle = vehicles.find((v) => String(v.id) === sp.vehicle) ?? vehicles[0];
+  const vehicle = sp.vehicle == null ? vehicles[0] : vehicles.find((v) => String(v.id) === sp.vehicle);
   const vehicleId = vehicle?.id ?? null;
   let failed = false;
   const result = shouldSearch && vehicleId != null
