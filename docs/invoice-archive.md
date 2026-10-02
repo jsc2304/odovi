@@ -44,9 +44,10 @@ recalculation. Manual edits to an enriched charge remain possible.
 
 The monthly evidence ZIP contains original PDF bytes and `manifest.json` with
 hashes, parsed/reviewed metadata, parser version, original upload provenance,
-confirmed charge IDs and prior/applied cost triples. It selects reviewed
-invoice date first, parsed invoice date next, and UTC import date when both
-are unknown. The original ZIP can be downloaded separately. Keep downloaded
+confirmed charge IDs and prior/applied cost triples. Once reviewed, the
+reviewed invoice date governs, including clearing an incorrect parsed date to
+unknown. Without review, the parsed date is used. An unknown date falls back
+to UTC import date. The original ZIP can be downloaded separately. Keep downloaded
 bundles private. At most 500 PDFs/100 MiB of original PDF bytes can be exported
 at once; the UI shows the latest 100 records, while export includes all
 records for the selected month.

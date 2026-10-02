@@ -139,6 +139,11 @@ describe.skipIf(!databaseUrl)("durable authenticated invoice archive", () => {
     expect(files.get(`pdfs/${record!.id}-${record!.sha256}.pdf`)!.equals(original)).toBe(true);
     const manifest = JSON.parse(files.get("manifest.json")!.toString());
     expect(manifest.invoices.find((r: { id: number }) => r.id === record!.id)).toMatchObject({ sha256: hash(original), parsedMetadata: { invoiceDate: "2026-08-03" }, reviewedMetadata: { invoiceDate: "2026-09-03" } });
+    await archive.reviewInvoice(record!.id, { ...record!.parsedMetadata, invoiceDate: null }, null, false, actor);
+    const entry = Buffer.from(`pdfs/${record!.id}-${record!.sha256}.pdf`);
+    expect((await archive.monthlyExport("2026-08")).includes(entry)).toBe(false);
+    const [upload] = await connection.db.select().from(invoiceUploads).where(eq(invoiceUploads.id, imported.uploadId));
+    expect((await archive.monthlyExport(upload!.importedAt.toISOString().slice(0, 7))).includes(entry)).toBe(true);
     await expect(archive.monthlyExport("2026-13")).rejects.toThrow("invalid-month");
   });
 

@@ -151,12 +151,13 @@ export async function monthlyExport(month: string) {
     const rows = await tx.select({ ...summary, uploadedAt: invoiceUploads.importedAt, uploadedBy: invoiceUploads.importedBy,
       uploadFilename: invoiceUploads.filename, uploadHash: invoiceUploads.sha256 })
       .from(invoices).innerJoin(invoiceUploads, eq(invoiceUploads.id, invoices.uploadId))
-      .where(sql`coalesce(${invoices.reviewedMetadata}->>'invoiceDate', ${invoices.parsedMetadata}->>'invoiceDate', to_char(${invoiceUploads.importedAt} at time zone 'UTC', 'YYYY-MM-DD')) like ${month + "-%"}`)
+      .where(sql`coalesce(case when ${invoices.reviewedMetadata} is not null then ${invoices.reviewedMetadata}->>'invoiceDate'
+        else ${invoices.parsedMetadata}->>'invoiceDate' end, to_char(${invoiceUploads.importedAt} at time zone 'UTC', 'YYYY-MM-DD')) like ${month + "-%"}`)
       .orderBy(asc(invoices.id));
     if (rows.length > 500 || rows.reduce((s, r) => s + r.byteSize, 0) > INVOICE_LIMITS.exportBytes) throw new InvoiceError("export-limit-exceeded", 413);
     const originals = rows.length ? await tx.select({ id: invoices.id, original: invoices.original }).from(invoices).where(inArray(invoices.id, rows.map((r) => r.id))) : [];
     const zip = new ZipFile();
-    const manifest = { version: 1, month, exportedAt: new Date().toISOString(), dateBasis: "Reviewed invoice date, parsed invoice date, then UTC import date", invoices: rows };
+    const manifest = { version: 1, month, exportedAt: new Date().toISOString(), dateBasis: "Reviewed metadata governs when present; otherwise parsed metadata. Unknown date uses UTC import date.", invoices: rows };
     zip.addBuffer(Buffer.from(JSON.stringify(manifest, null, 2)), "manifest.json");
     for (const record of rows) {
       const original = originals.find((r) => r.id === record.id)!.original;
