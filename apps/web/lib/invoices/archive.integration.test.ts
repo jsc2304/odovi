@@ -8,6 +8,9 @@ import { hash, parseMetadata } from "./processing";
 import { fixturePdf, fixtureZip } from "./fixtures.test-support";
 
 vi.mock("server-only", () => ({}));
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("next-intl/server", () => ({ getTranslations: async () => (key: string) => key, getLocale: async () => "en" }));
+vi.mock("../rematch", () => ({ rematchAllPlaces: async () => ({ drives: 0, charges: 0, parks: 0 }) }));
 const state = vi.hoisted(() => ({ db: null as Db | null, token: "forged" }));
 vi.mock("../db", () => ({ get db() { return state.db; } }));
 vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => ({ value: state.token }) }), headers: async () => new Headers() }));
@@ -100,6 +103,27 @@ describe.skipIf(!databaseUrl)("durable authenticated invoice archive", () => {
     } as unknown as Db;
     await applyAutoChargeCosts(staleDb);
     expect((await connection.db.select().from(chargeSessions).where(eq(chargeSessions.id, chargeId)))[0]!.costSource).toBe(`invoice:${record.id}`);
+    const { updatePlace } = await import("../actions/places");
+    // Public place actions receive rows selected before invoice enrichment, while
+    // their UPDATEs and authorization still use the real migrated database.
+    const placeRaceDb = Object.create(connection.db) as Db;
+    placeRaceDb.select = ((fields?: Record<string, unknown>) => {
+      if (fields?.id === chargeSessions.id) {
+        const query = { from: () => query, leftJoin: () => query,
+          where: async () => fields.energyAddedKwh ? [{ id: chargeId, energyAddedKwh: 40, cost: "20.00", currency: "EUR" }] : [{ id: chargeId }] };
+        return query;
+      }
+      return fields ? connection.db.select(fields as Parameters<Db["select"]>[0]) : connection.db.select();
+    }) as Db["select"];
+    state.db = placeRaceDb;
+    try {
+      for (const price of ["0.70", ""]) {
+        const form = new FormData();
+        for (const [key, value] of Object.entries({ id: String(placeId), name: "Fixture", type: "charger", lat: "47", lon: "8", radiusM: "100", address: "", electricityPricePerKwh: price, electricityPriceCurrency: "EUR" })) form.set(key, value);
+        expect(await updatePlace({ ok: false }, form)).toMatchObject({ ok: true });
+        expect((await connection.db.select().from(chargeSessions).where(eq(chargeSessions.id, chargeId)))[0]).toMatchObject({ cost: "12.34", currency: "EUR", costSource: `invoice:${record.id}` });
+      }
+    } finally { state.db = connection.db; }
     const result = await archive.deleteUpload(imported.uploadId, actor);
     expect(result).toEqual({ restored: 1, preserved: 0 });
     expect((await connection.db.select().from(chargeSessions).where(eq(chargeSessions.id, chargeId)))[0]).toMatchObject({ cost: "20.00", currency: "EUR", costSource: "auto" });
