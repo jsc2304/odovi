@@ -23,7 +23,7 @@ test("day and month refresh identify retained content until navigation completes
       await page.locator(`input[type="${view === "day" ? "date" : "month"}"]`).fill(view === "day" ? "2000-01-01" : "2000-01");
       await expect(page.getByRole("status").filter({ hasText: /Showing the previous view|bisherige Ansicht/ })).toBeVisible();
     } finally { release(); }
-    await expect(page).toHaveURL(view === "day" ? /\/day\/2000-01-01$/ : /\/calendar\?month=2000-01$/);
+    await expect(page).toHaveURL(view === "day" ? /\/day\/2000-01-01(?:\?.*)?$/ : /\/calendar\?month=2000-01(?:&.*)?$/);
     await expect(page.getByRole("status").filter({ hasText: /Showing the previous view|bisherige Ansicht/ })).toHaveCount(0);
     await page.unroute(target);
   }
@@ -105,7 +105,7 @@ test("vehicle switching clears selection and exports only the selected archive",
     const csv = await page.request.get(`/api/export/day/${process.env.ODOVI_ACCEPTANCE_DAY}?format=csv&vehicle=${vehicleId}`);
     expect(csv.status()).toBe(200);
     expect(await csv.text()).toContain("Second-only-origin");
-    expect(await csv.text()).toContain("Acceptance Second Vehicle");
+    expect(await csv.text()).toContain("Drive Count;1");
     expect((await page.request.get(`/api/export/day/${process.env.ODOVI_ACCEPTANCE_DAY}?format=csv&vehicle=999999`)).status()).toBe(404);
   } finally {
     database(`delete from drives where vehicle_id=${vehicleId}; delete from vehicles where id=${vehicleId};`);

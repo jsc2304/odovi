@@ -49,7 +49,7 @@ export async function AuditLogList({ entries }: { entries: AuditLogRow[] }) {
           key={entry.id}
           className="flex flex-wrap items-baseline gap-x-1.5 text-neutral-600 dark:text-neutral-400"
         >
-          <span className="tabular-nums text-neutral-500 dark:text-neutral-500">
+          <span className="tabular-nums text-neutral-500 dark:text-neutral-400">
             {formatChangedAt(entry.changedAt)}
           </span>
           <span aria-hidden>·</span>

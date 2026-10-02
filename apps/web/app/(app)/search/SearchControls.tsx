@@ -105,7 +105,8 @@ export function SearchControls({
       />
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 flex-wrap items-center gap-4">
+          <div className="flex min-w-0 max-w-full items-center gap-2">
           <label
             htmlFor="search-from"
             className="text-xs font-medium text-neutral-500 dark:text-neutral-400"
@@ -117,8 +118,10 @@ export function SearchControls({
             type="date"
             value={from}
             onChange={(e) => pushParams({ from: e.target.value })}
-            className="rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-base text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
+            className="min-h-11 min-w-0 max-w-full rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-base text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
           />
+          </div>
+          <div className="flex min-w-0 max-w-full items-center gap-2">
           <label
             htmlFor="search-to"
             className="text-xs font-medium text-neutral-500 dark:text-neutral-400"
@@ -130,8 +133,9 @@ export function SearchControls({
             type="date"
             value={to}
             onChange={(e) => pushParams({ to: e.target.value })}
-            className="rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-base text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
+            className="min-h-11 min-w-0 max-w-full rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-base text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
           />
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-1.5">

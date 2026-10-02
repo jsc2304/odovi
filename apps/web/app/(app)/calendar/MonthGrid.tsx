@@ -173,7 +173,7 @@ export function MonthGrid({
                   {cell.stats && cell.stats.chargeCount > 0 && <Zap aria-label={t("chargeIcon")} size={12} className="shrink-0 text-amber-700 dark:text-amber-400" />}
                 </span>
                 {cell.stats && cell.stats.driveCount > 0 && (
-                  <span className="mt-auto block w-full text-[0.625rem] font-medium tabular-nums text-neutral-600 [overflow-wrap:anywhere] dark:text-neutral-400 sm:text-xs">
+                  <span className="mt-auto block w-full text-[0.625rem] font-medium tabular-nums text-neutral-600 [overflow-wrap:anywhere] dark:text-neutral-100 sm:text-xs">
                     {metricText(cell.stats, metric, true, driveCountLabel, toIntlLocale(locale))}
                   </span>
                 )}
