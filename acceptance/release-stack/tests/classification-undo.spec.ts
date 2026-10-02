@@ -123,3 +123,34 @@ for (const locale of ["en", "de"] as const) {
     }
   }
 }
+
+test("large search bulk actions settle at the same URL and preserve prior categories", async ({ page, context }) => {
+  await installBrowserEgressGuard(context);
+  await login(page);
+  await page.goto("/search?type=drives");
+  const links = page.locator('a[id^="drive-"]');
+  await expect(page.getByTestId("search-summary")).toBeVisible();
+  const count = Number((await page.getByTestId("search-summary").innerText()).match(/\d+/)?.[0]);
+  expect(count).toBeGreaterThan(100); // The shared release fixture exercises a large streamed result tree.
+  await expect(links).toHaveCount(count);
+  const categories = () => links.evaluateAll(elements => elements.map(element => ({
+    id: element.id,
+    category: element.querySelector("span.rounded-full")?.textContent?.trim(),
+  })).sort((a, b) => a.id.localeCompare(b.id)));
+  const before = await categories();
+
+  await page.getByRole("button", { name: /^Select$|^Auswählen$/ }).click();
+  await page.getByTestId("search-results").getByRole("button", { name: /^All$|^Alle$/ }).click();
+  await page.getByRole("group", { name: /Apply classification|Klassifizierung anwenden/ }).getByRole("button", { name: /Business|Geschäftlich/ }).click();
+  const receipt = page.getByRole("region", { name: /Last quick classification|Letzte Schnellklassifizierung/ });
+  await expect(receipt.getByRole("button", { name: /Undo classification|Klassifizierung rückgängig/ })).toBeVisible();
+  await expect(page.getByRole("group", { name: /Apply classification|Klassifizierung anwenden/ })).toHaveCount(0);
+  await expect(links).toHaveCount(count);
+  await expect(page).toHaveURL(/\/search\?type=drives$/);
+
+  await receipt.getByRole("button", { name: /Undo classification|Klassifizierung rückgängig/ }).click();
+  await expect(receipt).toContainText(/Classification restored|Klassifizierung wiederhergestellt/);
+  await expect(links).toHaveCount(count);
+  expect(await categories()).toEqual(before);
+  await expect(page).toHaveURL(/\/search\?type=drives$/);
+});

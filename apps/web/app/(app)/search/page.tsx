@@ -1,3 +1,6 @@
+import { randomUUID } from "node:crypto";
+import { Suspense } from "react";
+import { RouteLoading } from "../../../components/ui/RouteFeedback";
 import { Search } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { APP_TIMEZONE } from "../../../lib/config";
@@ -74,6 +77,8 @@ export default async function SearchPage({
           vehicles={vehicles}
           failed={failed}
         >
+        {/* New render snapshots also reset after a same-URL refresh or annotation save. */}
+        <Suspense key={randomUUID()} fallback={<RouteLoading />}>
         <div className="mt-6">
         {!shouldSearch && (
           <EmptyState
@@ -122,6 +127,7 @@ export default async function SearchPage({
           </BulkSelectionProvider>
         )}
         </div>
+        </Suspense>
         </SearchControls>
       </div>
     </div>
