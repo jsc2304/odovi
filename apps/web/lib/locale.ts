@@ -17,6 +17,7 @@ export const MESSAGE_NAMESPACES = [
   "bulk",
   "drives",
   "charges",
+  "invoices",
   "journeys",
   "places",
   "tags",

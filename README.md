@@ -30,6 +30,7 @@ Tessie and similar services are good, but they come with subscription costs, ove
 - **Charging overview** - Charging curve (kW over SoC), AC/DC, cost, location map
 - **DC charging comparison** - Compare the latest 5 or 10 completed fast-charging sessions, recorded curves, observed power, 10–80% times and charging locations
 - **Automatic charging costs** - Store an electricity price per place (for example home at EUR 0.32/kWh) -> sessions without a known price are calculated automatically, while manual and synced costs remain untouched
+- **Tesla invoice archive** - Optional local PDF/ZIP archive with original hashes, reviewed matching, reversible cost enrichment and monthly evidence exports. See [invoice archive limits and recovery](docs/invoice-archive.md).
 - **Journeys** - Vacations/trips as a wrapper around drives and charging stops, with KPI dashboard, map of all stages, an [immersive scroll-controlled 3D recap](docs/journey-recap.md), and export as CSV, PDF, and GPX
 - **Insights** - Personal consumption curve: consumption vs. outside temperature and speed, seasonal patterns, share of short trips
 - **Yearly destinations and Wrapped** - Visit heatmap and top destinations from completed drives, annual driving and charging summaries, and browser Print/Save as PDF

@@ -9,7 +9,7 @@
     "build": "tsc -p tsconfig.json",
     "test": "vitest run --passWithNoTests",
     "lint": "tsc --noEmit",
-    "generate": "drizzle-kit generate",
+    "generate": "tsc -p tsconfig.json && drizzle-kit generate",
     "migrate": "drizzle-kit migrate"
   },
   "dependencies": {

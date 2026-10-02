@@ -71,6 +71,13 @@
       "when": 1790940776454,
       "tag": "0009_orange_kang",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1790941800877,
+      "tag": "0010_invoice_archive",
+      "breakpoints": true
     }
   ]
 }

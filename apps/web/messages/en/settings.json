@@ -10,6 +10,7 @@
       "configure": "Configure"
     },
     "items": {
+      "invoices": { "title": "Tesla invoices", "description": "Keep charging invoices and export monthly evidence" },
       "planner": { "title": "Route Planner", "description": "Prepare a roadtrip and checkpoints" },
       "journeys": { "title": "Journeys", "description": "Open saved journeys" },
       "calendar": { "title": "Calendar", "description": "Explore drives by month" },

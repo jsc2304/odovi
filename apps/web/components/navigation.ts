@@ -3,6 +3,7 @@ import {
   CalendarRange,
   Ellipsis,
   FileBarChart,
+  Files,
   House,
   Lightbulb,
   MapPin,
@@ -23,6 +24,7 @@ export type DestinationId =
   | "search"
   | "journeys"
   | "charges"
+  | "invoices"
   | "places"
   | "reports"
   | "insights"
@@ -46,6 +48,8 @@ export interface AppDestination {
 
 /** One registry keeps desktop navigation, mobile navigation, and More in sync. */
 export const APP_DESTINATIONS: AppDestination[] = [
+  { id: "invoices", href: "/invoices", labelKey: "invoices", icon: Files,
+    match: (path) => path.startsWith("/invoices"), moreGroup: "review" },
   {
     id: "start",
     href: "/",

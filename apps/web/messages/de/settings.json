@@ -10,6 +10,7 @@
       "configure": "Konfigurieren"
     },
     "items": {
+      "invoices": { "title": "Tesla-Rechnungen", "description": "Laderechnungen aufbewahren und Monatsbelege exportieren" },
       "planner": { "title": "Routenplaner", "description": "Roadtrip und Checkpoints vorbereiten" },
       "journeys": { "title": "Reisen", "description": "Gespeicherte Journeys öffnen" },
       "calendar": { "title": "Kalender", "description": "Fahrten nach Monat entdecken" },
