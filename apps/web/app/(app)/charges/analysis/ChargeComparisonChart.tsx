@@ -22,7 +22,7 @@ const SERIES_DASHES = [
 export function CurveKey({ index }: { index: number }) {
   return (
     <span className={`inline-flex shrink-0 items-center gap-1.5 ${SERIES_COLORS[index % SERIES_COLORS.length]}`} aria-hidden="true">
-      <span className="w-5 text-center text-xs font-semibold tabular-nums">{index + 1}</span>
+      <span className="w-5 text-center text-xs font-semibold tabular-nums text-neutral-600 dark:text-neutral-400">{index + 1}</span>
       <svg width="30" height="12" viewBox="0 0 30 12">
         <line x1="0" x2="30" y1="6" y2="6" stroke="currentColor" strokeWidth="2.5" strokeDasharray={SERIES_DASHES[index]} />
       </svg>

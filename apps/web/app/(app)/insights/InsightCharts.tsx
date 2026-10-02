@@ -291,7 +291,7 @@ export function MonthChart({ months }: { months: MonthDatum[] }) {
               width={barW}
               height={PLOT_BOTTOM - y}
               rx={3}
-              className="fill-violet-600/70 dark:fill-violet-500/70"
+              className="fill-violet-600 dark:fill-violet-500"
               />
           );
         })}
@@ -434,7 +434,7 @@ export function WeekdayChart({ days }: { days: WeekdayDatum[] }) {
               width={barW}
               height={PLOT_BOTTOM - y}
               rx={3}
-              className="fill-violet-600/70 dark:fill-violet-500/70"
+              className="fill-violet-600 dark:fill-violet-500"
               />
           );
         })}

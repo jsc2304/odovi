@@ -340,6 +340,10 @@
 }
 
 .donutArc {
+  color: var(--color-accent-700);
+}
+
+:global(.dark) .donutArc {
   color: var(--insights-ember);
 }
 
