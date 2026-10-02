@@ -25,5 +25,13 @@
   "matchFieldPlace": "Ort",
   "matchFieldTag": "Tag",
   "matchFieldStartPlace": "Startort",
-  "matchFieldEndPlace": "Zielort"
+  "matchFieldEndPlace": "Zielort",
+  "scope": "{vehicle} · {type}",
+  "vehicle": "Fahrzeug",
+  "activeFilters": "Aktive Einschränkungen",
+  "remove": "Entfernen: {filter}",
+  "reset": "Zurücksetzen auf alle Fahrten",
+  "updating": "Ergebnisse werden aktualisiert. Sichtbare Ergebnisse verwenden noch die bisherigen Filter.",
+  "failed": "Suche konnte nicht geladen werden. Deine Filter bleiben erhalten. Versuche es erneut.",
+  "retry": "Erneut versuchen"
 }

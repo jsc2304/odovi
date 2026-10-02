@@ -1,8 +1,10 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type { Classification } from "@odovi/core";
+import type { Vehicle } from "../../../lib/queries";
+import { buttonClasses } from "../../../components/ui/Button";
 
 const CLASSIFICATION_VALUES: Classification[] = [
   "business",
@@ -19,27 +21,41 @@ export function SearchControls({
   to,
   classifications,
   type,
+  vehicle,
+  vehicles,
+  children,
+  failed,
 }: {
   q: string;
   from: string;
   to: string;
   classifications: Classification[];
   type: "drives" | "charges" | "all";
+  vehicle?: Vehicle;
+  vehicles: Vehicle[];
+  children: ReactNode;
+  failed: boolean;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const t = useTranslations("search");
   const tc = useTranslations("common");
   const [qInput, setQInput] = useState(q);
+  const [pending, startTransition] = useTransition();
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Keep local input in sync if the URL changes from elsewhere (e.g. back/forward nav).
   useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
     setQInput(q);
   }, [q]);
 
+  useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
+
   function pushParams(next: Record<string, string | null>) {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
     const params = new URLSearchParams(searchParams.toString());
+    if (!("q" in next) && qInput !== q) params.set("q", qInput);
     for (const [key, value] of Object.entries(next)) {
       if (value == null || value === "") {
         params.delete(key);
@@ -47,7 +63,9 @@ export function SearchControls({
         params.set(key, value);
       }
     }
-    router.replace(`/search?${params.toString()}`);
+    // Keep focus/scroll while Next commits controls and results together.
+    // https://nextjs.org/docs/15/app/api-reference/functions/use-router#disabling-scroll-to-top
+    startTransition(() => router.replace(`/search?${params.toString()}`, { scroll: false }));
   }
 
   function onQChange(value: string) {
@@ -68,9 +86,16 @@ export function SearchControls({
 
   return (
     <div className="flex flex-col gap-3">
+      <p className="text-sm text-neutral-600 dark:text-neutral-300" data-testid="search-scope">
+        {t("scope", { vehicle: vehicle?.displayName ?? t("noVehicle"), type: t(`type.${type}`) })}
+        {(from || to) && ` · ${from || "…"} – ${to || "…"}`}
+      </p>
+      {vehicles.length > 1 && <select aria-label={t("vehicle")} value={vehicle?.id} onChange={(e) => pushParams({ vehicle: e.target.value })}
+        className="min-h-11 rounded-lg border border-neutral-300 px-3 text-base dark:border-neutral-700 dark:bg-neutral-900">
+        {vehicles.map((v) => <option key={v.id} value={v.id}>{v.displayName}</option>)}
+      </select>}
       <input
         type="search"
-        autoFocus
         value={qInput}
         onChange={(e) => onQChange(e.target.value)}
         placeholder={t("placeholder")}
@@ -136,7 +161,7 @@ export function SearchControls({
               <button
                 key={value}
                 type="button"
-                onClick={() => pushParams({ type: value === "drives" ? null : value })}
+                onClick={() => pushParams({ type: value })}
                 aria-pressed={active}
                 className={`rounded-md px-2.5 py-1 text-xs font-medium transition ${
                   active
@@ -150,6 +175,20 @@ export function SearchControls({
           })}
         </div>
       </div>
+      <div className="flex flex-wrap gap-2" aria-label={t("activeFilters")}>
+        {q && <button className={buttonClasses("secondary", "sm")} onClick={() => { setQInput(""); pushParams({ q: null }); }}>{t("remove", { filter: q })}</button>}
+        {from && <button className={buttonClasses("secondary", "sm")} onClick={() => pushParams({ from: null })}>{t("remove", { filter: `${t("from")} ${from}` })}</button>}
+        {to && <button className={buttonClasses("secondary", "sm")} onClick={() => pushParams({ to: null })}>{t("remove", { filter: `${t("to")} ${to}` })}</button>}
+        {classifications.map((value) => <button key={value} className={buttonClasses("secondary", "sm")} onClick={() => toggleClassification(value)}>{t("remove", { filter: tc(`classification.${value}`) })}</button>)}
+        <button type="button" className={buttonClasses("ghost", "sm")} onClick={() => {
+          setQInput(""); pushParams({ q: null, from: null, to: null, classification: null, type: "drives" });
+        }}>{t("reset")}</button>
+      </div>
+      <p role="status" className="min-h-5 text-sm text-neutral-600 dark:text-neutral-300">
+        {(pending || qInput !== q) ? t("updating") : ""}
+      </p>
+      {failed && <button className={buttonClasses("secondary")} onClick={() => startTransition(() => router.refresh())}>{t("retry")}</button>}
+      <div aria-busy={pending || qInput !== q} data-testid="search-results" className={pending || qInput !== q ? "opacity-60" : undefined}>{children}</div>
     </div>
   );
 }

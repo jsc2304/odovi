@@ -177,9 +177,9 @@ export interface DayExportData {
 }
 
 /** Loads all drives of one calendar day (APP_TIMEZONE) mapped to `ReportDrive`. */
-export async function loadDayReportData(date: string): Promise<DayExportData> {
+export async function loadDayReportData(date: string, vehicleId?: number): Promise<DayExportData> {
   const { start, end } = dayBounds(date);
-  const meta = await loadMeta();
+  const meta = await loadMeta(vehicleId);
 
   const rows = await db
     .select()

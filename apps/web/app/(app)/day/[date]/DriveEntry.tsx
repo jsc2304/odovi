@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import { ArchiveDriveLink } from "../../../../components/ArchiveDriveLink";
 import { useLocale, useTranslations } from "next-intl";
 import {
   formatConsumption,
@@ -139,9 +139,9 @@ export function DriveEntry({
 
   return (
     <li className={cardClasses}>
-      <Link href={`/drives/${row.id}`} className="block px-4 pt-3">
+      <ArchiveDriveLink driveId={row.id} className="block px-4 pt-3">
         <DriveBody row={row} tz={tz} />
-      </Link>
+      </ArchiveDriveLink>
 
       <div className="px-4 pb-3 pt-2">
         <QuickClassify driveId={row.id} value={classification} />

@@ -146,6 +146,12 @@ html.dark body {
 .dark .card { border-color: var(--color-neutral-800); background: var(--color-neutral-900); }
 .dark :focus-visible { outline-color: var(--color-accent-300); }
 
+/* Form boundaries and muted copy must remain readable on quiet surfaces. */
+.app-main input:not([type="checkbox"]):not([type="radio"]),
+.app-main select, .app-main textarea { border-color: var(--color-neutral-500); }
+.dark .app-main input:not([type="checkbox"]):not([type="radio"]),
+.dark .app-main select, .dark .app-main textarea { border-color: var(--color-neutral-400); }
+
 .app-main h1, .editorial-heading {
   font-family: var(--font-source-serif), Georgia, serif;
   font-optical-sizing: auto;
@@ -223,7 +229,7 @@ html.dark body {
   .overview-search input { font-size: 1rem; }
   .overview-vehicle { width: 100%; order: 2; justify-content: flex-start; gap: .625rem; flex-wrap: wrap; margin: 0; }
   .overview-task { align-items: stretch; flex-direction: column; gap: 1rem; }
-  .overview-task > div:last-child > a, .overview-task > div:last-child > button { flex: 1; padding-inline: .625rem; font-size: .75rem; white-space: nowrap; }
+  .overview-task > div:last-child > a, .overview-task > div:last-child > button { flex: 1; padding-inline: .625rem; font-size: .8125rem; white-space: normal; }
   .overview-task a[href^="/search"] > svg { display: none; }
   .overview-summary { padding: 1.5rem 0; }
   .overview-summary > div { gap: .4rem; font-size: .9375rem; }

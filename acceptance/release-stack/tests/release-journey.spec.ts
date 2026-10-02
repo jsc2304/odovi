@@ -97,7 +97,7 @@ test("fresh release journey: setup, sync, day, classification, export, version p
     await expect(page.locator("[data-testid=day-totals]")).toBeVisible();
     await expect(page.locator("[data-drive-classification]").first()).toBeVisible();
     driveHref = (await page.locator('a[href^="/drives/"]').first().getAttribute("href")) ?? "";
-    expect(driveHref).toMatch(/^\/drives\/\d+$/);
+    expect(driveHref).toMatch(/^\/drives\/\d+(?:\?returnTo=.+)?$/);
   });
 
   await test.step("keyboard classification", async () => {
@@ -124,7 +124,8 @@ test("fresh release journey: setup, sync, day, classification, export, version p
     await expect(page.getByText(/Saved|Gespeichert/i, { exact: true })).toBeVisible();
     await page.goto("/search?q=Acceptance%20annotation");
     await expect(page.locator("[data-testid=search-summary]")).toContainText(/1 drive|1 Fahrt/i);
-    await expect(page.locator(`a[href="${driveHref}"]`).last()).toBeVisible();
+    const drivePath = driveHref.split("?")[0];
+    await expect(page.locator(`a[href^="${drivePath}?"]`).last()).toBeVisible();
   });
 
   await test.step("discoverable release identity path", async () => {

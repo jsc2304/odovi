@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import { ArchiveDriveLink } from "../../../components/ArchiveDriveLink";
 import { useTranslations } from "next-intl";
 import { formatKm, formatPlaceLabel, formatTimeRange } from "@odovi/core";
 import {
@@ -118,9 +118,9 @@ export function DriveResultRow({
 
   return (
     <li className={cardClasses}>
-      <Link href={`/drives/${row.id}`} className="block px-4 py-3">
+      <ArchiveDriveLink driveId={row.id} className="block px-4 py-3">
         <DriveResultBody row={row} tz={tz} q={q} />
-      </Link>
+      </ArchiveDriveLink>
     </li>
   );
 }

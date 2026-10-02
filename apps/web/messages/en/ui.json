@@ -26,5 +26,11 @@
   "meta": {
     "description": "Self-hosted trip logbook for Tesla"
   },
-  "skipToContent": "Skip to content"
+  "skipToContent": "Skip to content",
+  "feedback": {
+    "loading": "Loading this view…",
+    "failedTitle": "This view could not be loaded",
+    "failedHint": "Try again. Your stored archive and annotations are unchanged.",
+    "retry": "Try again"
+  }
 }

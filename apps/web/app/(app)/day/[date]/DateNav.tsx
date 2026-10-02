@@ -31,6 +31,9 @@ export function DateNav({
   const router = useRouter();
   const t = useTranslations("day");
   const suffix = vehicleQuery;
+  const context = new URLSearchParams(vehicleQuery);
+  const calendarQuery = new URLSearchParams({ month: context.get("month") ?? date.slice(0, 7) });
+  if (context.has("vehicle")) calendarQuery.set("vehicle", context.get("vehicle")!);
 
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -72,7 +75,7 @@ export function DateNav({
           className="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm text-neutral-900 outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:focus-visible:ring-white dark:focus-visible:ring-offset-neutral-950"
         />
         <Link
-          href={`/calendar?month=${date.slice(0, 7)}`}
+          href={`/calendar?${calendarQuery}`}
           aria-label={t("openCalendar")}
           title={t("openCalendar")}
           className={buttonClasses("ghost", "md", "!h-9 !w-9 !p-0")}

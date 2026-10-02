@@ -31,7 +31,7 @@ function StatCard({
 }) {
   const content = (
     <>
-      <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-neutral-400">
+      <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
         <Icon aria-hidden size={13} />
         {label}
       </div>
@@ -175,7 +175,7 @@ export async function StatsRow({
             </p>
           </>
         ) : (
-          <p className="text-sm text-neutral-400">{t("stats.noData")}</p>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400">{t("stats.noData")}</p>
         )}
       </StatCard>
 
@@ -193,7 +193,7 @@ export async function StatsRow({
           <p className="text-xs text-neutral-500 dark:text-neutral-400">{t("stats.allDone")}</p>
         )}
         {unclassifiedCount.imported > 0 ? (
-          <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">
+          <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
             {t("stats.importedExtra", { count: unclassifiedCount.imported })}
           </p>
         ) : null}

@@ -17,6 +17,7 @@ import {
 } from "@odovi/core";
 import { weatherCodeIcon, weatherCodeKey } from "../../../../lib/weatherCodes";
 import { APP_TIMEZONE } from "../../../../lib/config";
+import { archiveReturnTo } from "../../../../lib/archiveContext";
 import { formatLongDate } from "../../../../lib/day";
 import {
   getAllPlacesLite,
@@ -63,8 +64,10 @@ function Card({
 
 export default async function DriveDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ returnTo?: string }>;
 }) {
   const { id } = await params;
   const driveId = Number(id);
@@ -101,6 +104,7 @@ export default async function DriveDetailPage({
   );
 
   const dateStr = toDateParam(drive.startTime);
+  const returnTo = archiveReturnTo((await searchParams).returnTo, `/day/${dateStr}?vehicle=${drive.vehicleId}#drive-${driveId}`);
   const classification = drive.classification as Classification;
 
   const kennzahlen: Array<[string, React.ReactNode]> = [
@@ -179,7 +183,7 @@ export default async function DriveDetailPage({
   return (
     <div className="mx-auto max-w-2xl">
       <Link
-        href="/day"
+        href={returnTo}
         className="inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
       >
         <ChevronLeft aria-hidden size={16} />
@@ -204,7 +208,7 @@ export default async function DriveDetailPage({
       </div>
 
       <Link
-        href={`/day/${dateStr}`}
+        href={`/day/${dateStr}?vehicle=${drive.vehicleId}#drive-${driveId}`}
         className="mt-2 inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-neutral-900 hover:underline dark:text-neutral-400 dark:hover:text-white"
       >
         {t("page.backToDayView", { date: dateStr })}
@@ -235,7 +239,7 @@ export default async function DriveDetailPage({
                 />
               )}
               <span className="tabular-nums">{parts.join(" · ")}</span>
-              <span className="text-xs text-neutral-400 dark:text-neutral-500">
+              <span className="text-xs text-neutral-500 dark:text-neutral-400">
                 {t("page.weatherHistoricalNote")}
               </span>
             </div>

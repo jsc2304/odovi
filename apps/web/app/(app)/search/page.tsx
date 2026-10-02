@@ -1,39 +1,20 @@
 import { Search } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import type { Classification } from "@odovi/core";
 import { APP_TIMEZONE } from "../../../lib/config";
-import { dayBounds, isValidDateParam } from "../../../lib/day";
-import { getDefaultVehicleId, runSearch, type SearchType } from "../../../lib/search";
-import { getAllTags } from "../../../lib/queries";
+import { dayBounds } from "../../../lib/day";
+import { runSearch, type SearchType } from "../../../lib/search";
+import { getAllTags, getVehicles } from "../../../lib/queries";
 import { EmptyState } from "../../../components/ui/EmptyState";
 import {
   BulkSelectionProvider,
   SelectionToggle,
 } from "../../../components/bulkSelection";
+import { parseSearchCriteria } from "../../../lib/searchCriteria";
+import { ArchiveReturnFocus } from "../../../components/ArchiveDriveLink";
 import { SearchControls } from "./SearchControls";
 import { SearchResults } from "./SearchResults";
 
 export const dynamic = "force-dynamic";
-
-const ALL_CLASSIFICATIONS: Classification[] = [
-  "unclassified",
-  "private",
-  "business",
-  "commute",
-];
-
-function parseClassifications(raw: string | undefined): Classification[] {
-  if (raw == null || raw.trim() === "") return [];
-  return raw
-    .split(",")
-    .map((s) => s.trim())
-    .filter((s): s is Classification => ALL_CLASSIFICATIONS.includes(s as Classification));
-}
-
-function parseType(raw: string | undefined): SearchType {
-  if (raw === "charges" || raw === "all") return raw;
-  return "drives";
-}
 
 export default async function SearchPage({
   searchParams,
@@ -44,33 +25,24 @@ export default async function SearchPage({
     to?: string;
     classification?: string;
     type?: string;
+    vehicle?: string;
   }>;
 }) {
   const t = await getTranslations("search");
   const sp = await searchParams;
-  const q = sp.q ?? "";
-  const from = sp.from && isValidDateParam(sp.from) ? sp.from : "";
-  const to = sp.to && isValidDateParam(sp.to) ? sp.to : "";
-  const classifications = parseClassifications(sp.classification);
-  const type = parseType(sp.type);
-
-  const trimmedQ = q.trim();
-  const hasFilters = from !== "" || to !== "" || classifications.length > 0;
-  const hasQuery = trimmedQ !== "";
-  const shouldSearch = hasQuery || hasFilters;
-
-  const vehicleId = await getDefaultVehicleId();
-
-  const result =
-    shouldSearch && vehicleId != null
-      ? await runSearch(vehicleId, {
-          q: trimmedQ,
-          from: from ? dayBounds(from).start : undefined,
-          to: to ? dayBounds(to).end : undefined,
-          classifications: classifications.length > 0 ? classifications : undefined,
-          type,
-        })
-      : null;
+  const { q, from, to, classifications, type, shouldSearch } = parseSearchCriteria(sp);
+  const trimmedQ = q;
+  const vehicles = await getVehicles();
+  const vehicle = vehicles.find((v) => String(v.id) === sp.vehicle) ?? vehicles[0];
+  const vehicleId = vehicle?.id ?? null;
+  let failed = false;
+  const result = shouldSearch && vehicleId != null
+    ? await runSearch(vehicleId, {
+        q, from: from ? dayBounds(from).start : undefined,
+        to: to ? dayBounds(to).end : undefined,
+        classifications: classifications.length ? classifications : undefined, type,
+      }).catch(() => { failed = true; return null; })
+    : null;
 
   const tagOptions = result
     ? (await getAllTags()).map((t) => ({
@@ -85,6 +57,7 @@ export default async function SearchPage({
 
   return (
     <div className="mx-auto max-w-2xl">
+      <ArchiveReturnFocus />
       <h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
       <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
         {t("subtitle")}
@@ -92,15 +65,16 @@ export default async function SearchPage({
 
       <div className="mt-6">
         <SearchControls
-          q={q}
+          q={sp.q ?? ""}
           from={from}
           to={to}
           classifications={classifications}
           type={type}
-        />
-      </div>
-
-      <div className="mt-6">
+          vehicle={vehicle}
+          vehicles={vehicles}
+          failed={failed}
+        >
+        <div className="mt-6">
         {!shouldSearch && (
           <EmptyState
             icon={Search}
@@ -115,8 +89,10 @@ export default async function SearchPage({
           </p>
         )}
 
+        {failed && <p role="alert" className="card p-4 text-red-700 dark:text-red-300">{t("failed")}</p>}
+
         {result && (
-          <BulkSelectionProvider allIds={driveResultIds} tags={tagOptions}>
+          <BulkSelectionProvider key={vehicleId} allIds={driveResultIds} tags={tagOptions}>
             <div className="mb-3 flex items-center justify-between gap-2">
               <p
                 className="text-sm font-medium text-neutral-700 dark:text-neutral-300"
@@ -145,6 +121,8 @@ export default async function SearchPage({
             )}
           </BulkSelectionProvider>
         )}
+        </div>
+        </SearchControls>
       </div>
     </div>
   );
