@@ -47,7 +47,7 @@ export function MonthNav({ month, currentMonth, vehicleQuery }: Props) {
         {formatMonthLabelClient(month, locale)}
       </h1>
 
-      <div className="ml-auto flex items-center gap-2">
+      <div className="ml-auto flex min-w-0 max-w-full flex-wrap items-center gap-2">
         {month !== currentMonth && (
           <button
             type="button"

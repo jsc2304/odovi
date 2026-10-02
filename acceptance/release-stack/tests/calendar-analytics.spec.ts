@@ -99,8 +99,7 @@ for (const locale of ["en", "de"] as const) {
       const dataViews = page.locator("[data-chart-data]");
       await expect.poll(() => dataViews.count()).toBeGreaterThanOrEqual(4);
       for (const view of await dataViews.all()) {
-        await view.locator("summary").focus();
-        await page.keyboard.press("Enter");
+        await view.locator("summary").press("Enter");
         await expect(view.getByRole("table")).toBeVisible();
         await expect.poll(() => view.locator("tbody tr").count()).toBeGreaterThan(0);
         await view.getByRole("region").focus();
@@ -113,8 +112,7 @@ for (const locale of ["en", "de"] as const) {
       const curves = page.locator("details").filter({ has: page.locator("summary", { hasText: /Recorded curve values|Erfasste Kurvenwerte/ }) });
       await expect.poll(() => curves.count()).toBeGreaterThan(0);
       const first = curves.first();
-      await first.locator("summary").focus();
-      await page.keyboard.press("Enter");
+      await first.locator("summary").press("Enter");
       // The synthetic charging fixture has 36 plotted samples; all remain accessible.
       await expect(first.locator("tbody tr")).toHaveCount(36);
       await expect(first.getByRole("table")).toContainText(locale === "en" ? "Segment" : "Abschnitt");
@@ -122,8 +120,7 @@ for (const locale of ["en", "de"] as const) {
 
       await page.goto(`/wrapped?year=${year}&classification=private`);
       const destinationData = page.locator("[data-destination-data]");
-      await destinationData.locator("summary").focus();
-      await page.keyboard.press("Enter");
+      await destinationData.locator("summary").press("Enter");
       await expect(destinationData.getByRole("table")).toBeVisible();
       await expect(destinationData.getByRole("table")).toContainText(year!);
       await expect(destinationData.getByRole("table")).toContainText(locale === "en" ? "Private" : "Privat");
