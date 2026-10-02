@@ -90,9 +90,12 @@ test("failed search keeps filters and recovers with retry", async ({ page }) => 
 
 test("vehicle switching clears selection and exports only the selected archive", async ({ page }) => {
   test.skip(!process.env.ODOVI_ACCEPTANCE_PROJECT, "Requires the runner-owned multi-vehicle fixture");
-  const vehicleId = Number(database("insert into vehicles (display_name, source, source_id) values ('Acceptance Second Vehicle', 'release-acceptance-navigation', 'second') returning id;"));
-  database(`insert into drives (vehicle_id, start_time, end_time, start_address, end_address, classification, source, source_id) values (${vehicleId}, '${process.env.ODOVI_ACCEPTANCE_DAY}T10:00:00Z', '${process.env.ODOVI_ACCEPTANCE_DAY}T10:30:00Z', 'Second-only-origin', 'Second-only-destination', 'business', 'release-acceptance-navigation', 'second-drive');`);
+  const worker = `${process.env.ODOVI_ACCEPTANCE_PROJECT}-worker-1`;
+  execFileSync("docker", ["pause", worker]);
+  let vehicleId: number | null = null;
   try {
+    vehicleId = Number(database("insert into vehicles (display_name, source, source_id) values ('Acceptance Second Vehicle', 'release-acceptance-navigation', 'second') returning id;"));
+    database(`insert into drives (vehicle_id, start_time, end_time, start_address, end_address, classification, source, source_id) values (${vehicleId}, '${process.env.ODOVI_ACCEPTANCE_DAY}T10:00:00Z', '${process.env.ODOVI_ACCEPTANCE_DAY}T10:30:00Z', 'Second-only-origin', 'Second-only-destination', 'business', 'release-acceptance-navigation', 'second-drive');`);
     await login(page);
     await page.goto("/search?type=drives&vehicle=1");
     await page.getByRole("button", { name: /^(Select|Auswählen)$/ }).click();
@@ -107,8 +110,13 @@ test("vehicle switching clears selection and exports only the selected archive",
     expect(await csv.text()).toContain("Second-only-origin");
     expect(await csv.text()).toContain("Drive Count;1");
     expect((await page.request.get(`/api/export/day/${process.env.ODOVI_ACCEPTANCE_DAY}?format=csv&vehicle=999999`)).status()).toBe(404);
+    await page.setViewportSize({ width: 320, height: 852 });
+    await page.goto("/insights");
+    await expect(page.getByRole("combobox", { name: /Vehicle|Fahrzeug/ })).toContainText("Acceptance Second Vehicle");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   } finally {
-    database(`delete from drives where vehicle_id=${vehicleId}; delete from vehicles where id=${vehicleId};`);
+    try { if (vehicleId != null) database(`delete from park_sessions where vehicle_id=${vehicleId}; delete from drives where vehicle_id=${vehicleId}; delete from vehicles where id=${vehicleId};`); }
+    finally { execFileSync("docker", ["unpause", worker]); }
   }
 });
 

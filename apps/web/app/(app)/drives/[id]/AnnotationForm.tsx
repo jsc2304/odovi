@@ -173,7 +173,7 @@ export function AnnotationForm({
         </p>
       )}
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <button type="submit" disabled={pending || !dirty} className={buttonClasses("primary", "md")}>
           {pending ? t("annotationForm.saving") : tCommon("actions.save")}
         </button>
