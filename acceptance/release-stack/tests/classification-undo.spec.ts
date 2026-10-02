@@ -108,11 +108,12 @@ for (const locale of ["en", "de"] as const) {
         await page.getByRole("button", { name: /Discard changes|Änderungen verwerfen/ }).click();
         await expect(notes).toHaveValue(stored);
         await expect(save).toBeDisabled();
-        await notes.fill(`${stored} [saved acceptance edit]`);
+        const saved = `${stored} [saved acceptance edit]`.trim();
+        await notes.fill(saved);
         await save.click();
         await expect(page.getByRole("status").filter({ hasText: /^Saved$|^Gespeichert$/ })).toBeVisible();
         await page.reload();
-        await expect(notes).toHaveValue(`${stored} [saved acceptance edit]`);
+        await expect(notes).toHaveValue(saved);
         await notes.fill(stored);
         await save.click();
         await expect(save).toBeDisabled();
@@ -145,6 +146,8 @@ test("large search bulk actions settle at the same URL and preserve prior catego
   const receipt = page.getByRole("region", { name: /Last quick classification|Letzte Schnellklassifizierung/ });
   await expect(receipt.getByRole("button", { name: /Undo classification|Klassifizierung rückgängig/ })).toBeVisible();
   await expect(page.getByRole("group", { name: /Apply classification|Klassifizierung anwenden/ })).toHaveCount(0);
+  // Applying clears the selection while keeping selection mode mounted.
+  await page.getByRole("button", { name: /^Done$|^Fertig$/ }).click();
   await expect(links).toHaveCount(count);
   await expect(page).toHaveURL(/\/search\?type=drives$/);
 
