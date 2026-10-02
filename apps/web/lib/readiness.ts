@@ -117,6 +117,7 @@ export async function getReadinessReport(now = Date.now()): Promise<ReadinessRep
         cross join sessions
         cross join vehicles
         cross join location_provider_decisions
+        cross join classification_operations
         limit 0
       `);
     } catch (error) {

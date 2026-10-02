@@ -145,7 +145,7 @@ export async function StatsRow({
                   : tCommon("state.none")}
               </p>
               {lastCharge.chargerType && (
-                <span className="rounded-full bg-neutral-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
+                <span className="rounded-full bg-neutral-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
                   {lastCharge.chargerType}
                 </span>
               )}

@@ -1,5 +1,8 @@
 # Archive navigation and feedback
 
+These workflows document unreleased changes in the current source checkout.
+Published installation behavior is described by the [stable release notes](releases/0.4.0.md).
+
 Home puts archive search, unclassified drives and the day entry ahead of optional
 vehicle details. The day view shows its measured totals before the timeline;
 missing and estimated energy retain their labels. Export and recap remain

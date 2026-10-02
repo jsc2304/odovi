@@ -30,7 +30,7 @@
   "feedback": {
     "loading": "Ansicht wird geladen…",
     "failedTitle": "Ansicht konnte nicht geladen werden",
-    "failedHint": "Versuche es erneut. Dein gespeichertes Archiv und deine Notizen sind unverändert.",
+    "failedHint": "Versuche es erneut, um diese Ansicht von deinem Server zu laden.",
     "retry": "Erneut versuchen"
   }
 }

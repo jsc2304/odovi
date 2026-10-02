@@ -177,7 +177,7 @@ export function SearchControls({
         </div>
       </div>
       <div className="flex flex-wrap gap-2" aria-label={t("activeFilters")}>
-        {q && <button className={buttonClasses("secondary", "sm")} onClick={() => { setQInput(""); pushParams({ q: null }); }}>{t("remove", { filter: q })}</button>}
+        {q && <button className={buttonClasses("secondary", "sm", "max-w-full whitespace-normal text-left [overflow-wrap:anywhere]")} onClick={() => { setQInput(""); pushParams({ q: null }); }}>{t("remove", { filter: q })}</button>}
         {from && <button className={buttonClasses("secondary", "sm")} onClick={() => pushParams({ from: null })}>{t("remove", { filter: `${t("from")} ${from}` })}</button>}
         {to && <button className={buttonClasses("secondary", "sm")} onClick={() => pushParams({ to: null })}>{t("remove", { filter: `${t("to")} ${to}` })}</button>}
         {classifications.map((value) => <button key={value} className={buttonClasses("secondary", "sm")} onClick={() => toggleClassification(value)}>{t("remove", { filter: tc(`classification.${value}`) })}</button>)}
@@ -189,7 +189,7 @@ export function SearchControls({
         {(pending || qInput !== q) ? t("updating") : ""}
       </p>
       {failed && <button className={buttonClasses("secondary")} onClick={() => startTransition(() => router.refresh())}>{t("retry")}</button>}
-      <div aria-busy={pending || qInput !== q} data-testid="search-results" className={pending || qInput !== q ? "opacity-60" : undefined}>{children}</div>
+      <div aria-busy={pending || qInput !== q} data-testid="search-results">{children}</div>
     </div>
   );
 }

@@ -1,5 +1,9 @@
 # Quick classification and undo
 
+This documents an **unreleased source feature**, including migration `0009`.
+Use a matching source build and the supported backup/restore procedure. The
+published [0.4.0 release notes](releases/0.4.0.md) describe the stable version.
+
 Choosing a category in the Start drive journal, day view or bulk selection
 saves immediately. The control names the affected drive or selection before
 saving. The persistent **Last quick classification** panel reports the actual

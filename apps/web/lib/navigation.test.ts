@@ -46,7 +46,7 @@ describe("navigation registry", () => {
   it("exposes every More destination in exactly one intent group", () => {
     const expected: Record<MoreGroup, string[]> = {
       plan: ["calendar", "journeys", "planner"],
-      review: ["charges", "insights", "places", "reports"],
+      review: ["charges", "insights", "invoices", "places", "reports"],
       configure: ["rules", "settings", "tags"],
     };
 

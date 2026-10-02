@@ -11,7 +11,7 @@ import { buttonClasses } from "../../components/ui/Button";
 const initialState: AuthResult = {};
 
 const fieldClasses =
-  "rounded-xl border border-neutral-300 bg-white px-3 py-2.5 text-base text-neutral-900 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-cyan-300/50 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-100 dark:focus:border-violet-400";
+  "rounded-xl border border-neutral-500 bg-white px-3 py-2.5 text-base text-neutral-900 outline-none transition focus:border-accent-700 focus:ring-2 focus:ring-accent-700 dark:border-neutral-400 dark:bg-neutral-950 dark:text-neutral-100 dark:focus:border-accent-300 dark:focus:ring-accent-300";
 
 export function LoginForm({ bootstrap }: { bootstrap: boolean }) {
   const action = bootstrap ? bootstrapAdmin : login;

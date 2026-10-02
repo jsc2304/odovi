@@ -16,6 +16,11 @@ Tessie and similar services are good, but they come with subscription costs, ove
 
 ## Features
 
+The feature list describes the current source checkout. Archive navigation,
+session-bound quick-classification undo and invoice storage are unreleased
+source changes. Versioned installation instructions use the latest stable
+release and its [release notes](docs/releases/0.4.0.md).
+
 **Trip archive (the core)**
 - **Daily view** - Pick a date -> every trip as an atomic entry: `08:14-08:47 · Home -> Client Miller · 27.3 km · Business`; parking and charging are interleaved in one timeline
 - **Classify and annotate** - Private / business / commute via segmented control, purpose, client, project, notes, tags; every change is recorded in the audit log

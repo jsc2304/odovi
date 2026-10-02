@@ -197,7 +197,7 @@ export default async function DriveDetailPage({
             {formatTimeRange(drive.startTime, drive.endTime, APP_TIMEZONE, locale)}
           </p>
           <h1 className="mt-1 text-2xl font-semibold tracking-tight">
-            {from} <span className="text-neutral-400">→</span> {to}
+            {from} <span className="text-neutral-500 dark:text-neutral-400">→</span> {to}
           </h1>
         </div>
         <span

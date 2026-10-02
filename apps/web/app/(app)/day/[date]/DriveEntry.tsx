@@ -60,7 +60,7 @@ function DriveBody({ row, tz }: { row: DriveRow; tz: string }) {
       </span>
 
       <p className="mt-1.5 text-base font-medium">
-        {from} <span className="text-neutral-400">→</span> {to}
+        {from} <span className="text-neutral-500 dark:text-neutral-400">→</span> {to}
       </p>
 
       <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-neutral-500 dark:text-neutral-400">

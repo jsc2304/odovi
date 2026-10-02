@@ -60,17 +60,21 @@ const manifest = {
     egressSummary: "egress-summary.json",
     readinessStates: "readiness-states.ndjson",
     insightsFixture: "insights-fixture.json",
+    backlogBrowserChecks: "playwright-backlog.json",
+    analyticsAccessFixture: "analytics-access-fixture.json",
     playwrightResults: [
       "playwright-journey.json",
       "playwright-coverage.json",
       "playwright-provider-contracts.json",
       "playwright-restart.json",
+      "playwright-backlog.json",
     ],
     playwrightReports: [
       "playwright-report/journey/index.html",
       "playwright-report/coverage/index.html",
       "playwright-report/provider-contracts/index.html",
       "playwright-report/restart/index.html",
+      "playwright-report/backlog/index.html",
     ],
   },
 };

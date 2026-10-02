@@ -64,7 +64,7 @@ async function OnboardingCard() {
 
       <ol className="mx-auto mt-6 flex max-w-md flex-col gap-3 text-left text-sm">
         <li className="flex items-start gap-2.5">
-          <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-xs font-semibold text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
+          <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-xs font-semibold text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
             1
           </span>
           <span className="text-neutral-700 dark:text-neutral-300">
@@ -72,7 +72,7 @@ async function OnboardingCard() {
           </span>
         </li>
         <li className="flex items-start gap-2.5">
-          <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-xs font-semibold text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
+          <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-xs font-semibold text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
             2
           </span>
           <span className="text-neutral-700 dark:text-neutral-300">
@@ -80,7 +80,7 @@ async function OnboardingCard() {
           </span>
         </li>
         <li className="flex items-start gap-2.5">
-          <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-xs font-semibold text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
+          <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-xs font-semibold text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
             3
           </span>
           <span className="text-neutral-700 dark:text-neutral-300">{t("step3")}</span>

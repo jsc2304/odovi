@@ -89,7 +89,7 @@ export async function VehicleCard({
             <span className={`text-4xl font-semibold tabular-nums ${socTextColor(soc)}`}>
               {Math.round(soc)}
             </span>
-            <span className="text-lg text-neutral-400">%</span>
+            <span className="text-lg text-neutral-500 dark:text-neutral-400">%</span>
             {status.ratedRangeKm != null && (
               <span
                 className="ml-3 text-lg tabular-nums text-neutral-500 dark:text-neutral-400"

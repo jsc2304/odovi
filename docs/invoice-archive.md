@@ -1,5 +1,9 @@
 # Tesla invoice archive
 
+This documents an **unreleased source feature**, including migration `0010`.
+Use a matching source build and the supported backup/restore procedure. The
+published [0.4.0 release notes](releases/0.4.0.md) describe the stable version.
+
 Open **More → Tesla invoices** (`/invoices`) and enable invoice imports. The
 archive is optional and disabled for imports by default. It runs locally and
 does not connect to Tesla or an external document service. Disabling imports

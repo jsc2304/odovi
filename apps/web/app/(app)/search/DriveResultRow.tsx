@@ -51,7 +51,7 @@ function DriveResultBody({
       </div>
 
       <p className="mt-1 text-sm font-medium">
-        {from} <span className="text-neutral-400">→</span> {to}
+        {from} <span className="text-neutral-500 dark:text-neutral-400">→</span> {to}
       </p>
 
       <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-neutral-500 dark:text-neutral-400">

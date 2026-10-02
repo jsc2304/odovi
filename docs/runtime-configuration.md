@@ -1,14 +1,15 @@
 # Runtime configuration
 
-The optional [Tesla invoice archive](invoice-archive.md) uses the existing
+The optional [Tesla invoice archive](invoice-archive.md) is an unreleased
+source feature with migration `0010`. It uses the existing
 Odovi PostgreSQL database and its persistent named volume. Enable imports in
 **More → Tesla invoices**; the setting is stored in the database and is off by
 default. There are no invoice service credentials, provider activation or
 extra writable mounts. Archive processing limits and recovery are documented
 in the linked runbook.
 
-This document is the authoritative configuration reference for the Odovi
-self-hosted release. The release interface is `docker-compose.yml` plus a
+This document describes configuration shared by the stable release and source
+builds. The release interface is `docker-compose.yml` plus a
 `.env` copied from `.env.example`. `docker compose up` runs `config-check`
 before migration, web, or worker startup. Invalid, contradictory, unsafe, and
 unknown release settings stop the dependent services with an actionable error.
