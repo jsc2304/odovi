@@ -282,7 +282,7 @@ export function MonthGrid({
                         drive.startAddress,
                         t("preview.unknownPlace"),
                       )}{" "}
-                      <span className="text-neutral-400">→</span>{" "}
+                      <span className="text-neutral-500 dark:text-neutral-400">→</span>{" "}
                       {placeLabel(
                         drive.endPlaceName,
                         drive.endAddress,

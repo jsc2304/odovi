@@ -35,7 +35,7 @@ export async function YearlyDestinations({ analysis, locale }: { analysis: Yearl
           {analysis.destinations.slice(0, 10).map((destination, index) => (
             <li key={destination.key} className="flex items-center justify-between gap-3 py-3 text-sm">
               <div className="flex min-w-0 items-start gap-2">
-                <span className="w-5 shrink-0 text-neutral-400 tabular-nums">{index + 1}.</span>
+                <span className="w-5 shrink-0 text-neutral-500 tabular-nums dark:text-neutral-400">{index + 1}.</span>
                 <div className="min-w-0">
                   {destination.placeId != null ? <Link href={`/places/${destination.placeId}/edit`} className="inline-flex min-h-11 items-center break-words font-medium underline-offset-4 hover:underline">{label(destination)}</Link> : <p className="break-words font-medium">{label(destination)}</p>}
                   {destination.isHome && <p className="text-xs text-neutral-500 dark:text-neutral-400">{t("destinations.home")}</p>}

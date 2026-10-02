@@ -144,6 +144,10 @@
   white-space: nowrap;
 }
 
+:global(.dark) .heroMetric dt {
+  color: var(--color-neutral-400);
+}
+
 .heroMetric dd {
   overflow: hidden;
   margin: 0;

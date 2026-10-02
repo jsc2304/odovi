@@ -165,7 +165,7 @@ export function ScatterBinnedChart({
         <text
           x={PADDING.left}
           y={PADDING.top - 6}
-          className="fill-neutral-400 text-[9px] dark:fill-neutral-500"
+          className="fill-neutral-500 text-[9px] dark:fill-neutral-400"
         >
           {yUnit}
         </text>
@@ -337,7 +337,7 @@ export function MonthChart({ months }: { months: MonthDatum[] }) {
             y={i === 0 ? PADDING.top : PLOT_BOTTOM}
             textAnchor="end"
             dominantBaseline={i === 0 ? "hanging" : "auto"}
-            className="fill-sky-700 text-[9px] dark:fill-sky-400"
+            className="fill-neutral-500 text-[9px] dark:fill-neutral-400"
           >
             {numFmt.format(val)}
           </text>
@@ -442,7 +442,7 @@ export function WeekdayChart({ days }: { days: WeekdayDatum[] }) {
         <text
           x={PADDING.left}
           y={PADDING.top - 6}
-          className="fill-neutral-400 text-[9px] dark:fill-neutral-500"
+          className="fill-neutral-500 text-[9px] dark:fill-neutral-400"
         >
           km
         </text>
