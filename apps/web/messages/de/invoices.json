@@ -24,6 +24,7 @@
   "status": { "matched": "Zugeordnet", "probable": "Wahrscheinlich", "unmatched": "Nicht zugeordnet" },
   "fields": { "invoiceNumber": "Rechnungsnummer", "invoiceDate": "Rechnungsdatum", "vin": "VIN", "chargingStart": "Ladebeginn (ISO-Datum mit Zeitzone)", "energyKwh": "Energie (kWh)", "total": "Gesamtbetrag", "currency": "Währung (EUR, CHF, …)", "chargeSessionId": "ID des Ladevorgangs (leer lassen für keine Zuordnung)" },
   "errors": {
+    "not-authenticated": "Deine Sitzung ist abgelaufen. Melde dich erneut an.",
     "archive-unavailable": "Das Archiv ist nicht erreichbar. Datenbank prüfen und erneut versuchen.",
     "invalid-upload": "Der Upload ist ungültig, unvollständig, verschlüsselt oder überschreitet ein Verarbeitungslimit. Vollständige PDFs oder ein ZIP ausschließlich mit PDFs verwenden.",
     "invalid-input": "Angaben prüfen: ISO-Zeitstempel mit Zeitzone, gültiges Datum, VIN mit 17 Zeichen und Währung mit drei Buchstaben verwenden.",

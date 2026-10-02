@@ -62,6 +62,9 @@ for (const locale of ["en", "de"] as const) for (const theme of ["light", "dark"
     expect(exported.suggestedFilename()).toBe("odovi-invoices-2026-08.zip");
     expect((await readFile((await exported.path())!)).subarray(0, 2).toString()).toBe("PK");
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    for (const button of await page.getByRole("region", { name: /Tesla invoice archive|Tesla-Rechnungsarchiv/ }).getByRole("button").all()) {
+      if (await button.isVisible()) expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    }
     expect(await page.locator("html").evaluate((element) => element.classList.contains("dark"))).toBe(theme === "dark");
     await testInfo.attach("invoice-archive", { body: await page.screenshot({ fullPage: true }), contentType: "image/png" });
     page.once("dialog", (dialog) => dialog.accept());

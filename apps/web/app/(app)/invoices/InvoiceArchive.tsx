@@ -43,7 +43,7 @@ export function InvoiceArchive({ initial }: { initial: Archive }) {
         void mutate("/api/invoices/settings", "PATCH", JSON.stringify({ enabled }), { "Content-Type": "application/json" })
           .then((ok) => { if (!ok) setArchive((current) => ({ ...current, enabled: !enabled })); });
       }} />{t("enable")}</label>
-      <p className="text-sm text-neutral-500">{t("limits")}</p>
+      <p className="text-sm text-neutral-500 dark:text-neutral-400">{t("limits")}</p>
       <label className="block text-sm">{t("upload")}<input className={`${control} mt-2`} type="file" accept=".pdf,.zip" disabled={!archive.enabled || busy} onChange={(event) => {
         const file = event.target.files?.[0];
         if (file) void mutate("/api/invoices", "POST", file, { "x-invoice-filename": encodeURIComponent(file.name), "Content-Type": "application/octet-stream" });
@@ -52,13 +52,13 @@ export function InvoiceArchive({ initial }: { initial: Archive }) {
       <div className="flex flex-wrap items-end gap-3"><label className="text-sm">{t("month")}<input className={`${control} mt-1`} type="month" value={month} onChange={(e) => setMonth(e.target.value)} /></label><a className={button} href={`/api/invoices/export?month=${encodeURIComponent(month)}`}>{t("export")}</a></div>
     </section>
     <p role={hasError ? "alert" : "status"} className={`text-sm ${hasError ? "text-red-700 dark:text-red-300" : ""}`}>{busy ? t("working") : message}</p>
-    <p className="text-sm text-neutral-500">{t("recent")}</p>
+    <p className="text-sm text-neutral-500 dark:text-neutral-400">{t("recent")}</p>
     {!archive.uploads.length && <p>{t("empty")}</p>}
     {archive.uploads.map((upload) => <section key={upload.id} className="space-y-4 rounded-2xl border border-neutral-200 p-4 dark:border-neutral-800">
       <div className="flex flex-wrap items-center justify-between gap-3"><a className="break-all font-semibold underline" href={`/api/invoices/upload/${upload.id}`}>{upload.filename}</a><button disabled={busy} onClick={() => {
         if (window.confirm(t("confirmDelete", { filename: upload.filename }))) void mutate(`/api/invoices/upload/${upload.id}`, "DELETE");
       }} className={buttonClasses("destructive")}>{t("deleteUpload")}</button></div>
-      <p className="break-all font-mono text-xs text-neutral-500">SHA-256: {upload.sha256}</p>
+      <p className="break-all font-mono text-xs text-neutral-500 dark:text-neutral-400">SHA-256: {upload.sha256}</p>
       {archive.invoices.filter((r) => r.uploadId === upload.id).map((record) => {
         const metadata = record.reviewedMetadata ?? record.parsedMetadata;
         return <details key={record.id} className="rounded-xl border border-neutral-200 p-3 dark:border-neutral-800">
@@ -66,8 +66,8 @@ export function InvoiceArchive({ initial }: { initial: Archive }) {
           <div className="mt-3 space-y-3">
             <a className="inline-flex min-h-11 items-center text-sm underline" href={`/api/invoices/invoice/${record.id}`}>{t("downloadPdf")}</a>
             {record.chargeSessionId && <Link className="ml-4 inline-flex min-h-11 items-center text-sm underline" href={`/charges/${record.chargeSessionId}`}>{t("openCharge")}</Link>}
-            <p className="break-all font-mono text-xs text-neutral-500">SHA-256: {record.sha256}</p>
-            <p className="text-sm text-neutral-500">{t("reviewHint")}</p>
+            <p className="break-all font-mono text-xs text-neutral-500 dark:text-neutral-400">SHA-256: {record.sha256}</p>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400">{t("reviewHint")}</p>
             {record.enrichment ? <p className="text-sm">{t("enriched")}</p> : <form key={JSON.stringify(metadata)} className="space-y-3" onSubmit={(e) => {
               e.preventDefault();
               const form = e.currentTarget;
