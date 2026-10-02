@@ -174,6 +174,7 @@ export const MORE_DESTINATION: AppDestination = {
   icon: Ellipsis,
   match: (path) =>
     path.startsWith("/settings") ||
+    path.startsWith("/invoices") ||
     path.startsWith("/tags") ||
     path.startsWith("/rules"),
   mobilePrimary: true,
