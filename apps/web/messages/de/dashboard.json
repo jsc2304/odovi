@@ -51,6 +51,7 @@
       "auto": "Kosten automatisch berechnet",
       "manual": "Kosten manuell eingetragen",
       "synced": "Kosten bei der Synchronisierung importiert",
+      "invoice": "Kosten aus einer geprüften Rechnung",
       "unknown": "Kostenquelle unbekannt"
     }
   },

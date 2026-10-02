@@ -42,7 +42,7 @@ select context.vehicle_id, context.anchor + n * interval '15 minutes',
   destination.id, 12 + n, 600 + n % 5 * 60,
   (12 + n) * (160 + n % 3 * 15) / 1000.0,
   160 + n % 3 * 15, -5 + n % 8 * 5, n % 4 = 0,
-  'commute', 'release-acceptance-analytics-access', 'drive-' || n
+  'commute', 'release-acceptance-analytics-access', 'access-drive-' || n
 from analytics_access_context context
 cross join generate_series(0, 34) n
 join places destination on destination.source = 'release-acceptance-analytics-access'
@@ -50,6 +50,9 @@ join places destination on destination.source = 'release-acceptance-analytics-ac
 
 do $$
 begin
+  if exists (select 1 from drives group by vehicle_id, source_id having count(*) > 1) then
+    raise exception 'Derived park identifiers require distinct synthetic drive identifiers';
+  end if;
   if (select count(*) from drives where source = 'release-acceptance-analytics-access'
     and end_time <= now() and distance_km >= 2 and avg_consumption_wh_km is not null) <> 35
     or (select count(*) from places where source = 'release-acceptance-analytics-access') <> 12 then

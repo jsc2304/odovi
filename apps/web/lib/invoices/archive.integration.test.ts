@@ -6,6 +6,7 @@ import { NextRequest } from "next/server";
 import yauzl from "yauzl";
 import { hash, parseMetadata } from "./processing";
 import { fixturePdf, fixtureZip } from "./fixtures.test-support";
+import { costSourceKey } from "../../app/(app)/StatsRow";
 
 vi.mock("server-only", () => ({}));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
@@ -87,6 +88,7 @@ describe.skipIf(!databaseUrl)("durable authenticated invoice archive", () => {
     await archive.reviewInvoice(record.id, metadata, chargeId, true, actor);
     const [enriched] = await connection.db.select().from(chargeSessions).where(eq(chargeSessions.id, chargeId));
     expect(enriched).toMatchObject({ cost: "12.34", currency: "EUR", costSource: `invoice:${record.id}` });
+    expect(costSourceKey(enriched!.costSource)).toBe("invoice");
     const { applyAutoChargeCosts } = await import("../../../worker/src/sync/chargeCosts");
     await applyAutoChargeCosts(connection.db);
     // Reproduce a worker that selected an auto row before the invoice transaction.

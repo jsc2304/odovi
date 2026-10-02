@@ -8,6 +8,8 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Retain the full 20MiB invoice body plus rejection headroom during Proxy cloning.
+  experimental: { proxyClientMaxBodySize: 21 * 1024 * 1024 },
   // Production image contains web sources; full-repo test types run in `lint`.
   typescript: { tsconfigPath: "tsconfig.build.json" },
   serverExternalPackages: ["pdfjs-dist", "yauzl"],

@@ -71,8 +71,9 @@ function formatMoney(
   }
 }
 
-function costSourceKey(value: string | null): "auto" | "manual" | "synced" | "unknown" {
+export function costSourceKey(value: string | null): "auto" | "manual" | "synced" | "invoice" | "unknown" {
   if (value === "auto" || value === "manual" || value === "synced") return value;
+  if (/^invoice:[1-9]\d*$/.test(value ?? "")) return "invoice";
   return "unknown";
 }
 

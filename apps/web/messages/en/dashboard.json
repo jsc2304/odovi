@@ -51,6 +51,7 @@
       "auto": "Cost calculated automatically",
       "manual": "Cost entered manually",
       "synced": "Cost imported during sync",
+      "invoice": "Cost from a reviewed invoice",
       "unknown": "Cost source unknown"
     }
   },
