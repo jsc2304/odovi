@@ -164,6 +164,19 @@ for (const locale of ["en", "de"]) for (const theme of ["light", "dark"]) for (c
         expect(summary!.y).toBeLessThan(firstRow!.y);
       }
       await page.screenshot({ path: testInfo.outputPath(`${path.replace(/[^a-z0-9]/gi, "_") || "home"}.png`), fullPage: true });
+      if (width === 320 && path.startsWith("/day/")) {
+        // The synchronized day exercises rich timeline rows; Thursday also
+        // exercises the longest German weekday when the fixture date changes.
+        for (const zoomPath of new Set([path, "/day/2026-10-01"])) {
+          if (zoomPath !== path) await page.goto(zoomPath);
+          await page.evaluate(() => { document.documentElement.style.fontSize = "32px"; });
+          await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth), {
+            message: `Day overflow on ${zoomPath} at ${width}px and 200% text`,
+          }).toBeLessThanOrEqual(width);
+          await expect(page.locator('input[type="date"]')).toBeVisible();
+          await page.screenshot({ path: testInfo.outputPath(`day-200-${zoomPath.slice(-10)}.png`), fullPage: true });
+        }
+      }
     }
     await page.locator('a[id^="drive-"]').first().click();
     await expect(page.locator('textarea[name="notes"]')).toBeVisible();

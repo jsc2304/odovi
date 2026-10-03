@@ -60,7 +60,7 @@ export function DateNav({
         </Link>
       </div>
 
-      <h1 className="min-w-0 text-xl font-semibold tracking-tight md:text-2xl">
+      <h1 className="min-w-0 break-words text-xl font-semibold tracking-tight md:text-2xl">
         {longLabel}
       </h1>
 
@@ -78,7 +78,7 @@ export function DateNav({
             const v = e.target.value;
             if (v) goTo(v);
           }}
-          className="min-w-0 max-w-full rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm text-neutral-900 outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:focus-visible:ring-white dark:focus-visible:ring-offset-neutral-950"
+          className="min-w-0 max-w-full rounded-lg border border-neutral-300 bg-white px-1 py-1.5 text-sm text-neutral-900 outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2 sm:px-3 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:focus-visible:ring-white dark:focus-visible:ring-offset-neutral-950"
         />
         <Link
           href={`/calendar?${calendarQuery}`}
