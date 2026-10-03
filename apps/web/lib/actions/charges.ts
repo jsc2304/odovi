@@ -100,7 +100,8 @@ export async function updateChargeAnnotations(
   }
   const input = parsed.data;
 
-  const rows = await db
+  const result = await db.transaction(async (tx) => {
+  const rows = await tx
     .select({
       cost: chargeSessions.cost,
       currency: chargeSessions.currency,
@@ -113,7 +114,7 @@ export async function updateChargeAnnotations(
     .from(chargeSessions)
     .leftJoin(places, eq(chargeSessions.placeId, places.id))
     .where(eq(chargeSessions.id, input.chargeSessionId))
-    .limit(1);
+    .limit(1).for("update", { of: chargeSessions });
   const current = rows[0];
   if (!current) return { ok: false, error: t("errors.sessionNotFound") };
 
@@ -158,7 +159,6 @@ export async function updateChargeAnnotations(
 
   if (changes.length === 0) return { ok: true, annotations };
 
-  await db.transaction(async (tx) => {
     await tx
       .update(chargeSessions)
       .set({ ...patch, updatedAt: new Date() })
@@ -174,13 +174,14 @@ export async function updateChargeAnnotations(
         changedBy: user.username,
       })),
     );
+  return { ok: true, annotations };
   });
 
   revalidatePath(`/charges/${input.chargeSessionId}`);
   revalidatePath("/charges");
   revalidatePath("/day/[date]", "page");
 
-  return { ok: true, annotations };
+  return result;
 }
 
 /** Comma-joined, sorted tag names for a charge session — used as audit_log old/new value. */

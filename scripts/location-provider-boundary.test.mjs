@@ -46,12 +46,17 @@ test("public location-provider hosts exist only in the provider registry", () =>
 
 test("global fetch sites cannot hide a location-provider bypass", () => {
   const approved = [
+    // Reviewed same-origin archive requests; every handler validates its session.
+    "apps/web/app/(app)/invoices/InvoiceArchive.tsx",
     "apps/web/app/api/tesla/callback/route.ts",
     "apps/web/lib/actions/tesla.ts",
     "apps/web/lib/tesla/integration.ts",
     "apps/web/public/sw.js",
   ];
   assert.deepEqual(matchingFiles(/\bfetch\s*\(/).sort(), approved.sort());
+  const invoices = readFileSync(join(root, approved[0]), "utf8");
+  assert.match(invoices, /fetch\("\/api\/invoices"/);
+  assert.match(invoices, /url\.startsWith\("\/api\/invoices\/"\)/);
 });
 
 test("location-provider transports stay inside the reviewed adapters", () => {

@@ -51,6 +51,7 @@
       "auto": "Cost calculated automatically",
       "manual": "Cost entered manually",
       "synced": "Cost imported during sync",
+      "invoice": "Cost from a reviewed invoice",
       "unknown": "Cost source unknown"
     }
   },
@@ -81,7 +82,8 @@
     "undo": "Undo",
     "undone": "Classification restored",
     "undoFailed": "Could not undo. This drive may have been changed since.",
-    "undoUnavailable": "This classification has changed since and can no longer be undone."
+    "undoUnavailable": "This classification has changed since and can no longer be undone.",
+    "weatherLoading": "Loading weather…"
   },
   "drivingProfile": {
     "title": "Driving profile",

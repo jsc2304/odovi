@@ -146,6 +146,12 @@ html.dark body {
 .dark .card { border-color: var(--color-neutral-800); background: var(--color-neutral-900); }
 .dark :focus-visible { outline-color: var(--color-accent-300); }
 
+/* Form boundaries and muted copy must remain readable on quiet surfaces. */
+.app-main input:not([type="checkbox"]):not([type="radio"]),
+.app-main select, .app-main textarea { border-color: var(--color-neutral-500); }
+.dark .app-main input:not([type="checkbox"]):not([type="radio"]),
+.dark .app-main select, .dark .app-main textarea { border-color: var(--color-neutral-400); }
+
 .app-main h1, .editorial-heading {
   font-family: var(--font-source-serif), Georgia, serif;
   font-optical-sizing: auto;
@@ -170,8 +176,8 @@ html.dark body {
 
 /* Overview: one task band, an open summary, a route strip and journal rows. */
 .overview-header { display: flex; align-items: center; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 1.75rem; }
-.overview-search { display: flex; align-items: center; gap: .5rem; width: 15rem; min-height: 2.75rem; border: 1px solid var(--color-neutral-200); border-radius: .5rem; padding-inline: .75rem .25rem; color: var(--color-neutral-500); }
-.overview-search:focus-within { border-color: var(--color-accent-700); }
+.overview-search { display: flex; align-items: center; gap: .5rem; width: 15rem; min-height: 2.75rem; border: 1px solid var(--color-neutral-500); border-radius: .5rem; padding-inline: .75rem .25rem; color: var(--color-neutral-500); }
+.overview-search:focus-within { border-color: var(--color-accent-700); outline: 2px solid var(--color-accent-700); outline-offset: 2px; }
 .overview-search input { width: 100%; min-width: 0; background: transparent; outline: none; font-size: .875rem; color: var(--color-neutral-900); }
 .overview-search input::placeholder { color: var(--color-neutral-500); opacity: 1; }
 .overview-vehicle { display: flex; align-items: center; justify-content: flex-end; gap: .75rem; margin-left: auto; border-radius: .5rem; min-height: 2.75rem; font-size: .8125rem; color: var(--color-neutral-500); }
@@ -206,6 +212,8 @@ html.dark body {
 .dark .overview-task, .dark .overview-details, .dark .drive-journal td, .dark .overview-summary > div + div, .dark .overview-search { border-color: var(--color-neutral-800); }
 .dark .overview-search input { color: var(--color-neutral-100); }
 .dark .overview-search input::placeholder { color: var(--color-neutral-400); }
+.dark .overview-search { border-color: var(--color-neutral-400); }
+.dark .overview-search:focus-within { border-color: var(--color-accent-300); outline-color: var(--color-accent-300); }
 .dark .overview-vehicle, .dark .drive-journal th, .dark .journal-time span:first-child, .dark .journal-consumption { color: var(--color-neutral-400); }
 .dark .overview-summary > div, .dark .journal-time, .dark .journal-distance, .dark .journal-duration { color: var(--color-neutral-300); }
 .dark .overview-summary svg, .dark .drive-journal tbody tr:hover { background: var(--color-neutral-900); }
@@ -223,7 +231,7 @@ html.dark body {
   .overview-search input { font-size: 1rem; }
   .overview-vehicle { width: 100%; order: 2; justify-content: flex-start; gap: .625rem; flex-wrap: wrap; margin: 0; }
   .overview-task { align-items: stretch; flex-direction: column; gap: 1rem; }
-  .overview-task > div:last-child > a, .overview-task > div:last-child > button { flex: 1; padding-inline: .625rem; font-size: .75rem; white-space: nowrap; }
+  .overview-task > div:last-child > a, .overview-task > div:last-child > button { flex: 1; padding-inline: .625rem; font-size: .8125rem; white-space: normal; }
   .overview-task a[href^="/search"] > svg { display: none; }
   .overview-summary { padding: 1.5rem 0; }
   .overview-summary > div { gap: .4rem; font-size: .9375rem; }

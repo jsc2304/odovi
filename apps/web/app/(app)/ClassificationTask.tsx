@@ -39,7 +39,7 @@ export function ClassificationTask({ vehicleId, count, imported, profile }: {
             }
           });
         }}>{t(`drivingProfile.apply.${usage}`)}</Button>}
-        <div className={count > 0 ? "hidden md:block" : undefined}>
+        <div>
           <Button href="/day" variant="ghost" icon={<CalendarDays aria-hidden size={17} />}>{t("overview.openDay")}</Button>
         </div>
       </div>

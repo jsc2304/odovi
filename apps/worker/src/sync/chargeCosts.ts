@@ -38,7 +38,7 @@ export async function applyAutoChargeCosts(
     await db
       .update(chargeSessions)
       .set({ cost: null, currency: null, costSource: null, updatedAt: new Date() })
-      .where(eq(chargeSessions.id, row.id));
+      .where(and(eq(chargeSessions.id, row.id), eq(chargeSessions.costSource, "auto")));
     updated++;
   }
 
@@ -80,7 +80,10 @@ export async function applyAutoChargeCosts(
     await db
       .update(chargeSessions)
       .set({ cost: newCost, currency: newCurrency, costSource: "auto", updatedAt: new Date() })
-      .where(eq(chargeSessions.id, row.id));
+      .where(and(eq(chargeSessions.id, row.id), or(
+        and(isNull(chargeSessions.cost), isNull(chargeSessions.costSource)),
+        eq(chargeSessions.costSource, "auto"),
+      )));
     updated++;
   }
 

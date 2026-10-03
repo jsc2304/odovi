@@ -1,4 +1,5 @@
 import { getLocale, getTranslations } from "next-intl/server";
+import { Suspense } from "react";
 import {
   getVehicleStatus,
   getOpenSessionStatus,
@@ -9,7 +10,7 @@ import {
   getLastCharge,
   getUnclassifiedCount,
 } from "../../lib/dashboard";
-import { getCurrentWeather, type WeatherLoadResult } from "../../lib/weather";
+import { getCurrentWeather } from "../../lib/weather";
 import { getDashboardParkDrain } from "../../lib/parkAnalytics";
 import { getDefaultVehicleId } from "../../lib/search";
 import { VehicleCard } from "./VehicleCard";
@@ -18,6 +19,7 @@ import { TpmsCard } from "./TpmsCard";
 import { RecentDrivesCard } from "./RecentDrivesCard";
 import { StatsRow } from "./StatsRow";
 import { Button } from "../../components/ui/Button";
+import { RouteLoading } from "../../components/ui/RouteFeedback";
 import { ArrowRight, Car, Clock3, Rocket, Route, Search, Stethoscope } from "lucide-react";
 import { formatDuration, formatKm } from "@odovi/core";
 import { APP_TIMEZONE } from "../../lib/config";
@@ -28,6 +30,11 @@ import { ClassificationTask } from "./ClassificationTask";
 import { VehicleSummary } from "./VehicleSummary";
 
 export const dynamic = "force-dynamic";
+
+async function OptionalWeather({ lat, lon }: { lat: number | null; lon: number | null }) {
+  const result = lat != null && lon != null ? await getCurrentWeather(lat, lon) : { status: "unavailable" as const };
+  return <WeatherCard result={result} />;
+}
 
 /**
  * Onboarding-Zustand für die Frischinstallation: 0 Fahrzeuge in der DB heißt
@@ -58,7 +65,7 @@ async function OnboardingCard() {
 
       <ol className="mx-auto mt-6 flex max-w-md flex-col gap-3 text-left text-sm">
         <li className="flex items-start gap-2.5">
-          <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-xs font-semibold text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
+          <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-xs font-semibold text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
             1
           </span>
           <span className="text-neutral-700 dark:text-neutral-300">
@@ -66,7 +73,7 @@ async function OnboardingCard() {
           </span>
         </li>
         <li className="flex items-start gap-2.5">
-          <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-xs font-semibold text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
+          <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-xs font-semibold text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
             2
           </span>
           <span className="text-neutral-700 dark:text-neutral-300">
@@ -74,7 +81,7 @@ async function OnboardingCard() {
           </span>
         </li>
         <li className="flex items-start gap-2.5">
-          <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-xs font-semibold text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
+          <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-xs font-semibold text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
             3
           </span>
           <span className="text-neutral-700 dark:text-neutral-300">{t("step3")}</span>
@@ -133,11 +140,6 @@ export default async function DashboardPage() {
         }
       : null;
 
-  let weather: WeatherLoadResult = { status: "unavailable" };
-  if (status?.lat != null && status.lon != null) {
-    weather = await getCurrentWeather(status.lat, status.lon);
-  }
-
   const date = new Intl.DateTimeFormat(toIntlLocale(locale), {
     weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: APP_TIMEZONE,
   }).format(new Date());
@@ -159,11 +161,13 @@ export default async function DashboardPage() {
         {status && <VehicleSummary status={status} openSession={openSession} />}
       </header>
 
-      {!drivingProfile && <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
-        <DrivingProfileForm vehicleId={vehicleId} profile={null} />
-      </div>}
       <ClassificationTask vehicleId={vehicleId} count={unclassifiedCount.live + unclassifiedCount.imported}
         imported={unclassifiedCount.imported} profile={drivingProfile} />
+
+      {!drivingProfile && <details className="card mt-3 p-4">
+        <summary className="cursor-pointer text-sm font-medium">{t("drivingProfile.title")}</summary>
+        <div className="mt-4"><DrivingProfileForm vehicleId={vehicleId} profile={null} /></div>
+      </details>}
 
       <dl className="overview-summary" aria-label={t("stats.today")}>
         <div><Car aria-hidden /><dt className="sr-only">{t("overview.driveCount")}</dt><dd>{t("stats.driveCount", { count: today.driveCount })}</dd></div>
@@ -177,7 +181,12 @@ export default async function DashboardPage() {
         <summary className="cursor-pointer py-5 text-sm font-medium text-neutral-600 dark:text-neutral-300">{t("overview.vehicleDetails")}</summary>
         <div className="grid gap-4 pb-5 md:grid-cols-3">
           {status && <div className="md:col-span-2"><VehicleCard status={status} openSession={openSession} parkDrain={parkDrain} /></div>}
-          <div className="flex flex-col gap-4"><WeatherCard result={weather} />{status && <TpmsCard status={status} />}</div>
+          <div className="flex flex-col gap-4">
+            <Suspense fallback={<RouteLoading label={t("overview.weatherLoading")} />}>
+              <OptionalWeather lat={status?.lat ?? null} lon={status?.lon ?? null} />
+            </Suspense>
+            {status && <TpmsCard status={status} />}
+          </div>
           <div className="md:col-span-3"><StatsRow today={today} week={week} lastCharge={lastCharge} unclassifiedCount={unclassifiedCount} /></div>
         </div>
       </details>

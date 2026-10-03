@@ -39,7 +39,10 @@
     "approximate": "Approximate destination ({lat}, {lon})",
     "home": "Home",
     "noCoordinates": "No map coordinates",
-    "grouping": "Saved places are grouped by their place ID. Other destinations use a grid that rounds latitude and longitude to 0.001° (about 111 m north–south; east–west size varies by latitude). Nearby points across a grid boundary may be separate destinations. The list shows up to 10 destinations."
+    "grouping": "Saved places are grouped by their place ID. Other destinations use a grid that rounds latitude and longitude to 0.001° (about 111 m north–south; east–west size varies by latitude). Nearby points across a grid boundary may be separate destinations. The list shows up to 10 destinations. The data table includes all destinations in this selection.",
+    "allValues": "Show all destination values",
+    "allCaption": "All destinations in {year} · {classification}; mapped and unmapped arrivals from the same selection.",
+    "coordinates": "Map coordinates"
   },
   "wrapped": {
     "entry": "Your yearly Wrapped",

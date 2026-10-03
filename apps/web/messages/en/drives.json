@@ -42,7 +42,10 @@
     "project": "Project",
     "notes": "Notes",
     "saving": "Saving…",
-    "saved": "Saved"
+    "saved": "Saved",
+    "discard": "Discard changes",
+    "unsaved": "You have unsaved changes. Leave and discard them?",
+    "saveFailed": "Could not confirm Save. Your edits are still here; check the stored values before trying again."
   },
   "auditLog": {
     "noChanges": "No changes logged yet."
@@ -80,5 +83,21 @@
     "invalidInput": "Invalid input.",
     "tagCreateFailed": "Could not create tag.",
     "tagNotFound": "Tag not found."
+  },
+  "undo": {
+    "title": "Last quick classification",
+    "saved": "{count, plural, one {# drive classified as {classification}.} other {# drives classified as {classification}.}}",
+    "lifetime": "Undo is available for 30 minutes in this login session, across navigation and reload. A new quick classification replaces it.",
+    "action": "Undo classification",
+    "pending": "Restoring classifications…",
+    "undone": "Classification restored. Other annotations and tags are unchanged.",
+    "expired": "The 30-minute undo window has expired. No classifications were changed.",
+    "superseded": "A newer quick classification replaced this operation. No classifications were changed.",
+    "conflict": "At least one drive was classified again or is no longer available. Undo was cancelled for the entire selection. Review the current classifications.",
+    "unavailable": "This undo operation is unavailable in this login session. No classifications were changed.",
+    "failed": "Could not confirm Undo. Reload to check the latest result; retrying the same operation is safe.",
+    "scope": "Selecting a category saves this drive immediately.",
+    "bulkScope": "Selecting a category immediately classifies all {count} selected drives.",
+    "saveFailed": "Classification could not be saved. Check the current category and try again."
   }
 }

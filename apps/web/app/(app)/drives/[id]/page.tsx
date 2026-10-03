@@ -17,6 +17,7 @@ import {
 } from "@odovi/core";
 import { weatherCodeIcon, weatherCodeKey } from "../../../../lib/weatherCodes";
 import { APP_TIMEZONE } from "../../../../lib/config";
+import { archiveReturnTo } from "../../../../lib/archiveContext";
 import { formatLongDate } from "../../../../lib/day";
 import {
   getAllPlacesLite,
@@ -63,8 +64,10 @@ function Card({
 
 export default async function DriveDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ returnTo?: string }>;
 }) {
   const { id } = await params;
   const driveId = Number(id);
@@ -101,6 +104,7 @@ export default async function DriveDetailPage({
   );
 
   const dateStr = toDateParam(drive.startTime);
+  const returnTo = archiveReturnTo((await searchParams).returnTo, `/day/${dateStr}?vehicle=${drive.vehicleId}#drive-${driveId}`);
   const classification = drive.classification as Classification;
 
   const kennzahlen: Array<[string, React.ReactNode]> = [
@@ -179,7 +183,7 @@ export default async function DriveDetailPage({
   return (
     <div className="mx-auto max-w-2xl">
       <Link
-        href="/day"
+        href={returnTo}
         className="inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
       >
         <ChevronLeft aria-hidden size={16} />
@@ -193,7 +197,7 @@ export default async function DriveDetailPage({
             {formatTimeRange(drive.startTime, drive.endTime, APP_TIMEZONE, locale)}
           </p>
           <h1 className="mt-1 text-2xl font-semibold tracking-tight">
-            {from} <span className="text-neutral-400">→</span> {to}
+            {from} <span className="text-neutral-500 dark:text-neutral-400">→</span> {to}
           </h1>
         </div>
         <span
@@ -204,7 +208,7 @@ export default async function DriveDetailPage({
       </div>
 
       <Link
-        href={`/day/${dateStr}`}
+        href={`/day/${dateStr}?vehicle=${drive.vehicleId}#drive-${driveId}`}
         className="mt-2 inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-neutral-900 hover:underline dark:text-neutral-400 dark:hover:text-white"
       >
         {t("page.backToDayView", { date: dateStr })}
@@ -235,7 +239,7 @@ export default async function DriveDetailPage({
                 />
               )}
               <span className="tabular-nums">{parts.join(" · ")}</span>
-              <span className="text-xs text-neutral-400 dark:text-neutral-500">
+              <span className="text-xs text-neutral-500 dark:text-neutral-400">
                 {t("page.weatherHistoricalNote")}
               </span>
             </div>
@@ -245,9 +249,9 @@ export default async function DriveDetailPage({
       <Card title={t("page.cardMetrics")}>
         <dl className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2">
           {kennzahlen.map(([label, value]) => (
-            <div key={label} className="flex justify-between gap-4 text-sm">
-              <dt className="text-neutral-500 dark:text-neutral-400">{label}</dt>
-              <dd className="text-right font-medium tabular-nums">{value}</dd>
+            <div key={label} className="flex flex-wrap justify-between gap-x-4 gap-y-1 text-sm">
+              <dt className="max-w-full [overflow-wrap:anywhere] text-neutral-500 dark:text-neutral-400">{label}</dt>
+              <dd className="max-w-full text-right font-medium tabular-nums [overflow-wrap:anywhere]">{value}</dd>
             </div>
           ))}
         </dl>
@@ -343,7 +347,7 @@ export default async function DriveDetailPage({
       </section>
 
       <Card title={t("page.cardExport")}>
-        <div className="flex gap-1.5">
+        <div className="flex flex-wrap gap-1.5">
           <a
             href={`/api/export/drive/${drive.id}?format=csv`}
             className={buttonClasses("ghost", "sm")}

@@ -10,16 +10,16 @@ const base =
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-accent-700 text-white hover:bg-accent-800 active:bg-accent-900 dark:bg-accent-300 dark:text-neutral-950 dark:hover:bg-accent-200 " +
+    "bg-accent-700 text-white hover:bg-accent-800 active:bg-accent-900 dark:bg-accent-300 dark:text-neutral-950 dark:hover:bg-accent-200 dark:active:bg-accent-400 " +
     "focus-visible:ring-accent-700 dark:focus-visible:ring-accent-300",
   secondary:
     "border border-neutral-300 text-neutral-700 hover:bg-neutral-100 active:bg-neutral-200 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:active:bg-neutral-700 " +
-    "focus-visible:ring-cyan-300 dark:focus-visible:ring-cyan-300",
+    "focus-visible:ring-accent-700 dark:focus-visible:ring-accent-300",
   ghost:
-    "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 active:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-white dark:active:bg-neutral-700 " +
-    "focus-visible:ring-cyan-300 dark:focus-visible:ring-cyan-300",
+    "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900 active:bg-neutral-200 active:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-white dark:active:bg-neutral-700 dark:active:text-neutral-100 " +
+    "focus-visible:ring-accent-700 dark:focus-visible:ring-accent-300",
   destructive:
-    "border border-red-300 text-red-600 hover:bg-red-50 active:bg-red-100 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950 dark:active:bg-red-900 " +
+    "border border-red-300 text-red-700 hover:bg-red-50 active:bg-red-100 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950 dark:active:bg-red-900 dark:active:text-red-200 " +
     "focus-visible:ring-red-600 dark:focus-visible:ring-red-400",
 };
 

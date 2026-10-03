@@ -25,5 +25,13 @@
   "matchFieldPlace": "Place",
   "matchFieldTag": "Tag",
   "matchFieldStartPlace": "Start place",
-  "matchFieldEndPlace": "Destination"
+  "matchFieldEndPlace": "Destination",
+  "scope": "{vehicle} · {type}",
+  "vehicle": "Vehicle",
+  "activeFilters": "Active restrictions",
+  "remove": "Remove: {filter}",
+  "reset": "Reset to all drives",
+  "updating": "Updating results. The visible results still use the previous filters.",
+  "failed": "Search could not be loaded. Your filters are kept. Try again.",
+  "retry": "Try again"
 }

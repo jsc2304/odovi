@@ -78,9 +78,10 @@ pnpm lint
 pnpm publication:check
 ```
 
-`pnpm lint` is the repository typecheck/lint entry point. It first builds the shared package types, then runs all package checks. For the web app TypeScript compiler specifically, run:
+`pnpm lint` is the repository typecheck/lint entry point. It first builds the shared package types, then runs all package checks. The web check generates route types and validates its full TypeScript project, including tests that use worker sources. The web-only production image uses `tsconfig.build.json` with the same strict settings and excludes test files. For the web app TypeScript compiler specifically, run:
 
 ```bash
+pnpm --filter @odovi/web exec next typegen
 pnpm --filter @odovi/web exec tsc --noEmit
 ```
 

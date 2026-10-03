@@ -227,6 +227,18 @@ run_playwright \
   --project=desktop --project=mobile \
   tests/coverage.spec.ts
 
+# Accessibility/navigation fixture belongs only to this disposable archive.
+"${compose[@]}" exec -T db psql -X -qAt -v ON_ERROR_STOP=1 \
+  -v fixture_day="$ODOVI_ACCEPTANCE_DAY" -U odovi -d odovi \
+  < "$repo_root/acceptance/release-stack/analytics-access-fixture.sql" \
+  > "$evidence_dir/analytics-access-fixture.json"
+export ODOVI_EXPECT_CLASSIFICATION_UNDO=1
+export ODOVI_ACCEPTANCE_PHASE="backlog"
+run_playwright --project=desktop \
+  tests/backlog-core.spec.ts tests/calendar-analytics.spec.ts \
+  tests/classification-undo.spec.ts tests/day-navigation.spec.ts \
+  tests/invoice-archive.spec.ts
+
 verify_upgrade_path
 node "$repo_root/acceptance/release-stack/verify-egress.mjs" --expect-zero \
   "$evidence_dir/container-egress.ndjson" \
@@ -274,12 +286,16 @@ wait_for_readiness_state "healthy" "teslamate-schema-recovered"
 
 # Missing migration evidence and a missing protected-app table are required
 # failures: readiness is 503 while process liveness remains 200.
+migration_checkpoint="$("${compose[@]}" exec -T db psql -X -Atqc \
+  "select id::text || ' ' || created_at::text from drizzle.__drizzle_migrations order by created_at desc limit 1" -U odovi -d odovi)"
+read -r migration_record_id migration_created_at <<< "$migration_checkpoint"
+[[ "$migration_record_id" =~ ^[0-9]+$ && "$migration_created_at" =~ ^[0-9]+$ ]] || exit 1
 "${compose[@]}" exec -T db psql -v ON_ERROR_STOP=1 -U odovi -d odovi -c \
-  "update drizzle.__drizzle_migrations set created_at=0 where created_at=(select max(created_at) from drizzle.__drizzle_migrations)" >/dev/null
+  "update drizzle.__drizzle_migrations set created_at=0 where id=$migration_record_id" >/dev/null
 assert_readiness_state "not_ready" "migration-incomplete"
 wait_for_http "$ODOVI_ACCEPTANCE_BASE_URL/api/health" "liveness during incomplete migration"
 "${compose[@]}" exec -T db psql -v ON_ERROR_STOP=1 -U odovi -d odovi -c \
-  "update drizzle.__drizzle_migrations set created_at=1787776816727 where created_at=0" >/dev/null
+  "update drizzle.__drizzle_migrations set created_at=$migration_created_at where id=$migration_record_id" >/dev/null
 wait_for_readiness_state "healthy" "migration-recovered"
 
 "${compose[@]}" exec -T db psql -v ON_ERROR_STOP=1 -U odovi -d odovi -c \
@@ -289,6 +305,14 @@ wait_for_http "$ODOVI_ACCEPTANCE_BASE_URL/api/health" "liveness without protecte
 "${compose[@]}" exec -T db psql -v ON_ERROR_STOP=1 -U odovi -d odovi -c \
   "alter table users_readiness_test rename to users" >/dev/null
 wait_for_readiness_state "healthy" "protected-application-recovered"
+
+"${compose[@]}" exec -T db psql -v ON_ERROR_STOP=1 -U odovi -d odovi -c \
+  "alter table classification_operations rename to classification_operations_readiness_test" >/dev/null
+assert_readiness_state "not_ready" "classification-operations-unavailable"
+wait_for_http "$ODOVI_ACCEPTANCE_BASE_URL/api/health" "liveness without undo receipts"
+"${compose[@]}" exec -T db psql -v ON_ERROR_STOP=1 -U odovi -d odovi -c \
+  "alter table classification_operations_readiness_test rename to classification_operations" >/dev/null
+wait_for_readiness_state "healthy" "classification-operations-recovered"
 
 "${compose[@]}" stop db
 wait_for_http "$ODOVI_ACCEPTANCE_BASE_URL/api/health" "liveness without database"

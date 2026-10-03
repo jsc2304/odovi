@@ -31,7 +31,7 @@ function StatCard({
 }) {
   const content = (
     <>
-      <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-neutral-400">
+      <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
         <Icon aria-hidden size={13} />
         {label}
       </div>
@@ -71,8 +71,9 @@ function formatMoney(
   }
 }
 
-function costSourceKey(value: string | null): "auto" | "manual" | "synced" | "unknown" {
+export function costSourceKey(value: string | null): "auto" | "manual" | "synced" | "invoice" | "unknown" {
   if (value === "auto" || value === "manual" || value === "synced") return value;
+  if (/^invoice:[1-9]\d*$/.test(value ?? "")) return "invoice";
   return "unknown";
 }
 
@@ -145,7 +146,7 @@ export async function StatsRow({
                   : tCommon("state.none")}
               </p>
               {lastCharge.chargerType && (
-                <span className="rounded-full bg-neutral-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
+                <span className="rounded-full bg-neutral-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
                   {lastCharge.chargerType}
                 </span>
               )}
@@ -175,7 +176,7 @@ export async function StatsRow({
             </p>
           </>
         ) : (
-          <p className="text-sm text-neutral-400">{t("stats.noData")}</p>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400">{t("stats.noData")}</p>
         )}
       </StatCard>
 
@@ -193,7 +194,7 @@ export async function StatsRow({
           <p className="text-xs text-neutral-500 dark:text-neutral-400">{t("stats.allDone")}</p>
         )}
         {unclassifiedCount.imported > 0 ? (
-          <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">
+          <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
             {t("stats.importedExtra", { count: unclassifiedCount.imported })}
           </p>
         ) : null}

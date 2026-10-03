@@ -37,6 +37,7 @@ async function cookieSecure(): Promise<boolean> {
 export interface SessionUser {
   id: number;
   username: string;
+  sessionId: string;
 }
 
 /**
@@ -98,7 +99,7 @@ export const validateSession = cache(
       return null;
     }
 
-    return { id: row.userId, username: row.username };
+    return { id: row.userId, username: row.username, sessionId: row.sessionId };
   },
 );
 

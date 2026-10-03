@@ -171,7 +171,7 @@ export async function searchDrives(
     .leftJoin(sp, eq(drives.startPlaceId, sp.id))
     .leftJoin(ep, eq(drives.endPlaceId, ep.id))
     .where(and(...conditions))
-    .orderBy(desc(drives.startTime))
+    .orderBy(desc(drives.startTime), desc(drives.id))
     .limit(SEARCH_RESULT_LIMIT + 1);
 
   const capped = rows.slice(0, SEARCH_RESULT_LIMIT);
@@ -237,7 +237,7 @@ export async function searchCharges(
     .from(chargeSessions)
     .leftJoin(places, eq(chargeSessions.placeId, places.id))
     .where(and(...conditions))
-    .orderBy(desc(chargeSessions.startTime))
+    .orderBy(desc(chargeSessions.startTime), desc(chargeSessions.id))
     .limit(SEARCH_RESULT_LIMIT + 1);
 
   const capped = rows.slice(0, SEARCH_RESULT_LIMIT);

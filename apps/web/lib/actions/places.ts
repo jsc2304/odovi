@@ -111,7 +111,7 @@ async function recomputeAutoChargeCostsForPlace(
     await db
       .update(chargeSessions)
       .set({ cost: newCost, currency, updatedAt: new Date() })
-      .where(eq(chargeSessions.id, session.id));
+      .where(and(eq(chargeSessions.id, session.id), eq(chargeSessions.costSource, "auto")));
   }
 }
 
@@ -140,7 +140,7 @@ async function resetStaleAutoChargeCosts(): Promise<void> {
     await db
       .update(chargeSessions)
       .set({ cost: null, currency: null, costSource: null, updatedAt: new Date() })
-      .where(eq(chargeSessions.id, session.id));
+      .where(and(eq(chargeSessions.id, session.id), eq(chargeSessions.costSource, "auto")));
   }
 }
 

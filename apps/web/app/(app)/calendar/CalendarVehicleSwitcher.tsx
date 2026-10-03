@@ -19,7 +19,7 @@ export function CalendarVehicleSwitcher({
       aria-label={t("vehicleSelectLabel")}
       value={current}
       onChange={(e) => router.push(`/calendar?month=${month}&vehicle=${e.target.value}`)}
-      className="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
+      className="min-h-11 max-w-full rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
     >
       {vehicles.map((v) => (
         <option key={v.id} value={v.id}>

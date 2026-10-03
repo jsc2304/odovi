@@ -35,7 +35,7 @@ export async function YearlyDestinations({ analysis, locale }: { analysis: Yearl
           {analysis.destinations.slice(0, 10).map((destination, index) => (
             <li key={destination.key} className="flex items-center justify-between gap-3 py-3 text-sm">
               <div className="flex min-w-0 items-start gap-2">
-                <span className="w-5 shrink-0 text-neutral-400 tabular-nums">{index + 1}.</span>
+                <span className="w-5 shrink-0 text-neutral-500 tabular-nums dark:text-neutral-400">{index + 1}.</span>
                 <div className="min-w-0">
                   {destination.placeId != null ? <Link href={`/places/${destination.placeId}/edit`} className="inline-flex min-h-11 items-center break-words font-medium underline-offset-4 hover:underline">{label(destination)}</Link> : <p className="break-words font-medium">{label(destination)}</p>}
                   {destination.isHome && <p className="text-xs text-neutral-500 dark:text-neutral-400">{t("destinations.home")}</p>}
@@ -47,6 +47,20 @@ export async function YearlyDestinations({ analysis, locale }: { analysis: Yearl
           ))}
         </ol>
       )}
+      {analysis.destinations.length > 0 && <details className="mt-4" data-destination-data>
+        <summary className="min-h-11 cursor-pointer py-3 text-sm font-medium">{t("destinations.allValues")}</summary>
+        <div className="max-h-96 overflow-auto overscroll-contain" tabIndex={0} role="region" aria-label={t("destinations.allValues")}>
+          <table className="w-full text-left text-xs tabular-nums">
+            <caption className="mb-2 text-left">{t("destinations.allCaption", { year: analysis.year, classification: t(`classifications.${analysis.classification}`) })}</caption>
+            <thead><tr><th scope="col" className="px-2 py-2">{t("destinations.title")}</th><th scope="col" className="px-2 py-2">{t("map.visits")}</th><th scope="col" className="px-2 py-2">{t("destinations.coordinates")}</th></tr></thead>
+            <tbody>{analysis.destinations.map((destination) => <tr key={destination.key} className="border-t border-neutral-200 dark:border-neutral-800">
+              <th scope="row" className="break-words px-2 py-2 font-medium">{label(destination)}{destination.isHome && <span className="block font-normal">{t("destinations.home")}</span>}</th>
+              <td className="px-2 py-2">{destination.visitCount}</td>
+              <td className="px-2 py-2">{destination.lat != null && destination.lon != null ? `${coordinate.format(destination.lat)}, ${coordinate.format(destination.lon)}` : t("destinations.noCoordinates")}</td>
+            </tr>)}</tbody>
+          </table>
+        </div>
+      </details>}
       <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">{t("destinations.grouping")}</p>
     </section>
   );

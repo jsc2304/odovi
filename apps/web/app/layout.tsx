@@ -1,3 +1,4 @@
+import { UNSAVED_NAVIGATION_GUARD } from "../lib/unsavedNavigation";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
@@ -87,6 +88,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className={`${geistSans.variable} ${geistMono.variable} ${sourceSerif.variable}`}>
+        <script dangerouslySetInnerHTML={{ __html: UNSAVED_NAVIGATION_GUARD }} />
         <ServiceWorkerRegistration />
         {isSystem && (
           <script

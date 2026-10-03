@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
-import { ArrowRight, CalendarDays, Download, Sparkles } from "lucide-react";
+import { CalendarDays, Download, Sparkles } from "lucide-react";
 import {
   formatConsumption,
   formatDuration,
@@ -25,6 +25,7 @@ import {
   BulkSelectionProvider,
   SelectionToggle,
 } from "../../../../components/bulkSelection";
+import { ArchiveReturnFocus } from "../../../../components/ArchiveDriveLink";
 import { DateNav } from "./DateNav";
 import { VehicleSwitcher } from "./VehicleSwitcher";
 import { Timeline } from "./Timeline";
@@ -36,7 +37,7 @@ export default async function DayPage({
   searchParams,
 }: {
   params: Promise<{ date: string }>;
-  searchParams: Promise<{ vehicle?: string }>;
+  searchParams: Promise<{ vehicle?: string; month?: string }>;
 }) {
   const [t, locale] = await Promise.all([
     getTranslations("day"),
@@ -45,7 +46,8 @@ export default async function DayPage({
   const { date } = await params;
   if (!isValidDateParam(date)) notFound();
 
-  const { vehicle } = await searchParams;
+  const { vehicle, month } = await searchParams;
+  const originMonth = month && isValidDateParam(`${month}-01`) ? month : date.slice(0, 7);
   const vehicles = await getVehicles();
   if (vehicles.length === 0) {
     const today = todayInAppTz();
@@ -81,8 +83,7 @@ export default async function DayPage({
   const driveIds = timeline.drives.map((d) => d.id);
   const now = Date.now();
 
-  const vehicleQuery =
-    vehicles.length > 1 ? `?vehicle=${current.id}` : "";
+  const vehicleQuery = `?vehicle=${current.id}&month=${originMonth}`;
 
   // Day totals (drives only).
   const driveCount = timeline.drives.length;
@@ -104,6 +105,7 @@ export default async function DayPage({
 
   return (
     <div className="mx-auto max-w-2xl">
+      <ArchiveReturnFocus />
       <DateNav
         date={date}
         longLabel={formatLongDate(date, locale)}
@@ -115,14 +117,14 @@ export default async function DayPage({
 
       <div className="mt-2 flex items-center justify-end gap-1.5">
         <a
-          href={`/api/export/day/${date}?format=csv`}
+          href={`/api/export/day/${date}?format=csv&vehicle=${current.id}`}
           className={buttonClasses("ghost", "sm")}
         >
           <Download aria-hidden size={14} />
           CSV
         </a>
         <a
-          href={`/api/export/day/${date}?format=pdf`}
+          href={`/api/export/day/${date}?format=pdf&vehicle=${current.id}`}
           className={buttonClasses("ghost", "sm")}
         >
           <Download aria-hidden size={14} />
@@ -140,56 +142,8 @@ export default async function DayPage({
         </div>
       )}
 
-      {driveCount >= 2 && (
-        <Link
-          href={`/day-recap/${date}${vehicleQuery}`}
-          className="group mt-5 flex items-center justify-between gap-4 overflow-hidden rounded-2xl border border-violet-200 bg-gradient-to-br from-violet-50 via-white to-sky-50 p-4 transition hover:-translate-y-0.5 hover:border-violet-300 hover:shadow-lg hover:shadow-violet-100 dark:border-violet-900/60 dark:from-violet-950/50 dark:via-neutral-900 dark:to-sky-950/40 dark:hover:border-violet-700 dark:hover:shadow-violet-950/40"
-        >
-          <span className="flex min-w-0 items-center gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-600 text-white shadow-lg shadow-violet-300 dark:shadow-violet-950">
-              <Sparkles aria-hidden size={19} />
-            </span>
-            <span className="min-w-0">
-              <span className="block text-sm font-semibold text-neutral-900 dark:text-white">
-                {t("recap.open")}
-              </span>
-              <span className="block truncate text-xs text-neutral-500 dark:text-neutral-400">
-                {t("recap.preview", { count: driveCount })}
-              </span>
-            </span>
-          </span>
-          <ArrowRight
-            aria-hidden
-            size={18}
-            className="shrink-0 text-violet-500 transition-transform group-hover:translate-x-1"
-          />
-        </Link>
-      )}
-
-      <div className="mt-6">
-        {isEmpty ? (
-          <EmptyState
-            icon={CalendarDays}
-            title={t("emptyTitle")}
-            hint={t("emptyHint")}
-          />
-        ) : (
-          <BulkSelectionProvider allIds={driveIds} tags={tagOptions}>
-            {driveIds.length > 0 && (
-              <div className="mb-3 flex items-center justify-end">
-                <SelectionToggle />
-              </div>
-            )}
-
-            <Timeline
-              timeline={timeline}
-              tz={APP_TIMEZONE}
-              now={now}
-              parkLossById={parkLossById}
-            />
-
             <div
-              className="mt-6 border-t border-neutral-200 pt-4 dark:border-neutral-800"
+              className="card mt-5 p-4"
               data-testid="day-totals"
             >
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium text-neutral-700 dark:text-neutral-300">
@@ -222,16 +176,42 @@ export default async function DayPage({
                 )}
               </div>
               {anyEstimated && (
-                <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">
+                <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
                   {t("estimatedLegend")}
                 </p>
               )}
               {energySummary.hasIncompleteEnergy && (
-                <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">
+                <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
                   {t("partialEnergyLegend")}
                 </p>
               )}
             </div>
+      {driveCount >= 2 && <Link href={`/day-recap/${date}${vehicleQuery}`} className={buttonClasses("ghost", "sm", "mt-2")}>
+        <Sparkles aria-hidden size={16} />{t("recap.open")}
+      </Link>}
+
+      <div className="mt-6">
+        {isEmpty ? (
+          <EmptyState
+            icon={CalendarDays}
+            title={t("emptyTitle")}
+            hint={t("emptyHint")}
+          />
+        ) : (
+          <BulkSelectionProvider key={current.id} allIds={driveIds} tags={tagOptions}>
+            {driveIds.length > 0 && (
+              <div className="mb-3 flex items-center justify-end">
+                <SelectionToggle />
+              </div>
+            )}
+
+            <Timeline
+              timeline={timeline}
+              tz={APP_TIMEZONE}
+              now={now}
+              parkLossById={parkLossById}
+            />
+
           </BulkSelectionProvider>
         )}
       </div>

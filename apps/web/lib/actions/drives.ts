@@ -1,9 +1,9 @@
 "use server";
 import { revalidatePath } from "next/cache";
-import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, lt, sql } from "drizzle-orm";
 import { z } from "zod";
 import { getTranslations } from "next-intl/server";
-import { auditLog, driveTags, drives, places, tags } from "@odovi/db";
+import { auditLog, classificationOperations, driveTags, drives, places, sessions, tags } from "@odovi/db";
 import { matchPlace } from "@odovi/core";
 import { db } from "../db";
 import { validateSession } from "../auth/session";
@@ -24,75 +24,119 @@ const inputSchema = z.object({
 });
 
 export interface ClassificationChange {
-  auditId: number;
-  driveId: number;
-  previous: z.infer<typeof classificationSchema>;
+  operationId: number;
+  classification: z.infer<typeof classificationSchema>;
+  count: number;
+  expiresAt: string;
+  status: "available" | "expired" | "undone";
 }
 
-function refreshClassificationViews(driveId: number) {
+function operationSummary(operation: typeof classificationOperations.$inferSelect): ClassificationChange {
+  return { operationId: operation.id, classification: operation.classification, count: operation.changes.length,
+    expiresAt: operation.expiresAt.toISOString(),
+    status: operation.undoneAt ? "undone" : operation.expiresAt.getTime() <= Date.now() ? "expired" : "available" };
+}
+
+function refreshClassificationViews(driveIds: number[]) {
   revalidatePath("/");
   revalidatePath("/search");
   revalidatePath("/day/[date]", "page");
-  revalidatePath(`/drives/${driveId}`);
+  for (const id of driveIds) revalidatePath(`/drives/${id}`);
 }
 
-/** The row lock keeps the classification and its audit entry in one order. */
-export async function setDriveClassification(
-  driveId: number,
-  classification: z.infer<typeof classificationSchema>,
+/** Restores the latest quick operation after navigation/reload in the same login session. */
+export async function getLatestClassificationOperation(): Promise<ClassificationChange | null> {
+  const user = await validateSession();
+  if (!user) return null;
+  const [operation] = await db.select().from(classificationOperations).where(and(
+    eq(classificationOperations.sessionId, user.sessionId), eq(classificationOperations.userId, user.id),
+  )).orderBy(desc(classificationOperations.id)).limit(1);
+  return operation ? operationSummary(operation) : null;
+}
+
+/** Session lock orders overlapping operations; drive locks use a stable order. */
+export async function bulkSetDriveClassification(
+  driveIds: number[], classification: z.infer<typeof classificationSchema>,
 ): Promise<ClassificationChange | null> {
   const t = await getTranslations("drives");
   const user = await validateSession();
   if (!user) throw new Error(t("errors.notAuthenticated"));
-  const parsed = inputSchema.parse({ driveId, classification });
-
-  const change = await db.transaction(async (tx) => {
-    const [current] = await tx.select({ classification: drives.classification }).from(drives)
-      .where(eq(drives.id, parsed.driveId)).limit(1).for("update");
-    if (!current) throw new Error(t("errors.driveNotFound"));
-    if (current.classification === parsed.classification) return null;
-
-    await tx.update(drives).set({ classification: parsed.classification, updatedAt: new Date() })
-      .where(eq(drives.id, parsed.driveId));
-    const [entry] = await tx.insert(auditLog).values({
-      entityType: "drive", entityId: parsed.driveId, field: "classification",
-      oldValue: current.classification, newValue: parsed.classification, changedBy: user.username,
-    }).returning({ id: auditLog.id });
-    return { auditId: entry!.id, driveId: parsed.driveId, previous: current.classification };
+  const parsed = z.object({ driveIds: z.array(z.number().int().positive()).min(1).max(1000), classification: classificationSchema }).parse({ driveIds, classification });
+  const ids = [...new Set(parsed.driveIds)].sort((a, b) => a - b);
+  const operation = await db.transaction(async (tx) => {
+    const [session] = await tx.select().from(sessions).where(and(eq(sessions.id, user.sessionId), eq(sessions.userId, user.id))).for("update");
+    if (!session || session.expiresAt.getTime() <= Date.now()) throw new Error(t("errors.notAuthenticated"));
+    const rows = await tx.select().from(drives).where(inArray(drives.id, ids)).orderBy(asc(drives.id)).for("update");
+    if (rows.length !== ids.length) throw new Error(t("errors.driveNotFound"));
+    const changes: typeof classificationOperations.$inferInsert.changes = [];
+    for (const row of rows) {
+      if (row.classification === parsed.classification) continue;
+      const [changed] = await tx.update(drives).set({ classification: parsed.classification, updatedAt: new Date() }).where(eq(drives.id, row.id))
+        .returning({ revision: drives.classificationRevision });
+      changes.push({ driveId: row.id, previous: row.classification, revision: changed!.revision });
+      await tx.insert(auditLog).values({ entityType: "drive", entityId: row.id, field: "classification", oldValue: row.classification,
+        newValue: parsed.classification, changedBy: user.username });
+    }
+    if (!changes.length) return null;
+    // Bounded receipt retention; permanent annotation audit history is separate.
+    await tx.delete(classificationOperations).where(lt(classificationOperations.expiresAt, new Date(Date.now() - 24 * 60 * 60 * 1000)));
+    const [created] = await tx.insert(classificationOperations).values({ sessionId: user.sessionId, userId: user.id,
+      classification: parsed.classification, changes, expiresAt: new Date(Date.now() + 30 * 60 * 1000) }).returning();
+    return created!;
   });
-  refreshClassificationViews(parsed.driveId);
-  return change;
+  refreshClassificationViews(ids);
+  return operation ? operationSummary(operation) : null;
 }
 
-/** Undo only the latest classification edit, never a newer edit from another tab. */
-export async function undoDriveClassification(auditId: number): Promise<void> {
-  const [t, tDashboard] = await Promise.all([getTranslations("drives"), getTranslations("dashboard")]);
-  const user = await validateSession();
-  if (!user) throw new Error(t("errors.notAuthenticated"));
-  const id = z.number().int().positive().parse(auditId);
+export async function setDriveClassification(
+  driveId: number, classification: z.infer<typeof classificationSchema>,
+): Promise<ClassificationChange | null> {
+  const parsed = inputSchema.parse({ driveId, classification });
+  return bulkSetDriveClassification([parsed.driveId], parsed.classification);
+}
 
-  const driveId = await db.transaction(async (tx) => {
-    const [entry] = await tx.select().from(auditLog).where(and(
-      eq(auditLog.id, id), eq(auditLog.entityType, "drive"), eq(auditLog.field, "classification"),
-      eq(auditLog.changedBy, user.username),
-    )).limit(1);
-    const previous = classificationSchema.safeParse(entry?.oldValue);
-    if (!entry || !previous.success) throw new Error(tDashboard("overview.undoUnavailable"));
-    const [current] = await tx.select({ classification: drives.classification }).from(drives)
-      .where(eq(drives.id, entry.entityId)).limit(1).for("update");
-    const [latest] = await tx.select({ id: auditLog.id }).from(auditLog).where(and(
-      eq(auditLog.entityType, "drive"), eq(auditLog.entityId, entry.entityId), eq(auditLog.field, "classification"),
-    )).orderBy(desc(auditLog.id)).limit(1);
-    if (!current || latest?.id !== id || current.classification !== entry.newValue) {
-      throw new Error(tDashboard("overview.undoUnavailable"));
+/** Restore server-trusted membership atomically. Successful retries are no-ops. */
+export type ClassificationUndoResult = { ok: true; operation: ClassificationChange } | { ok: false; error: string };
+
+export async function undoDriveClassification(operationId: number): Promise<ClassificationUndoResult> {
+  const t = await getTranslations("drives");
+  const user = await validateSession();
+  if (!user) return { ok: false, error: t("errors.notAuthenticated") };
+  const parsedId = z.number().int().positive().safeParse(operationId);
+  if (!parsedId.success) return { ok: false, error: t("undo.unavailable") };
+  const id = parsedId.data;
+  const result = await db.transaction(async (tx): Promise<ClassificationUndoResult> => {
+    const [session] = await tx.select().from(sessions).where(and(eq(sessions.id, user.sessionId), eq(sessions.userId, user.id))).for("update");
+    if (!session || session.expiresAt.getTime() <= Date.now()) return { ok: false, error: t("errors.notAuthenticated") };
+    const [operation] = await tx.select().from(classificationOperations).where(and(eq(classificationOperations.id, id),
+      eq(classificationOperations.sessionId, user.sessionId), eq(classificationOperations.userId, user.id))).for("update");
+    if (!operation) return { ok: false, error: t("undo.unavailable") };
+    if (operation.undoneAt) return { ok: true, operation: operationSummary(operation) };
+    if (operation.expiresAt.getTime() <= Date.now()) return { ok: false, error: t("undo.expired") };
+    const [latest] = await tx.select({ id: classificationOperations.id }).from(classificationOperations)
+      .where(eq(classificationOperations.sessionId, user.sessionId)).orderBy(desc(classificationOperations.id)).limit(1);
+    if (latest?.id !== id) return { ok: false, error: t("undo.superseded") };
+    const ids = operation.changes.map(change => change.driveId).sort((a, b) => a - b);
+    const rows = await tx.select().from(drives).where(inArray(drives.id, ids)).orderBy(asc(drives.id)).for("update");
+    if (operation.expiresAt.getTime() <= Date.now()) return { ok: false, error: t("undo.expired") };
+    const current = new Map(rows.map(row => [row.id, row]));
+    if (operation.changes.some(change => current.get(change.driveId)?.classificationRevision !== change.revision ||
+      current.get(change.driveId)?.classification !== operation.classification)) return { ok: false, error: t("undo.conflict") };
+    for (const change of operation.changes) {
+      await tx.update(drives).set({ classification: change.previous, updatedAt: new Date() }).where(eq(drives.id, change.driveId));
+      await tx.insert(auditLog).values({ entityType: "drive", entityId: change.driveId, field: "classification",
+        oldValue: operation.classification, newValue: change.previous, changedBy: user.username });
     }
-    await tx.update(drives).set({ classification: previous.data, updatedAt: new Date() })
-      .where(eq(drives.id, entry.entityId));
-    await tx.insert(auditLog).values({ entityType: "drive", entityId: entry.entityId, field: "classification",
-      oldValue: current.classification, newValue: previous.data, changedBy: user.username });
-    return entry.entityId;
+    const [undone] = await tx.update(classificationOperations).set({ undoneAt: new Date() }).where(eq(classificationOperations.id, id)).returning();
+    return { ok: true, operation: operationSummary(undone!) };
   });
-  refreshClassificationViews(driveId);
+  if (result.ok) {
+    revalidatePath("/");
+    revalidatePath("/search");
+    revalidatePath("/day/[date]", "page");
+    revalidatePath("/drives/[id]", "page");
+  }
+  return result;
 }
 
 const annotationsSchema = z.object({
@@ -107,6 +151,7 @@ const annotationsSchema = z.object({
 export interface UpdateAnnotationsResult {
   ok: boolean;
   error?: string;
+  values?: { classification: string; purpose: string; customer: string; project: string; notes: string };
 }
 
 const ANNOTATION_FIELD_LABELS: Record<string, string> = {
@@ -186,7 +231,8 @@ export async function updateDriveAnnotations(
       }
     }
 
-    if (changes.length === 0) return { ok: true };
+    const values = { classification: input.classification, purpose: input.purpose ?? "", customer: input.customer ?? "", project: input.project ?? "", notes: input.notes ?? "" };
+    if (changes.length === 0) return { ok: true, values };
 
     await tx
       .update(drives)
@@ -203,7 +249,7 @@ export async function updateDriveAnnotations(
         changedBy: user.username,
       })),
     );
-    return { ok: true };
+    return { ok: true, values };
   });
 
   revalidatePath(`/drives/${input.driveId}`);

@@ -8,6 +8,15 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Retain the full 20MiB invoice body plus rejection headroom during Proxy cloning.
+  experimental: { proxyClientMaxBodySize: 21 * 1024 * 1024 },
+  // Production image contains web sources; full-repo test types run in `lint`.
+  typescript: { tsconfigPath: "tsconfig.build.json" },
+  serverExternalPackages: ["pdfjs-dist", "yauzl"],
+  outputFileTracingIncludes: {
+    "/api/invoices/*": ["./lib/invoices/extract.mjs", "../../node_modules/.pnpm/pdfjs-dist@*/node_modules/pdfjs-dist/**/*",
+      "../../node_modules/.pnpm/@napi-rs+canvas*@*/node_modules/@napi-rs/canvas*/**/*"],
+  },
   // Pin the workspace root explicitly: an unrelated lockfile in the user's
   // home directory otherwise makes Next.js misdetect the monorepo root.
   outputFileTracingRoot: path.join(import.meta.dirname, "../.."),

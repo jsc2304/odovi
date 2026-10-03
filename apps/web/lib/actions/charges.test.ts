@@ -20,6 +20,11 @@ vi.mock("../db", () => ({
       return query;
     },
     transaction: async (run: (tx: unknown) => Promise<void>) => run({
+      select: () => {
+        const query = { from: () => query, leftJoin: () => query, where: () => query,
+          limit: () => query, for: async () => [mocks.current] };
+        return query;
+      },
       update: () => ({ set: (patch: unknown) => {
         mocks.set(patch);
         return { where: async () => undefined };

@@ -107,7 +107,7 @@ export async function fetchCurrentWeather(
   if (provider.credentialHeader && provider.credential) {
     headers.set(provider.credentialHeader, provider.credential);
   }
-  const res = await fetcher(url, { cache: "no-store", headers });
+  const res = await fetcher(url, { cache: "no-store", headers, signal: AbortSignal.timeout(8000) });
   if (!res.ok) throw new Error(`${provider.provider} weather: HTTP ${res.status}`);
 
   const body = (await res.json()) as OpenMeteoResponse;

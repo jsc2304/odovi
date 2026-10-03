@@ -41,7 +41,7 @@ export default async function CalendarPage({
   const requested = vehicle ? Number(vehicle) : NaN;
   const current = vehicles.find((v) => v.id === requested) ?? vehicles[0]!;
 
-  const vehicleQuery = vehicles.length > 1 ? `?vehicle=${current.id}` : "";
+  const vehicleQuery = `?vehicle=${current.id}`;
 
   const statsByDay = await getCalendarMonthStats(current.id, month);
   const today = todayInAppTz();
@@ -67,6 +67,8 @@ export default async function CalendarPage({
 
       <div className="mt-6">
         <MonthGrid
+          key={`${month}-${current.id}`}
+          month={month}
           cells={cells}
           vehicleQuery={vehicleQuery}
           timeZone={APP_TIMEZONE}

@@ -7,6 +7,7 @@ import { renderDayCsv, buildCsvLabels } from "../../../../../lib/exports/csv";
 import { renderDayPdf, buildPdfLabels } from "../../../../../lib/exports/pdf";
 import { dayFilename } from "../../../../../lib/exports/filenames";
 import { isValidDateParam, isValidFormat } from "../../../../../lib/exports/params";
+import { getVehicles } from "../../../../../lib/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +35,12 @@ export async function GET(
     );
   }
 
-  const data = await loadDayReportData(date);
+  const rawVehicle = request.nextUrl.searchParams.get("vehicle");
+  const vehicleId = rawVehicle == null ? undefined : Number(rawVehicle);
+  if (vehicleId !== undefined && (!Number.isSafeInteger(vehicleId) || vehicleId <= 0 || !(await getVehicles()).some((vehicle) => vehicle.id === vehicleId))) {
+    return NextResponse.json({ error: t("errors.noVehicle") }, { status: 404 });
+  }
+  const data = await loadDayReportData(date, vehicleId);
   const report = buildDayReport(data.drives, date, data.meta);
   const filename = dayFilename(date, format);
 

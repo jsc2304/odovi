@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import React, { useMemo } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import type { Bin } from "@odovi/core";
+import { toIntlLocale } from "../../../lib/i18nLocale";
 import styles from "./Insights.module.css";
 
 // Gemeinsame SVG-Geometrie, an DriveChart/ChargeChart (M18/M19) angelehnt:
@@ -17,7 +18,27 @@ const INNER_W = CHART_WIDTH - PADDING.left - PADDING.right;
 const INNER_H = CHART_HEIGHT - PADDING.top - PADDING.bottom;
 const PLOT_BOTTOM = PADDING.top + INNER_H;
 
-const numFmt = new Intl.NumberFormat("de-DE", { maximumFractionDigits: 0 });
+function useChartNumbers() {
+  const locale = useLocale();
+  return new Intl.NumberFormat(toIntlLocale(locale), { maximumFractionDigits: 1 });
+}
+
+function ChartData({ caption, columns, rows }: { caption: string; columns: string[]; rows: string[][] }) {
+  const t = useTranslations("insights");
+  return (
+    <details className="mt-3" data-chart-data>
+      <summary className="min-h-11 cursor-pointer py-3 text-sm font-medium">{t("charts.dataView")}</summary>
+      <p className="mb-2 text-xs text-neutral-500 dark:text-neutral-400">{t("charts.rounding")}</p>
+      <div className="max-h-96 overflow-auto overscroll-contain" tabIndex={0} role="region" aria-label={caption}>
+        <table className="w-full text-left text-xs tabular-nums">
+          <caption className="mb-2 text-left font-medium">{caption}</caption>
+          <thead><tr>{columns.map((column, index) => <th key={index} scope="col" className="border-b border-neutral-200 px-2 py-2 dark:border-neutral-800">{column}</th>)}</tr></thead>
+          <tbody>{rows.map((row, index) => <tr key={index}>{row.map((value, cell) => <td key={cell} className="border-b border-neutral-100 px-2 py-2 dark:border-neutral-800">{value}</td>)}</tr>)}</tbody>
+        </table>
+      </div>
+    </details>
+  );
+}
 
 /** „nice"-Wert nach unten/oben für ruhige Achsengrenzen. */
 function niceMin(v: number, step: number): number {
@@ -42,6 +63,7 @@ export function ScatterBinnedChart({
   bins,
   xUnit,
   yUnit,
+  xLabel,
   xStep = 5,
   ariaLabel,
 }: {
@@ -49,13 +71,13 @@ export function ScatterBinnedChart({
   bins: Bin[];
   xUnit: string;
   yUnit: string;
+  xLabel: string;
   /** Schrittweite der X-Achsengrenzen-Rundung (z. B. 5 °C, 10 km/h). */
   xStep?: number;
   ariaLabel: string;
 }) {
   const t = useTranslations("insights");
-  const svgRef = useRef<SVGSVGElement | null>(null);
-  const [hover, setHover] = useState<number | null>(null);
+  const numFmt = useChartNumbers();
 
   const geom = useMemo(() => {
     const xsAll = [...points.map((p) => p.x), ...bins.map((b) => b.xCenter)];
@@ -91,15 +113,15 @@ export function ScatterBinnedChart({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bins, geom]);
 
+  if (points.length === 0 && bins.length === 0) return <p>{t("charts.noData")}</p>;
+
   return (
     <div>
       <svg
-        ref={svgRef}
         viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
         className={styles.chart}
         role="img"
         aria-label={ariaLabel}
-        onMouseLeave={() => setHover(null)}
       >
         {/* Horizontales Grid + Y-Achsen-Labels (min/mid/max) */}
         {[0, 0.5, 1].map((f, i) => {
@@ -143,7 +165,7 @@ export function ScatterBinnedChart({
         <text
           x={PADDING.left}
           y={PADDING.top - 6}
-          className="fill-neutral-400 text-[9px] dark:fill-neutral-500"
+          className="fill-neutral-500 text-[9px] dark:fill-neutral-400"
         >
           {yUnit}
         </text>
@@ -155,7 +177,7 @@ export function ScatterBinnedChart({
             cx={toX(p.x)}
             cy={toY(p.y)}
             r={2}
-            className="fill-sky-600/15 dark:fill-sky-500/20"
+            className="fill-sky-700 dark:fill-sky-500"
           />
         ))}
 
@@ -171,35 +193,28 @@ export function ScatterBinnedChart({
             strokeLinecap="round"
           />
         )}
-        {/* Bin-Punkte (klickbar/hoverbar) */}
+        {/* Group means; exact values remain available in the data tables. */}
         {bins.map((b, i) => (
           <circle
             key={`bin-${i}`}
             cx={toX(b.xCenter)}
             cy={toY(b.meanY)}
-            r={hover === i ? 5 : 3.5}
+            r={3.5}
             className="text-sky-700 dark:text-sky-400"
             fill="currentColor"
             stroke="white"
             strokeWidth={1}
-            onMouseEnter={() => setHover(i)}
           />
         ))}
       </svg>
 
-      {/* Tooltip-Zeile: Bin-Mittel bei Hover, sonst dezente Legende. */}
       <div className={styles.legend}>
-        <span className={styles.legendRoute}>
-          {t("charts.scatterLegend", { step: xStep, unit: xUnit })}
-        </span>
-        {hover != null && bins[hover] && (
-          <span className={styles.legendValue}>
-            {numFmt.format(Math.round(bins[hover]!.xCenter))} {xUnit}:{" "}
-            {numFmt.format(Math.round(bins[hover]!.meanY))} {yUnit} ·{" "}
-            {t("driveCountLabel", { count: bins[hover]!.count })}
-          </span>
-        )}
+        <span>{t("charts.individualPoints", { count: points.length })}</span>
+        <span className={styles.legendRoute}>{t("charts.scatterLegend", { step: xStep, unit: xUnit })}</span>
       </div>
+      <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">{t("charts.binLimit")}</p>
+      {bins.length > 0 && <ChartData caption={t("charts.groupedValues")} columns={[`${xLabel} (${xUnit})`, `${t("charts.meanConsumption")} (${yUnit})`, t("charts.drives")]} rows={bins.map((bin) => [`${numFmt.format(bin.xStart)} ≤ x < ${numFmt.format(bin.xStart + xStep)}`, numFmt.format(bin.meanY), String(bin.count)])} />}
+      <ChartData caption={ariaLabel} columns={[`${xLabel} (${xUnit})`, `${t("charts.consumption")} (${yUnit})`]} rows={points.map((point) => [numFmt.format(point.x), numFmt.format(point.y)])} />
     </div>
   );
 }
@@ -217,7 +232,9 @@ export interface MonthDatum {
  */
 export function MonthChart({ months }: { months: MonthDatum[] }) {
   const t = useTranslations("insights");
-  const [hover, setHover] = useState<number | null>(null);
+  const numFmt = useChartNumbers();
+
+  if (months.length === 0) return <p>{t("charts.noData")}</p>;
 
   const kmMax = niceMax(Math.max(...months.map((m) => m.km), 1), 100);
   const consVals = months.map((m) => m.meanConsumption);
@@ -247,7 +264,6 @@ export function MonthChart({ months }: { months: MonthDatum[] }) {
         className={styles.monthChart}
         role="img"
         aria-label={t("charts.monthChartAriaLabel")}
-        onMouseLeave={() => setHover(null)}
       >
         {[0, 0.5, 1].map((f, i) => {
           const y = PADDING.top + INNER_H - f * INNER_H;
@@ -275,13 +291,8 @@ export function MonthChart({ months }: { months: MonthDatum[] }) {
               width={barW}
               height={PLOT_BOTTOM - y}
               rx={3}
-              className={
-                hover === i
-                  ? "fill-violet-600 dark:fill-violet-400"
-                  : "fill-violet-600/70 dark:fill-violet-500/70"
-              }
-              onMouseEnter={() => setHover(i)}
-            />
+              className="fill-violet-600 dark:fill-violet-500"
+              />
           );
         })}
 
@@ -300,12 +311,11 @@ export function MonthChart({ months }: { months: MonthDatum[] }) {
             key={`cd-${i}`}
             cx={barX(i)}
             cy={consToY(m.meanConsumption)}
-            r={hover === i ? 5 : 3.5}
+            r={3.5}
             className="text-sky-700 dark:text-sky-400"
             fill="currentColor"
             stroke="white"
             strokeWidth={1}
-            onMouseEnter={() => setHover(i)}
           />
         ))}
 
@@ -327,7 +337,7 @@ export function MonthChart({ months }: { months: MonthDatum[] }) {
             y={i === 0 ? PADDING.top : PLOT_BOTTOM}
             textAnchor="end"
             dominantBaseline={i === 0 ? "hanging" : "auto"}
-            className="fill-sky-700 text-[9px] dark:fill-sky-400"
+            className="fill-neutral-500 text-[9px] dark:fill-neutral-400"
           >
             {numFmt.format(val)}
           </text>
@@ -350,20 +360,13 @@ export function MonthChart({ months }: { months: MonthDatum[] }) {
       </svg>
 
       <div className={styles.legend}>
-        <span className={styles.legendCobalt}>
-          km
-        </span>
+        <span className={styles.legendCobalt}>{t("charts.distanceBars")}</span>
         <span className={styles.legendRoute}>
           {t("charts.monthChartConsumptionLegend")}
         </span>
-        {hover != null && months[hover] && (
-          <span className={styles.legendValue}>
-            {months[hover]!.label}: {numFmt.format(Math.round(months[hover]!.km))} km ·{" "}
-            {numFmt.format(Math.round(months[hover]!.meanConsumption))} Wh/km ·{" "}
-            {t("driveCountLabel", { count: months[hover]!.driveCount })}
-          </span>
-        )}
+
       </div>
+      <ChartData caption={t("charts.monthChartAriaLabel")} columns={[t("charts.month"), "km", t("charts.monthChartConsumptionLegend"), t("charts.drives")]} rows={months.map((month) => [month.label, numFmt.format(month.km), numFmt.format(month.meanConsumption), String(month.driveCount)])} />
     </div>
   );
 }
@@ -377,7 +380,8 @@ export interface WeekdayDatum {
 /** Wochentagsmuster: km je Wochentag (Mo–So) als Balken + Fahrtenanzahl. */
 export function WeekdayChart({ days }: { days: WeekdayDatum[] }) {
   const t = useTranslations("insights");
-  const [hover, setHover] = useState<number | null>(null);
+  const numFmt = useChartNumbers();
+  if (days.length === 0) return <p>{t("charts.noData")}</p>;
   const kmMax = niceMax(Math.max(...days.map((d) => d.km), 1), 50);
 
   const n = days.length;
@@ -393,7 +397,6 @@ export function WeekdayChart({ days }: { days: WeekdayDatum[] }) {
         className={styles.weekdayChart}
         role="img"
         aria-label={t("charts.weekdayChartAriaLabel")}
-        onMouseLeave={() => setHover(null)}
       >
         {[0, 0.5, 1].map((f, i) => {
           const y = PADDING.top + INNER_H - f * INNER_H;
@@ -431,20 +434,15 @@ export function WeekdayChart({ days }: { days: WeekdayDatum[] }) {
               width={barW}
               height={PLOT_BOTTOM - y}
               rx={3}
-              className={
-                hover === i
-                  ? "fill-violet-600 dark:fill-violet-400"
-                  : "fill-violet-600/70 dark:fill-violet-500/70"
-              }
-              onMouseEnter={() => setHover(i)}
-            />
+              className="fill-violet-600 dark:fill-violet-500"
+              />
           );
         })}
 
         <text
           x={PADDING.left}
           y={PADDING.top - 6}
-          className="fill-neutral-400 text-[9px] dark:fill-neutral-500"
+          className="fill-neutral-500 text-[9px] dark:fill-neutral-400"
         >
           km
         </text>
@@ -466,13 +464,9 @@ export function WeekdayChart({ days }: { days: WeekdayDatum[] }) {
         <span className={styles.legendCobalt}>
           {t("charts.weekdayChartLegend")}
         </span>
-        {hover != null && days[hover] && (
-          <span className={styles.legendValue}>
-            {days[hover]!.label}: {numFmt.format(Math.round(days[hover]!.km))} km ·{" "}
-            {t("driveCountLabel", { count: days[hover]!.count })}
-          </span>
-        )}
+
       </div>
+      <ChartData caption={t("charts.weekdayChartAriaLabel")} columns={[t("charts.weekday"), "km", t("charts.drives")]} rows={days.map((day) => [day.label, numFmt.format(day.km), String(day.count)])} />
     </div>
   );
 }
@@ -495,6 +489,7 @@ export function ShortTripDonut({
   overallMeanConsumption: number | null;
 }) {
   const t = useTranslations("insights");
+  const numFmt = useChartNumbers();
   const pct = Math.round(shortShare * 100);
   const R = 42;
   const C = 2 * Math.PI * R;

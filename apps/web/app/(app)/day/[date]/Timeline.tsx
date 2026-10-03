@@ -111,7 +111,7 @@ function ParkEntry({
   const showCharged = row.endTime != null && loss != null && loss.hadCharge;
 
   return (
-    <li className="flex items-center gap-2 px-1 text-sm text-neutral-500 dark:text-neutral-400">
+    <li className="flex flex-wrap items-center gap-2 px-1 text-sm text-neutral-500 dark:text-neutral-400">
       <span className="tabular-nums">
         {formatTimeRange(row.startTime, row.endTime, tz, locale)}
       </span>

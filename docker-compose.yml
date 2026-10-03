@@ -63,6 +63,9 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
       POSTGRES_DB: ${ODOVI_DB_NAME:-odovi}
     volumes:
+      # Invoice PDF/ZIP originals and their index are PostgreSQL data. Web and
+      # worker share this durable store through DATABASE_URL; pg_dump backs up
+      # both together. No application-container filesystem is an archive.
       - odovi-db-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U ${ODOVI_DB_USER:-odovi} -d ${ODOVI_DB_NAME:-odovi}"]

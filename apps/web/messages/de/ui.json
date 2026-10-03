@@ -26,5 +26,12 @@
   "meta": {
     "description": "Self-hosted Fahrtenarchiv für Tesla"
   },
-  "skipToContent": "Zum Inhalt springen"
+  "skipToContent": "Zum Inhalt springen",
+  "feedback": {
+    "loading": "Ansicht wird geladen…",
+    "refreshing": "Wird aktualisiert… Bis die neuen Daten bereit sind, bleibt die bisherige Ansicht sichtbar.",
+    "failedTitle": "Ansicht konnte nicht geladen werden",
+    "failedHint": "Versuche es erneut, um diese Ansicht von deinem Server zu laden.",
+    "retry": "Erneut versuchen"
+  }
 }

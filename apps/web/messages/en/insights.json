@@ -8,7 +8,7 @@
     "consumption": "Avg consumption",
     "months": "Months observed"
   },
-  "subtitleWithData": "Based on {count, plural, one {# drive} other {# drives}} since {date}.",
+  "subtitleWithData": "Based on {count, plural, one {# drive} other {# drives}} from {date} to {end}.",
   "subtitleNoData": "Patterns and correlations from your drives.",
   "notEnoughTitle": "Not enough data yet",
   "notEnoughHint": "Odovi keeps collecting — once more drives are recorded, an analysis will appear here.",
@@ -19,12 +19,12 @@
     "temp": {
       "title": "Consumption vs. outside temperature",
       "ariaLabel": "Scatter plot of consumption over outside temperature with mean line per 5 °C range",
-      "subtitleDefault": "Cold cuts range — consumption typically rises at low temperatures.",
+      "subtitleDefault": "Recorded consumption grouped by outside temperature.",
       "subtitleWithDelta": "At ~{cold} °C you consume on average +{pct}% compared to ~{mild} °C."
     },
     "speed": {
       "title": "Consumption vs. average speed",
-      "subtitle": "Effective speed (distance ÷ drive duration). High speed drives up consumption.",
+      "subtitle": "Effective speed (distance ÷ drive duration). The chart shows observations, not the effect of speed alone.",
       "ariaLabel": "Scatter plot of consumption over average speed with mean line per 10 km/h range"
     },
     "month": {
@@ -43,7 +43,7 @@
   "charts": {
     "scatterLegend": "Avg per {step}-{unit} range",
     "monthChartAriaLabel": "Monthly trend: distance driven and average consumption",
-    "monthChartConsumptionLegend": "Avg Wh/km",
+    "monthChartConsumptionLegend": "Line: mean consumption (Wh/km)",
     "weekdayChartAriaLabel": "Weekday pattern: distance driven per weekday",
     "weekdayChartLegend": "km per weekday",
     "shortTripAriaLabel": "Short-trip share: {pct} percent of drives under 5 km",
@@ -52,6 +52,21 @@
     "avgShortTrip": "Avg short trip:",
     "avgOverall": "Avg overall:",
     "surplusPrefix": "Short trips consume on average",
-    "surplusSuffix": "— a cold drivetrain is a consumption driver."
-  }
+    "surplusSuffix": "compared to the overall mean; this comparison does not identify a cause.",
+    "dataView": "Show data table",
+    "rounding": "Values match the chart selection and are rounded to one decimal place.",
+    "noData": "No values for this selection.",
+    "individualPoints": "Points: {count} individual drives",
+    "binLimit": "Lines show means only for ranges with at least 3 drives. Ranges with fewer drives remain individual points; no trend is inferred.",
+    "groupedValues": "Mean values by range",
+    "meanConsumption": "Mean consumption",
+    "consumption": "Consumption",
+    "temperature": "Outside temperature",
+    "speed": "Average speed",
+    "drives": "Drives",
+    "month": "Month",
+    "weekday": "Weekday",
+    "distanceBars": "Bars: distance (km)"
+  },
+  "dataLimitations": "Completed drives of at least 2 km with consumption data; shorter drives and missing consumption are excluded. {estimated, plural, one {# drive uses estimated energy} other {# drives use estimated energy}}. Temperature uses vehicle measurements or weather data; speed uses distance ÷ duration. These observations do not establish causes."
 }

@@ -64,7 +64,7 @@ export default async function ChargeAnalysisPage({ searchParams }: {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <Link href="/charges" className="inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white">
+      <Link href="/charges" className="inline-flex min-h-11 items-center gap-1 text-sm text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white">
         <ChevronLeft aria-hidden size={16} />
         {t("analysis.back")}
       </Link>
@@ -122,9 +122,6 @@ export default async function ChargeAnalysisPage({ searchParams }: {
             <div className="mt-3 space-y-3">
               {analysis.sessions.map((session, index) => {
                 const curvePoints = session.curveSegments.flat();
-                // The text alternative uses actual recorded values, capped for long sessions.
-                const sampleIndices = new Set(Array.from({ length: Math.min(20, curvePoints.length) }, (_, i) => Math.round(i * (curvePoints.length - 1) / Math.max(1, Math.min(20, curvePoints.length) - 1))));
-                const samples = curvePoints.filter((_, pointIndex) => sampleIndices.has(pointIndex));
                 const timingReason = session.tenToEighty.reason;
                 return (
                   <article key={session.id} className={cardClass}>
@@ -168,23 +165,27 @@ export default async function ChargeAnalysisPage({ searchParams }: {
                         <p className="mt-1">{t("analysis.slow.qualification")}</p>
                       </div>
                     )}
-                    {samples.length > 0 && (
+                    {curvePoints.length > 0 && (
                       <details className="mt-3">
                         <summary className="min-h-11 cursor-pointer py-3 text-xs font-medium underline-offset-4 hover:underline">{t("analysis.samples.title")}</summary>
-                        <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">{t("analysis.samples.description", { count: samples.length, total: curvePoints.length })}</p>
-                        <table className="mt-2 w-full text-left text-xs tabular-nums">
+                        <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">{t("analysis.samples.description", { total: curvePoints.length })}</p>
+                        <div className="mt-2 max-h-96 overflow-auto overscroll-contain" tabIndex={0} role="region" aria-label={t("analysis.samples.caption", { session: series[index]!.label })}>
+                        <table className="w-full text-left text-xs tabular-nums">
                           <caption className="sr-only">{t("analysis.samples.caption", { session: series[index]!.label })}</caption>
                           <thead><tr className="border-b border-neutral-200 dark:border-neutral-800">
+                            <th scope="col" className="py-2 pr-2 font-medium">{t("analysis.samples.segment")}</th>
                             <th scope="col" className="py-2 pr-2 font-medium">{t("analysis.samples.elapsed")}</th>
                             <th scope="col" className="py-2 pr-2 font-medium">{t("analysis.curves.socAxis")}</th>
                             <th scope="col" className="py-2 font-medium">{t("analysis.curves.powerAxis")}</th>
                           </tr></thead>
-                          <tbody>{samples.map((point) => <tr key={`${point.ts}-${point.soc}`} className="border-b border-neutral-100 last:border-0 dark:border-neutral-800">
+                          <tbody>{session.curveSegments.flatMap((segment, segmentIndex) => segment.map((point, pointIndex) => <tr key={`${segmentIndex}-${pointIndex}`} className="border-b border-neutral-100 last:border-0 dark:border-neutral-800">
+                            <td className="py-1.5 pr-2">{segmentIndex + 1}</td>
                             <td className="py-1.5 pr-2">{minutes(point.elapsedMinutes)}</td>
                             <td className="py-1.5 pr-2">{number.format(point.soc)} %</td>
                             <td className="py-1.5">{power(point.powerKw)}</td>
-                          </tr>)}</tbody>
+                          </tr>))}</tbody>
                         </table>
+                        </div>
                       </details>
                     )}
                   </article>

@@ -3,7 +3,8 @@
     "unclassified": "Unklassifiziert",
     "private": "Privat",
     "business": "Geschäftlich",
-    "commute": "Arbeitsweg"
+    "commute": "Arbeitsweg",
+    "saveImmediately": "Eine Kategorie speichert die gewählte Fahrt sofort."
   },
   "actions": {
     "save": "Speichern",

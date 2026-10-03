@@ -29,7 +29,7 @@ function Tire({
           : "bg-neutral-50 dark:bg-neutral-800/60"
       }`}
     >
-      <p className="text-xs font-medium uppercase tracking-wide text-neutral-400">
+      <p className="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
         {label}
       </p>
       <p

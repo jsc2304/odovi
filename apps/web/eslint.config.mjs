@@ -1,12 +1,19 @@
 import { defineConfig, globalIgnores } from "eslint/config";
-import { FlatCompat } from "@eslint/eslintrc";
-
-// eslint-config-next still ships legacy (.eslintrc-style) shareable configs,
-// so bridge them into ESLint 9's flat config format.
-const compat = new FlatCompat({ baseDirectory: import.meta.dirname });
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTypescript from "eslint-config-next/typescript";
 
 const eslintConfig = defineConfig([
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...nextVitals,
+  ...nextTypescript,
+  // Keep the pre-migration hard gates; adopt new Compiler diagnostics gradually.
+  // https://react.dev/reference/eslint-plugin-react-hooks
+  { rules: {
+    "react-hooks/static-components": "warn",
+    "react-hooks/purity": "warn",
+    "react-hooks/refs": "warn",
+    "react-hooks/set-state-in-effect": "warn",
+    "react-hooks/immutability": "warn",
+  } },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

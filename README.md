@@ -16,12 +16,17 @@ Tessie and similar services are good, but they come with subscription costs, ove
 
 ## Features
 
+The feature list describes the current source checkout. Archive navigation,
+session-bound quick-classification undo and invoice storage are unreleased
+source changes. Versioned installation instructions use the latest stable
+release and its [release notes](docs/releases/0.4.0.md).
+
 **Trip archive (the core)**
 - **Daily view** - Pick a date -> every trip as an atomic entry: `08:14-08:47 · Home -> Client Miller · 27.3 km · Business`; parking and charging are interleaved in one timeline
 - **Classify and annotate** - Private / business / commute via segmented control, purpose, client, project, notes, tags; every change is recorded in the audit log
 - **Auto-classification rules** - "Home -> Office, Mon-Fri = commute": rules with place and weekday conditions classify new trips automatically, and never touch anything you decided manually (provenance in the audit log)
 - **Driving profile** - Default new drives to private or business, or classify them individually. Your rules take priority; applying a default to the existing backlog is a separate action with Undo. See [driving profiles](docs/driving-profile.md).
-- **Bulk editing** - Select and classify/tag many trips at once in the daily view and search
+- **Bulk editing** - Select and classify/tag many trips at once in the daily view and search. Quick classification has persistent, session-bound Undo; detailed annotations use explicit Save/Discard. See [classification and undo](docs/classification-undo.md).
 - **Places** - Geofences with map picker and address search (OSM/Nominatim); manual corrections with locks that survive every re-sync
 - **Calendar, search, reports** - Monthly grid with trip intensity; full-text search across places/clients/projects/tags with filters; monthly reports with CSV/PDF export in logbook style
 
@@ -30,6 +35,7 @@ Tessie and similar services are good, but they come with subscription costs, ove
 - **Charging overview** - Charging curve (kW over SoC), AC/DC, cost, location map
 - **DC charging comparison** - Compare the latest 5 or 10 completed fast-charging sessions, recorded curves, observed power, 10–80% times and charging locations
 - **Automatic charging costs** - Store an electricity price per place (for example home at EUR 0.32/kWh) -> sessions without a known price are calculated automatically, while manual and synced costs remain untouched
+- **Tesla invoice archive** - Optional local PDF/ZIP archive with original hashes, reviewed matching, reversible cost enrichment and monthly evidence exports. See [invoice archive limits and recovery](docs/invoice-archive.md).
 - **Journeys** - Vacations/trips as a wrapper around drives and charging stops, with KPI dashboard, map of all stages, an [immersive scroll-controlled 3D recap](docs/journey-recap.md), and export as CSV, PDF, and GPX
 - **Insights** - Personal consumption curve: consumption vs. outside temperature and speed, seasonal patterns, share of short trips
 - **Yearly destinations and Wrapped** - Visit heatmap and top destinations from completed drives, annual driving and charging summaries, and browser Print/Save as PDF
@@ -125,7 +131,7 @@ Details: [docs/demo.md](docs/demo.md)
 
 ## Stack
 
-pnpm monorepo: Next.js 15 (`apps/web`) · sync worker (`apps/worker`) · Drizzle schema (`packages/db`) · pure domain logic (`packages/core`) · PostgreSQL 17 · Docker Compose.
+pnpm monorepo: Next.js 16 (`apps/web`) · sync worker (`apps/worker`) · Drizzle schema (`packages/db`) · pure domain logic (`packages/core`) · PostgreSQL 17 · Docker Compose.
 
 ## Development
 

@@ -1,7 +1,8 @@
 "use client";
-import { useState, useTransition } from "react";
+import { useOptimistic, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { setDriveClassification } from "../../../../lib/actions/drives";
+import { useClassificationUndo } from "../../../../components/ClassificationUndo";
 import {
   QUICK_ORDER,
   type Classification,
@@ -19,18 +20,20 @@ export function QuickClassify({
   driveId: number;
   value: Classification;
 }) {
-  const [optimistic, setOptimistic] = useState<Classification>(value);
+  const [optimistic, setOptimistic] = useOptimistic(value);
+  const { recordOperation, reportError } = useClassificationUndo();
+  const tDrives = useTranslations("drives");
   const [pending, startTransition] = useTransition();
   const t = useTranslations("day");
 
   function choose(next: Classification) {
     if (next === optimistic) return;
-    setOptimistic(next);
     startTransition(async () => {
+      setOptimistic(next);
       try {
-        await setDriveClassification(driveId, next);
+        recordOperation(await setDriveClassification(driveId, next));
       } catch {
-        setOptimistic(value);
+        reportError(tDrives("undo.saveFailed"));
       }
     });
   }
@@ -38,12 +41,13 @@ export function QuickClassify({
   return (
     <div
       role="group"
-      aria-label={t("classifyGroupLabel")}
+      aria-label={`${t("classifyGroupLabel")} — ${tDrives("undo.scope")}`}
       data-drive-classification={optimistic}
       className={`grid grid-cols-4 gap-0.5 rounded-lg border border-neutral-200 bg-neutral-100 p-0.5 transition dark:border-neutral-800 dark:bg-neutral-800/60 ${
         pending ? "opacity-60" : ""
       }`}
     >
+      <span role="status" className="sr-only">{pending ? tDrives("annotationForm.saving") : null}</span>
       {QUICK_ORDER.map((c) => {
         const active = optimistic === c;
         return (

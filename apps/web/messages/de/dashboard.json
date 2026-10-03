@@ -51,6 +51,7 @@
       "auto": "Kosten automatisch berechnet",
       "manual": "Kosten manuell eingetragen",
       "synced": "Kosten bei der Synchronisierung importiert",
+      "invoice": "Kosten aus einer geprüften Rechnung",
       "unknown": "Kostenquelle unbekannt"
     }
   },
@@ -81,7 +82,8 @@
     "undo": "Rückgängig",
     "undone": "Klassifikation zurückgesetzt",
     "undoFailed": "Rückgängig nicht möglich. Die Fahrt wurde möglicherweise inzwischen geändert.",
-    "undoUnavailable": "Diese Klassifikation wurde inzwischen geändert und kann nicht mehr zurückgenommen werden."
+    "undoUnavailable": "Diese Klassifikation wurde inzwischen geändert und kann nicht mehr zurückgenommen werden.",
+    "weatherLoading": "Wetter wird geladen…"
   },
   "drivingProfile": {
     "title": "Fahrprofil",
