@@ -153,7 +153,9 @@ for (const locale of ["en", "de"]) for (const theme of ["light", "dark"]) for (c
     expect(box!.y + box!.height).toBeLessThan(780);
     for (const path of ["/", `/day/${process.env.ODOVI_ACCEPTANCE_DAY}`, "/search?type=all"]) {
       await page.goto(path);
-      await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth), {
+        message: `Page overflow on ${path} at ${width}px`,
+      }).toBeLessThanOrEqual(width);
       if (path.startsWith("/day/")) {
         await expect(page.getByTestId("day-totals")).toBeVisible();
         await expect(page.locator('a[id^="drive-"]').first()).toBeVisible();
@@ -165,11 +167,15 @@ for (const locale of ["en", "de"]) for (const theme of ["light", "dark"]) for (c
     }
     await page.locator('a[id^="drive-"]').first().click();
     await expect(page.locator('textarea[name="notes"]')).toBeVisible();
-    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth), {
+      message: `Drive detail overflow at ${width}px`,
+    }).toBeLessThanOrEqual(width);
     await page.screenshot({ path: testInfo.outputPath("drive.png"), fullPage: true });
     if (width === 393) {
       await page.evaluate(() => { document.documentElement.style.fontSize = "32px"; });
-      await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth), {
+        message: `Drive detail overflow at ${width}px and 200% text`,
+      }).toBeLessThanOrEqual(width);
     }
   });
 }

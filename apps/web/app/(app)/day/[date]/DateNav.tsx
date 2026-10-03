@@ -64,7 +64,7 @@ export function DateNav({
         {longLabel}
       </h1>
 
-      <div className="ml-auto flex items-center gap-2">
+      <div className="ml-auto flex min-w-0 max-w-full flex-wrap items-center gap-2">
         {date !== today && (
           <Link href={`/day/${today}${suffix}`} onNavigate={(event) => { event.preventDefault(); goTo(today); }} className={buttonClasses("secondary", "md")}>
             {t("today")}
@@ -78,7 +78,7 @@ export function DateNav({
             const v = e.target.value;
             if (v) goTo(v);
           }}
-          className="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm text-neutral-900 outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:focus-visible:ring-white dark:focus-visible:ring-offset-neutral-950"
+          className="min-w-0 max-w-full rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm text-neutral-900 outline-none focus-visible:ring-2 focus-visible:ring-neutral-900 focus-visible:ring-offset-2 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:focus-visible:ring-white dark:focus-visible:ring-offset-neutral-950"
         />
         <Link
           href={`/calendar?${calendarQuery}`}
