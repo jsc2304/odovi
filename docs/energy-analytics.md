@@ -15,10 +15,11 @@ charges adding more than 5 kWh, with a valid end SoC of at least 20%, contribute
 Missing or invalid measurements are excluded and their coverage is shown.
 Months without measurements do not become zero-range observations.
 
-The comparison uses the **first month with usable range observations**, which can be years after the
-vehicle was new. Both the first and latest recorded month need at least three
-qualifying observations, and must be different months, before a change is
-displayed. A sparse first month is not silently replaced by a later baseline.
+The comparison uses the **first month with usable range observations**. This
+can be years after the vehicle was new, and the archive can start earlier. Both
+the first and latest usable month need at least three qualifying observations,
+and must be different months, before a change is displayed. A sparse first
+usable month is not silently replaced by a later baseline.
 
 This is a trend in the vehicle's Battery Management System estimate. It does
 not measure physical battery degradation, original factory capacity, or the
@@ -27,7 +28,8 @@ and battery replacement can affect the observations.
 
 The additive database migration stores the new nullable range field and resets
 only the TeslaMate charging watermark once. The next successful sync enriches
-existing charging history. Costs, notes and locked place assignments remain
+existing charging history. This one-time pass can take longer for a large
+archive. Costs, notes and locked place assignments remain
 user-owned. Imports without independently recorded rated range cannot supply
 this history.
 
