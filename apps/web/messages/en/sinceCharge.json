@@ -1,0 +1,17 @@
+{
+  "title": "Since last charge",
+  "completed": "Charge completed {time}",
+  "drives": "Drives",
+  "distance": "Distance",
+  "energy": "Driving energy",
+  "consumption": "Consumption",
+  "duration": "Driving time",
+  "unavailable": "—",
+  "scope": "Completed drives only. Parking drain is not included.",
+  "estimated": "Driving energy includes estimates.",
+  "partialEnergy": "Energy data is incomplete; available totals and consumption cover only known values.",
+  "partialDistance": "Distance data is incomplete; the total covers only known distances.",
+  "straddling": "{count, plural, one {# drive crossing the charge boundary is excluded.} other {# drives crossing the charge boundary are excluded.}}",
+  "charging": "Charging in progress. This summary starts again when charging finishes.",
+  "noCharge": "No completed charge available yet."
+}

@@ -8,6 +8,11 @@
 Latest stable release: [Odovi 0.4.0](https://github.com/jsc2304/odovi/releases/tag/v0.4.0).
 [Install](#deployment) · [Release notes](docs/releases/0.4.0.md) · [Upgrade Odovi](docs/upgrade-odovi.md) · [Upgrade from Tripatlas](docs/rename-to-odovi.md).
 
+The **0.5.0 source candidate** adds [battery range history, charging economics,
+and driving totals since the last charge](docs/energy-analytics.md).
+The published stable installation remains 0.4.0; see the
+[0.5.0 candidate notes](docs/releases/0.5.0.md) for validation and release limits.
+
 Odovi reads the database of an existing [TeslaMate](https://github.com/teslamate-org/teslamate) installation in read-only mode and turns it into a searchable trip, parking, and charging archive with a daily timeline, places, tags, auto-classification, and business exports (CSV/PDF/GPX). Self-hosting requires no subscription or cloud service, and Odovi adds no product tracking.
 
 ## Why?
@@ -31,6 +36,9 @@ release and its [release notes](docs/releases/0.4.0.md).
 - **Calendar, search, reports** - Monthly grid with trip intensity; full-text search across places/clients/projects/tags with filters; monthly reports with CSV/PDF export in logbook style
 
 **Trip and charging analytics**
+- **Battery range history** - Monthly medians of recorded post-charge rated range, normalized to 100% SoC, with measurement coverage and change from the first month with usable range observations
+- **Charging economics** - Energy drawn and added, paired charging losses and efficiency, and costs grouped by currency, AC/DC and location
+- **Since last charge** - Dashboard driving distance, energy, consumption and duration since the latest completed charge, with estimates and missing data identified
 - **Trip detail** - Route on the map, combined history chart (elevation/SoC/speed), temperatures, max speed/power/recuperation, historical weather at trip time, GPX export
 - **Charging overview** - Charging curve (kW over SoC), AC/DC, cost, location map
 - **DC charging comparison** - Compare the latest 5 or 10 completed fast-charging sessions, recorded curves, observed power, 10–80% times and charging locations

@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "version": "0.5.0",
+  "candidate": "0.5.0-rc.1",
+  "images": {
+    "web": "ghcr.io/jsc2304/odovi-web",
+    "worker": "ghcr.io/jsc2304/odovi-worker"
+  },
+  "compose": "release/0.5.0/docker-compose.yml",
+  "releaseNotes": "docs/releases/0.5.0.md",
+  "changelog": "CHANGELOG.md",
+  "packages": [
+    "package.json",
+    "apps/web/package.json",
+    "apps/worker/package.json",
+    "packages/core/package.json",
+    "packages/db/package.json",
+    "packages/runtime-config/package.json",
+    "dev/fixtures/package.json",
+    "acceptance/release-stack/package.json"
+  ],
+  "architectures": [
+    "linux/amd64",
+    "linux/arm64"
+  ],
+  "requiredAcceptanceIssues": [
+    27,
+    28,
+    29,
+    31,
+    32,
+    33,
+    38,
+    49,
+    50
+  ],
+  "supportedRuntimes": {
+    "application": "Node.js 22 (included in the images)",
+    "database": "PostgreSQL 17",
+    "orchestration": "Docker Engine with Docker Compose v2"
+  },
+  "teslaMateRange": "4.0.1 through 4.2.0",
+  "testedPlatforms": [
+    {
+      "platform": "linux/amd64 on GitHub-hosted Ubuntu",
+      "coverage": "Required automated gate: complete disposable-stack acceptance against exact published candidate digests."
+    },
+    {
+      "platform": "linux/arm64 through QEMU BuildKit",
+      "coverage": "Required automated gate: image build, architecture, source identity and license inventory validation."
+    },
+    {
+      "platform": "Native Raspberry Pi 5 linux/arm64",
+      "coverage": "Required before stable promotion: exact-candidate runtime acceptance and stable0.4-to0.5 upgrade, backup restoration and rollback rehearsal. Reviewed release acceptance summary records results."
+    }
+  ],
+  "knownLimitations": [
+    "Battery history is a BMS rated-range estimate relative to the first month with usable range observations, not a battery-health test or a comparison with a new battery.",
+    "Battery range history requires TeslaMate post-charge rated-range data; imports without these measurements remain unavailable.",
+    "Charging efficiency and costs depend on paired energy observations and known prices; currencies are never converted or inferred.",
+    "TeslaMate4.0.2 through4.1.x are bounded by the tested4.0.1 and4.2.0 endpoints rather than dedicated fixtures for every intermediate release.",
+    "One vehicle per installation is the supported focus; an existing supported TeslaMate database is required."
+  ]
+}

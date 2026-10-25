@@ -60,6 +60,8 @@ describe(`TeslaMate ${fixtureVersion} boundary fixture`, () => {
     expect(cars.length).toBeGreaterThan(0);
     expect(completedDrives.length).toBeGreaterThan(0);
     expect(completedCharges.length).toBeGreaterThan(0);
+    expect(completedCharges[0]).toHaveProperty("end_rated_range_km");
+    expect(completedCharges[0]!.end_rated_range_km == null || typeof completedCharges[0]!.end_rated_range_km === "number").toBe(true);
     expect(geofences.length).toBeGreaterThan(0);
     expect(latestPositions.length).toBeGreaterThan(0);
     expect(updates.length).toBeGreaterThan(0);

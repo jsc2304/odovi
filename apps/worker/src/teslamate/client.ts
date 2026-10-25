@@ -103,6 +103,7 @@ export const REQUIRED_TESLAMATE_COLUMNS: Readonly<
     { name: "charge_energy_used", postgresType: "numeric" },
     { name: "start_battery_level", postgresType: "int2" },
     { name: "end_battery_level", postgresType: "int2" },
+    { name: "end_rated_range_km", postgresType: "numeric" },
     { name: "duration_min", postgresType: "int2" },
     { name: "cost", postgresType: "numeric" },
     { name: "position_id", postgresType: "int4" },

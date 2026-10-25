@@ -20,3 +20,6 @@ export * from "./insights/yearly.js";
 export * from "./planner/index.js";
 export * from "./summaries.js";
 export * from "./locationProviders/policy.js";
+export * from "./battery/range.js";
+export * from "./charging/economics.js";
+export * from "./charging/sinceCharge.js";

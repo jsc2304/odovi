@@ -130,6 +130,9 @@ html.dark body {
    Auf schmalen Viewports Formularfelder daher auf mindestens 16px heben —
    Desktop bleibt unberührt. */
 @media (max-width: 767px) {
+  /* Keep scrolled controls clear of the fixed mobile navigation. */
+  html { scroll-padding-bottom: calc(6rem + env(safe-area-inset-bottom)); }
+
   input,
   select,
   textarea {

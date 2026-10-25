@@ -127,6 +127,7 @@ export interface TmChargingProcess {
   charge_energy_used: number | null;
   start_battery_level: number | null;
   end_battery_level: number | null;
+  end_rated_range_km: number | null;
   duration_min: number | null;
   cost: number | null;
   lat: number | null;
@@ -154,6 +155,7 @@ function chargingProcessSelect(
       cp.charge_energy_used::float8  AS charge_energy_used,
       cp.start_battery_level,
       cp.end_battery_level,
+      cp.end_rated_range_km::float8 AS end_rated_range_km,
       cp.duration_min,
       cp.cost::float8 AS cost,
       p.latitude::float8  AS lat,

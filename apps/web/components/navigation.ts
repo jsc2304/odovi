@@ -1,4 +1,5 @@
 import {
+  BatteryMedium,
   CalendarDays,
   CalendarRange,
   Ellipsis,
@@ -24,6 +25,7 @@ export type DestinationId =
   | "search"
   | "journeys"
   | "charges"
+  | "battery"
   | "invoices"
   | "places"
   | "reports"
@@ -106,6 +108,15 @@ export const APP_DESTINATIONS: AppDestination[] = [
     moreGroup: "review",
   },
   {
+    id: "battery",
+    href: "/battery",
+    labelKey: "battery",
+    icon: BatteryMedium,
+    match: (path) => path === "/battery" || path.startsWith("/battery/"),
+    sidebar: true,
+    moreGroup: "review",
+  },
+  {
     id: "places",
     href: "/places",
     labelKey: "places",
@@ -174,6 +185,7 @@ export const MORE_DESTINATION: AppDestination = {
   icon: Ellipsis,
   match: (path) =>
     path.startsWith("/settings") ||
+    path.startsWith("/battery") ||
     path.startsWith("/invoices") ||
     path.startsWith("/tags") ||
     path.startsWith("/rules"),

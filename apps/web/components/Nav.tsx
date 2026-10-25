@@ -83,7 +83,8 @@ export function SideNav() {
     <nav className="min-h-0 flex-1 overflow-y-auto px-5 pb-4">
       <div className="flex flex-col gap-0.5">
       {sidebarItems.map((item) => {
-        const active = item.match(pathname);
+        const active = item.match(pathname) && !(item === MORE_DESTINATION &&
+          APP_DESTINATIONS.some((destination) => destination.sidebar && destination.match(pathname)));
         const Icon = item.icon;
         return (
           <React.Fragment key={item.href}>

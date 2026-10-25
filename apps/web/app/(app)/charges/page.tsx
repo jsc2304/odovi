@@ -71,8 +71,9 @@ export default async function ChargesPage({
 }: {
   searchParams: Promise<{ month?: string }>;
 }) {
-  const [t, locale] = await Promise.all([
+  const [t, economics, locale] = await Promise.all([
     getTranslations("charges"),
+    getTranslations("chargingEconomics"),
     getLocale(),
   ]);
   const sp = await searchParams;
@@ -108,6 +109,13 @@ export default async function ChargesPage({
       >
         <Zap aria-hidden size={16} />
         {t("analysis.entry")}
+      </Link>
+
+      <Link
+        href={`/charges/economics?month=${month}${vehicleId != null ? `&vehicle=${vehicleId}` : ""}`}
+        className="mt-3 ml-5 inline-flex min-h-11 items-center text-sm font-medium underline underline-offset-4"
+      >
+        {economics("title")}
       </Link>
 
       <div className="mt-6">

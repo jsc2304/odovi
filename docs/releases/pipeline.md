@@ -26,10 +26,17 @@ unaccepted candidate tag in the registry, but it cannot be promoted.
 
 ## Stable promotion
 
-Stable promotion is a second manual workflow. It downloads an accepted
-candidate record from the specified candidate workflow run, verifies that the
-record belongs to this repository and matches the checked-out source revision,
-and promotes the recorded digests with `docker buildx imagetools create`.
+Stable promotion is a second manual workflow on `main`. Before downloading,
+it authenticates the exact selected run attempt through the GitHub API: the
+active `.github/workflows/release.yml` workflow, this repository (including the
+head repository), the default `main` branch, a `workflow_dispatch` event, and
+successful completion. The run's immutable source commit must be an ancestor
+of the trusted promotion commit. It downloads only the record named for that
+source commit and attempt, and rejects a record with a different source commit.
+Validation code, release metadata, Compose templates, and release notes stay
+pinned to the trusted promotion revision; the candidate never selects executable
+verification code. Promotion then publishes the accepted digests with
+`docker buildx imagetools create`.
 Nothing is rebuilt. The same digests are written into the versioned Compose
 asset and attached to the GitHub Release.
 
@@ -40,7 +47,7 @@ keeps an image-build milestone from being mistaken for public-launch readiness.
 Entering a publication phrase authorizes only that workflow run. It does not
 authorize future releases, deployments, or paid distribution.
 
-Native Raspberry Pi runtime checks and the 0.2.0 → 0.3.0 upgrade/restore/rollback
+Native Raspberry Pi runtime checks and the 0.4.0 → 0.5.0 upgrade/restore/rollback
 rehearsal use the same candidate images. Record their results in a reviewed
 `acceptance-summary.json`; do not copy acceptance claims from the 0.2.0 release.
 The source release notes describe the required gates, and the attached records
@@ -53,12 +60,12 @@ accepted source revision embedded in the images or require rebuilding them.
 ## Local consistency and Compose checks
 
 ```bash
-node scripts/check-release-consistency.mjs release/0.3.0/release.json
+node scripts/check-release-consistency.mjs release/0.5.0/release.json
 ODOVI_WEB_DIGEST=sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa \
 ODOVI_WORKER_DIGEST=sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb \
 ODOVI_ENV_FILE="$PWD/tests/runtime-config/required.env" \
 docker compose --env-file tests/runtime-config/required.env \
-  -f release/0.3.0/docker-compose.yml config --quiet
+  -f release/0.5.0/docker-compose.yml config --quiet
 ```
 
 Development and advanced operators can continue building directly from source
