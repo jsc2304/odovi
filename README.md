@@ -5,13 +5,14 @@
 
 **Self-hosted trip archive and analytics for Tesla.** Pick a date, review every trip of the day, classify it, export it - your movement data stays on your server.
 
-Latest stable release: [Odovi 0.4.0](https://github.com/jsc2304/odovi/releases/tag/v0.4.0).
-[Install](#deployment) · [Release notes](docs/releases/0.4.0.md) · [Upgrade Odovi](docs/upgrade-odovi.md) · [Upgrade from Tripatlas](docs/rename-to-odovi.md).
+Latest stable release: [Odovi 0.5.0](https://github.com/jsc2304/odovi/releases/tag/v0.5.0).
+[Install](#deployment) · [Release notes](docs/releases/0.5.0.md) · [Upgrade Odovi](docs/upgrade-odovi.md) · [Upgrade from Tripatlas](docs/rename-to-odovi.md).
 
-The **0.5.0 source candidate** adds [battery range history, charging economics,
-and driving totals since the last charge](docs/energy-analytics.md).
-The published stable installation remains 0.4.0; see the
-[0.5.0 candidate notes](docs/releases/0.5.0.md) for validation and release limits.
+Odovi **0.5.0** adds [battery range history, charging economics and driving
+totals since the last charge](docs/energy-analytics.md), a local invoice archive
+and persistent classification Undo. See the [release notes](docs/releases/0.5.0.md)
+and [acceptance summary](release/0.5.0/acceptance-summary.json) for verification
+and supported limits.
 
 Odovi reads the database of an existing [TeslaMate](https://github.com/teslamate-org/teslamate) installation in read-only mode and turns it into a searchable trip, parking, and charging archive with a daily timeline, places, tags, auto-classification, and business exports (CSV/PDF/GPX). Self-hosting requires no subscription or cloud service, and Odovi adds no product tracking.
 
@@ -21,10 +22,8 @@ Tessie and similar services are good, but they come with subscription costs, ove
 
 ## Features
 
-The feature list describes the current source checkout. Archive navigation,
-session-bound quick-classification undo and invoice storage are unreleased
-source changes. Versioned installation instructions use the latest stable
-release and its [release notes](docs/releases/0.4.0.md).
+The features below are available in Odovi 0.5.0. Use the versioned release
+artifacts and [upgrade procedure](docs/upgrade-odovi.md) for an existing archive.
 
 **Trip archive (the core)**
 - **Daily view** - Pick a date -> every trip as an atomic entry: `08:14-08:47 · Home -> Client Miller · 27.3 km · Business`; parking and charging are interleaved in one timeline
@@ -161,10 +160,10 @@ Tests: `pnpm test` · typecheck: `pnpm lint` · more: [CONTRIBUTING.md](CONTRIBU
 Docker Compose on a home server/NAS/Raspberry Pi in your LAN or VPN (for example Tailscale), connected to the existing TeslaMate Postgres through a read-only role.
 
 Use the immutable Compose asset attached to the
-[0.4.0 stable release](https://github.com/jsc2304/odovi/releases/tag/v0.4.0).
+[0.5.0 stable release](https://github.com/jsc2304/odovi/releases/tag/v0.5.0).
 It pins the exact tested web and worker images for `linux/amd64` and
 `linux/arm64`; no GitHub login or local application build is needed.
-See the [acceptance summary](release/0.4.0/acceptance-summary.json) for the
+See the [acceptance summary](release/0.5.0/acceptance-summary.json) for the
 automated, native Raspberry Pi and upgrade checks.
 
 Upgrading an installation created before the Odovi rename? Follow
@@ -186,8 +185,8 @@ existing installation or `.env`:
 ```bash
 mkdir odovi &&
 cd odovi &&
-curl -fL https://github.com/jsc2304/odovi/releases/download/v0.4.0/odovi-0.4.0-docker-compose.yml -o docker-compose.yml &&
-curl -fL https://raw.githubusercontent.com/jsc2304/odovi/v0.4.0/.env.example -o .env &&
+curl -fL https://github.com/jsc2304/odovi/releases/download/v0.5.0/odovi-0.5.0-docker-compose.yml -o docker-compose.yml &&
+curl -fL https://raw.githubusercontent.com/jsc2304/odovi/v0.5.0/.env.example -o .env &&
 chmod 600 .env
 ```
 
@@ -323,10 +322,12 @@ for a trip.
 
 ### Update
 
-For an existing Odovi 0.3.0 installation, follow the
-[0.4.0 upgrade procedure](docs/upgrade-odovi.md). The update retains the
-existing database schema, runtime settings and provider decisions; keep the
-project, volume and credentials unchanged.
+For an existing Odovi 0.4.0 installation, follow the
+[0.5.0 upgrade procedure](docs/upgrade-odovi.md). The update applies migrations
+`0009`–`0011`, including a one-time charging-history backfill. Take and rehearse a
+verified backup first; retain the project, volume, credentials, environment,
+overrides and provider decisions. Earlier versions can use the archived upgrade
+procedures linked there.
 
 Existing v0.1.1 installations must follow the
 [Supported Rename Upgrade](docs/rename-to-odovi.md), including a tested backup,
@@ -342,7 +343,8 @@ checksum-verified PostgreSQL archive. See the
 [upgrade/restore runbook](docs/rename-to-odovi.md) for exact commands.
 
 The archive includes accounts, sessions, annotations, places, tags, rules,
-journeys, archive data and sync state. TeslaMate and external configuration /
+journeys, invoice originals and metadata, classification Undo receipts, archive
+data and sync state. TeslaMate and external configuration /
 encryption keys require their own backups.
 
 ### Import history (Tessie)

@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "version": "0.5.0",
+  "sourceCommit": "453ce2917b2e3a48e3aa5bf366a893be5aaec7c9",
+  "date": "2026-10-25",
+  "images": {
+    "web": "ghcr.io/jsc2304/odovi-web@sha256:e44de3cb3c58833fc1dfd39f0aaa77b6a2b94e0b9b76b1c8ea01228fabbc5da9",
+    "worker": "ghcr.io/jsc2304/odovi-worker@sha256:aeac5ca8c7cf54c9f98cc61cb2a09a1411a3eeed6c17bef98617c7b5a58da039"
+  },
+  "checks": [
+    {
+      "environment": "GitHub-hosted Ubuntu, linux/amd64",
+      "result": "passed",
+      "coverage": "Complete CI, production dependency audit, Compose and release consistency, runtime acceptance against exact published candidate digests, and architecture/source/license validation for amd64 and arm64",
+      "workflowRun": "https://github.com/jsc2304/odovi/actions/runs/40209828796",
+      "workflowRunAttempt": 1,
+      "enforcedAcceptanceIssues": [
+        27,
+        28,
+        29,
+        31,
+        32,
+        33,
+        38,
+        49,
+        50
+      ],
+      "packageTestsPassed": 555,
+      "teslaMateCompatibilityEndpoints": [
+        "4.0.1",
+        "4.2.0"
+      ],
+      "compatibilityRole": "SELECT-only"
+    },
+    {
+      "environment": "macOS arm64 host, linux/arm64 Docker containers",
+      "result": "passed",
+      "coverage": "Complete published-image runtime acceptance",
+      "browserTests": {
+        "passed": 87,
+        "skipped": 1,
+        "failed": 0,
+        "flaky": 0
+      },
+      "sourceAndImageIdentityVerified": true
+    },
+    {
+      "environment": "Raspberry Pi 5, native linux/arm64",
+      "result": "passed",
+      "coverage": "Fresh setup and sync, archive and calendar workflows, classification Undo, invoice originals/export/deletion, battery range history, charging economics, since-charge totals, both languages/themes, narrow/desktop views, provider contracts, restart and readiness faults",
+      "browserTests": {
+        "passed": 87,
+        "skipped": 1,
+        "failed": 0,
+        "flaky": 0,
+        "skipReason": "Duplicate mobile browser-locale negotiation is covered by the desktop variant."
+      },
+      "newEnergyBrowserTestsPassed": 8,
+      "browser": {
+        "name": "Chromium",
+        "version": "151.0.7922.34",
+        "playwright": "1.62.1"
+      },
+      "teslaMateSchemaFixture": "4.0.1",
+      "compatibilityEndpointMatrix": "4.0.1 and 4.2.0 validated in the candidate CI run",
+      "readinessRecoveryObservations": 15,
+      "controlledFixtureProviderRequests": 109,
+      "unexpectedProviderRequests": 0,
+      "sourceAndImageIdentityVerified": true
+    },
+    {
+      "environment": "Raspberry Pi 5, isolated linux/arm64 containers",
+      "result": "passed",
+      "coverage": "Published stable 0.4.0 baseline upgraded to the exact accepted 0.5.0 images; candidate checkpoint restored into a new volume; original checkpoint rolled back with the exact 0.4.0 images. Sessions, CSV/GPX exports, annotations, invoice originals and reversible classification/cost changes verified.",
+      "browserPhasesPassed": 5,
+      "migrationCounts": {
+        "baseline": 9,
+        "candidate": 12,
+        "rollback": 9
+      },
+      "exactTableSnapshotsCompared": {
+        "candidateRestore": 25,
+        "originalRollback": 22
+      },
+      "sequenceStateCompared": true,
+      "backupChecksumsVerified": 2,
+      "unexpectedProviderRequests": 0,
+      "sourceAndImageIdentityVerified": true
+    }
+  ],
+  "promotionWorkflowRun": "https://github.com/jsc2304/odovi/actions/runs/40224247375",
+  "stableTagAndCandidateDigestsEqual": true,
+  "anonymousImageAccess": [
+    "linux/amd64",
+    "linux/arm64"
+  ],
+  "testData": "Synthetic fixtures only. Raw logs, traces, account state and database backups are not included."
+}
