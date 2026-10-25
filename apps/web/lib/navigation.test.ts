@@ -23,6 +23,12 @@ beforeEach(() => {
 });
 
 describe("navigation registry", () => {
+  it("exposes battery history on desktop and in More", () => {
+    const battery = APP_DESTINATIONS.find((destination) => destination.id === "battery");
+    expect(battery?.sidebar).toBe(true);
+    expect(battery?.match("/battery")).toBe(true);
+    expect(MORE_DESTINATION.match("/battery")).toBe(true);
+  });
   it("keeps Insights active for the annual Wrapped view", () => {
     expect(APP_DESTINATIONS.filter((destination) => destination.match("/wrapped")).map((destination) => destination.id)).toEqual(["insights"]);
     expect(APP_DESTINATIONS.find((destination) => destination.id === "insights")?.match("/insights")).toBe(true);
@@ -46,7 +52,7 @@ describe("navigation registry", () => {
   it("exposes every More destination in exactly one intent group", () => {
     const expected: Record<MoreGroup, string[]> = {
       plan: ["calendar", "journeys", "planner"],
-      review: ["charges", "insights", "invoices", "places", "reports"],
+      review: ["battery", "charges", "insights", "invoices", "places", "reports"],
       configure: ["rules", "settings", "tags"],
     };
 

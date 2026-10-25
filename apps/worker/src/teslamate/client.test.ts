@@ -40,6 +40,14 @@ describe("TeslaMate schema compatibility contract", () => {
     ).not.toThrow();
   });
 
+  it("requires the independently reported charging end rated range", () => {
+    expect(REQUIRED_TESLAMATE_COLUMNS.charging_processes).toContainEqual({ name: "end_rated_range_km", postgresType: "numeric" });
+    const columns = compatibleColumns().filter((column) =>
+      !(column.table_name === "charging_processes" && column.column_name === "end_rated_range_km"));
+    expect(() => assertTeslamateSchemaCompatibility(columns, compatibleRelationships()))
+      .toThrow("charging_processes.end_rated_range_km");
+  });
+
   it("reports missing fields, wrong types, and missing relationships before sync", () => {
     const columns = compatibleColumns().filter(
       (column) => !(column.table_name === "states" && column.column_name === "start_date"),

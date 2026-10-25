@@ -78,6 +78,13 @@
       "when": 1790941800877,
       "tag": "0010_invoice_archive",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1792927747233,
+      "tag": "0011_battery_rated_range",
+      "breakpoints": true
     }
   ]
 }

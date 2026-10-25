@@ -218,6 +218,7 @@ export const chargeSessions = pgTable(
     address: text("address"),
     startSoc: smallint("start_soc"),
     endSoc: smallint("end_soc"),
+    endRatedRangeKm: doublePrecision("end_rated_range_km"),
     energyAddedKwh: doublePrecision("energy_added_kwh"),
     energyUsedKwh: doublePrecision("energy_used_kwh"),
     maxPowerKw: doublePrecision("max_power_kw"),

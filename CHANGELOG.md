@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - Unreleased
+
+### Added
+- Battery range history with monthly BMS rated-range medians, observation coverage, and comparison against the first month with usable range observations.
+- Charging economics by charger type and location, including matched energy losses, efficiency, cost coverage and separate currency totals.
+- Dashboard driving totals since the latest completed charge, with explicit incomplete and estimated energy.
+
+### Changed
+- Persist TeslaMate post-charge rated range and backfill existing charging history once without changing annotations or user-owned costs.
+- Source builds identify themselves as Odovi 0.5.0.
+
 ## [0.4.0] - 2026-09-08
 
 ### Added

@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "version": "0.5.0",
+  "candidate": "0.5.0-rc.1",
+  "images": {
+    "web": "ghcr.io/jsc2304/odovi-web",
+    "worker": "ghcr.io/jsc2304/odovi-worker"
+  },
+  "compose": "release/0.5.0/docker-compose.yml",
+  "releaseNotes": "docs/releases/0.5.0.md",
+  "changelog": "CHANGELOG.md",
+  "packages": [
+    "package.json",
+    "apps/web/package.json",
+    "apps/worker/package.json",
+    "packages/core/package.json",
+    "packages/db/package.json",
+    "packages/runtime-config/package.json",
+    "dev/fixtures/package.json",
+    "acceptance/release-stack/package.json"
+  ],
+  "architectures": [
+    "linux/amd64",
+    "linux/arm64"
+  ],
+  "requiredAcceptanceIssues": [
+    27,
+    28,
+    29,
+    31,
+    32,
+    33,
+    38,
+    49,
+    50
+  ],
+  "supportedRuntimes": {
+    "application": "Node.js 22 (included in the images)",
+    "database": "PostgreSQL 17",
+    "orchestration": "Docker Engine with Docker Compose v2"
+  },
+  "teslaMateRange": "4.0.1 through 4.2.0",
+  "testedPlatforms": [
+    {
+      "platform": "Local source build on macOS arm64",
+      "coverage": "Automated source checks and disposable PostgreSQL/browser acceptance; see release notes for measured results."
+    }
+  ],
+  "knownLimitations": [
+    "Source candidate only. No 0.5.0 images have been published or accepted for stable promotion.",
+    "Battery history is a BMS rated-range estimate relative to the first month with usable range observations, not a battery-health test or a comparison with a new battery.",
+    "Battery range history requires TeslaMate post-charge rated-range data; imports without these measurements remain unavailable.",
+    "Native Raspberry Pi, linux/amd64, multi-architecture image and exact published-image upgrade acceptance remain release gates.",
+    "Charging efficiency and costs depend on paired energy observations and known prices; currencies are never converted or inferred."
+  ]
+}

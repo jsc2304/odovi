@@ -28,6 +28,8 @@ import { getDrivingProfile } from "../../lib/drivingProfile";
 import { DrivingProfileForm } from "../../components/DrivingProfileForm";
 import { ClassificationTask } from "./ClassificationTask";
 import { VehicleSummary } from "./VehicleSummary";
+import { getSinceChargeStats } from "../../lib/sinceCharge";
+import { SinceChargeCard } from "./SinceChargeCard";
 
 export const dynamic = "force-dynamic";
 
@@ -116,7 +118,7 @@ export default async function DashboardPage() {
     return <OnboardingCard />;
   }
 
-  const [status, openSession, parkDrain, recentDrives, today, week, lastCharge, unclassifiedCount, drivingProfile] =
+  const [status, openSession, parkDrain, recentDrives, today, week, lastCharge, unclassifiedCount, drivingProfile, sinceCharge] =
     await Promise.all([
       getVehicleStatus(vehicleId),
       getOpenSessionStatus(vehicleId),
@@ -127,6 +129,7 @@ export default async function DashboardPage() {
       getLastCharge(vehicleId),
       getUnclassifiedCount(vehicleId),
       getDrivingProfile(vehicleId),
+      getSinceChargeStats(vehicleId),
     ]);
 
   const driveTracks = await getRecentDriveTracks(recentDrives.map((d) => d.id));
@@ -176,6 +179,7 @@ export default async function DashboardPage() {
       </dl>
 
       <RecentDrivesCard drives={recentDrives} tracks={driveTracks} car={car} />
+      <SinceChargeCard stats={sinceCharge} />
 
       <details id="vehicle-details" className="overview-details group">
         <summary className="cursor-pointer py-5 text-sm font-medium text-neutral-600 dark:text-neutral-300">{t("overview.vehicleDetails")}</summary>

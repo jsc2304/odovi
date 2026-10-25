@@ -1,0 +1,17 @@
+{
+  "title": "Seit der letzten Ladung",
+  "completed": "Ladung beendet am {time}",
+  "drives": "Fahrten",
+  "distance": "Strecke",
+  "energy": "Fahrenergie",
+  "consumption": "Verbrauch",
+  "duration": "Fahrzeit",
+  "unavailable": "—",
+  "scope": "Nur abgeschlossene Fahrten. Parkverluste sind nicht enthalten.",
+  "estimated": "Die Fahrenergie enthält Schätzwerte.",
+  "partialEnergy": "Energiedaten sind unvollständig; Summen und Verbrauch berücksichtigen nur bekannte Werte.",
+  "partialDistance": "Streckendaten sind unvollständig; die Summe berücksichtigt nur bekannte Strecken.",
+  "straddling": "{count, plural, one {# Fahrt über die Ladegrenze hinweg ist ausgeschlossen.} other {# Fahrten über die Ladegrenze hinweg sind ausgeschlossen.}}",
+  "charging": "Ladevorgang läuft. Die Zusammenfassung beginnt nach Ladeende erneut.",
+  "noCharge": "Noch keine abgeschlossene Ladung verfügbar."
+}

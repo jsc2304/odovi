@@ -62,12 +62,15 @@ const manifest = {
     insightsFixture: "insights-fixture.json",
     backlogBrowserChecks: "playwright-backlog.json",
     analyticsAccessFixture: "analytics-access-fixture.json",
+    energyAnalyticsFixture: "energy-analytics-fixture.json",
+    energyBrowserChecks: "playwright-energy.json",
     playwrightResults: [
       "playwright-journey.json",
       "playwright-coverage.json",
       "playwright-provider-contracts.json",
       "playwright-restart.json",
       "playwright-backlog.json",
+      "playwright-energy.json",
     ],
     playwrightReports: [
       "playwright-report/journey/index.html",
@@ -75,6 +78,7 @@ const manifest = {
       "playwright-report/provider-contracts/index.html",
       "playwright-report/restart/index.html",
       "playwright-report/backlog/index.html",
+      "playwright-report/energy/index.html",
     ],
   },
 };

@@ -6,7 +6,7 @@ compose_file="$repo_root/acceptance/release-stack/docker-compose.yml"
 started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 git_commit="$(git -C "$repo_root" rev-parse HEAD)"
 short_commit="$(git -C "$repo_root" rev-parse --short=12 HEAD)"
-version="${ODOVI_ACCEPTANCE_VERSION:-0.4.0-dev.${short_commit}}"
+version="${ODOVI_ACCEPTANCE_VERSION:-0.5.0-dev.${short_commit}}"
 tag_version="$(printf '%s' "$version" | tr '/+ ' '---' | tr -cd '[:alnum:]_.-')"
 project="${ODOVI_ACCEPTANCE_PROJECT:-odovi-acceptance-${short_commit}-$$}"
 port="${ODOVI_ACCEPTANCE_PORT:-$(node -e 'const n=require("node:net");const s=n.createServer();s.listen(0,"127.0.0.1",()=>{process.stdout.write(String(s.address().port));s.close()})')}"
@@ -238,6 +238,16 @@ run_playwright --project=desktop \
   tests/backlog-core.spec.ts tests/calendar-analytics.spec.ts \
   tests/classification-undo.spec.ts tests/day-navigation.spec.ts \
   tests/invoice-archive.spec.ts
+
+"${compose[@]}" exec -T db psql -X -qAt -v ON_ERROR_STOP=1 \
+  -v fixture_day="$ODOVI_ACCEPTANCE_DAY" -U odovi -d odovi \
+  < "$repo_root/acceptance/release-stack/energy-analytics-fixture.sql" \
+  > "$evidence_dir/energy-analytics-fixture.json"
+export ODOVI_ACCEPTANCE_ENERGY_VEHICLE="$(node -e 'process.stdout.write(String(require(process.argv[1]).vehicleId))' "$evidence_dir/energy-analytics-fixture.json")"
+export ODOVI_ACCEPTANCE_ENERGY_EMPTY_VEHICLE="$(node -e 'process.stdout.write(String(require(process.argv[1]).emptyVehicleId))' "$evidence_dir/energy-analytics-fixture.json")"
+export ODOVI_ACCEPTANCE_ENERGY_MONTH="$(node -e 'process.stdout.write(require(process.argv[1]).month)' "$evidence_dir/energy-analytics-fixture.json")"
+export ODOVI_ACCEPTANCE_PHASE="energy"
+run_playwright --project=desktop tests/energy-analytics.spec.ts
 
 verify_upgrade_path
 node "$repo_root/acceptance/release-stack/verify-egress.mjs" --expect-zero \
