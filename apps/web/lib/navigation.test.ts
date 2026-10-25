@@ -68,6 +68,14 @@ describe("navigation registry", () => {
 });
 
 describe("navigation links", () => {
+  it("marks only Battery on desktop while keeping More active on mobile", () => {
+    state.pathname = "/battery";
+    const sidebar = renderToStaticMarkup(createElement(SideNav));
+    const bottom = renderToStaticMarkup(createElement(BottomNav));
+    expect(sidebar.match(/aria-current="page"/g)).toHaveLength(1);
+    expect(sidebar.match(/<a\b[^>]*href="\/battery"[^>]*>/)?.[0]).toContain('aria-current="page"');
+    expect(bottom.match(/<a\b[^>]*href="\/settings"[^>]*>/)?.[0]).toContain('aria-current="page"');
+  });
   it("marks the calendar as the active bottom destination", () => {
     state.pathname = "/calendar";
     const html = renderToStaticMarkup(createElement(BottomNav));

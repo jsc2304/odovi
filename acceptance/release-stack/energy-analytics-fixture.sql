@@ -52,16 +52,23 @@ select primary_vehicle_id, charge_end - interval '1 hour', charge_end,
   80, 30, 'release-acceptance-energy', 'latest-charge' from energy_context;
 
 insert into drives (vehicle_id, start_time, end_time, distance_km,
-  duration_seconds, consumed_energy_kwh, energy_is_estimated, source, source_id)
+  duration_seconds, consumed_energy_kwh, energy_is_estimated,
+  start_lat, start_lon, end_lat, end_lon, start_address, end_address, source, source_id)
 select c.primary_vehicle_id, c.charge_end + start_minutes * interval '1 minute',
   c.charge_end + end_minutes * interval '1 minute', distance,
   (end_minutes - start_minutes) * 60, energy, estimated,
+  47.1, 8.1, 47.2, 8.2, 'Synthetic energy start', 'Synthetic energy destination',
   'release-acceptance-energy', 'since-charge-' || n
 from energy_context c cross join (values
   (0, 10, 30, 12.0, 2.4, false),
   (1, 45, 65, 18.0, 3.6, true),
   (2, -5, 5, 999.0, 99.9, false)
 ) d(n, start_minutes, end_minutes, distance, energy, estimated);
+
+insert into route_points (drive_id, ts, lat, lon)
+select id, start_time, start_lat, start_lon from drives where source = 'release-acceptance-energy'
+union all
+select id, end_time, end_lat, end_lon from drives where source = 'release-acceptance-energy';
 
 do $$
 begin
