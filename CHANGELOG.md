@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Persist TeslaMate post-charge rated range and backfill existing charging history once without changing annotations or user-owned costs.
 - Source builds identify themselves as Odovi 0.5.0.
+- Keep scrolled mobile controls clear of the fixed bottom navigation.
 
 ### Security
 - Update Next.js, Zod and affected transitive dependencies to versions that pass the current production security audit.
