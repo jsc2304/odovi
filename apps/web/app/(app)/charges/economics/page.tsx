@@ -84,13 +84,19 @@ export default async function ChargingEconomicsPage({ searchParams }: { searchPa
       <section aria-labelledby="charging-sources" className={frame}>
         <h2 id="charging-sources" className="text-base font-semibold">{t("sources")}</h2>
         {report.sources.length === 0 && <p className={`mt-3 ${muted}`}>{t("empty")}</p>}
-        {report.sources.map((source) => <article key={source.key} className="mt-5 border-t border-neutral-200 pt-4 dark:border-neutral-800"><h3 className="mb-4 text-sm font-semibold">{t(`source.${source.key}`)}</h3>{summaryView(source.summary, true)}</article>)}
+        {report.sources.map((source) => <details key={source.key} className="mt-4 border-t border-neutral-200 pt-2 dark:border-neutral-800">
+          <summary className="min-h-11 cursor-pointer py-3 text-sm"><span className="font-semibold">{t(`source.${source.key}`)}</span><span className={`ml-2 ${muted}`}>{t("groupSummary", { count: source.summary.sessionCount, energy: energy(source.summary.addedKwh, source.summary.addedCount) })}</span></summary>
+          <div className="py-3">{summaryView(source.summary, true)}</div>
+        </details>)}
       </section>
       <section aria-labelledby="charging-locations" className={frame}>
         <h2 id="charging-locations" className="text-base font-semibold">{t("locations")}</h2>
         <p className={`mt-1 ${muted}`}>{t("notRanked")}</p>
         {report.locations.length === 0 && <p className={`mt-3 ${muted}`}>{t("empty")}</p>}
-        {report.locations.map((location) => <article key={location.key} className="mt-5 border-t border-neutral-200 pt-4 dark:border-neutral-800"><h3 className="mb-4 break-words text-sm font-semibold">{location.name ?? t("unknownLocation")}</h3>{summaryView(location.summary, true)}</article>)}
+        {report.locations.map((location) => <details key={location.key} className="mt-4 border-t border-neutral-200 pt-2 dark:border-neutral-800">
+          <summary className="min-h-11 cursor-pointer break-words py-3 text-sm"><span className="font-semibold">{location.name ?? t("unknownLocation")}</span><span className={`ml-2 ${muted}`}>{t("groupSummary", { count: location.summary.sessionCount, energy: energy(location.summary.addedKwh, location.summary.addedCount) })}</span></summary>
+          <div className="py-3">{summaryView(location.summary, true)}</div>
+        </details>)}
       </section>
     </div>
     <section className={frame} aria-labelledby="charging-method">

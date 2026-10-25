@@ -27,6 +27,7 @@
   "unavailable": "—",
   "empty": "Keine abgeschlossenen Ladevorgänge in diesem Zeitraum.",
   "sources": "Nach Ladeart",
+  "groupSummary": "{count, plural, one {# Ladevorgang} other {# Ladevorgänge}} · {energy}",
   "locations": "Nach Ladeort",
   "notRanked": "Gruppierung nach gespeichertem Ort, sonst nach vereinheitlichter Adresse. Ladevorgänge ohne Ort bleiben enthalten. Keine Preisrangliste: Datenabdeckung und Tarife können abweichen.",
   "unknownLocation": "Unbekannter Ladeort",

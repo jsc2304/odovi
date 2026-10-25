@@ -27,6 +27,7 @@
   "unavailable": "—",
   "empty": "No completed charging sessions in this period.",
   "sources": "By charging type",
+  "groupSummary": "{count, plural, one {# session} other {# sessions}} · {energy}",
   "locations": "By location",
   "notRanked": "Locations are grouped by saved place, then normalized address. Unlocated sessions remain included. No price ranking: coverage and tariffs can differ.",
   "unknownLocation": "Unknown location",

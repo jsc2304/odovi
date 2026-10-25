@@ -53,6 +53,11 @@ for (const locale of ["en", "de"] as const) {
         await expect(totals).toContainText("USD");
         await expect(totals).toContainText(locale === "en" ? "Unknown currency" : "Unbekannte Währung");
         await expect(page.getByRole("heading", { name: locale === "en" ? "By location" : "Nach Ladeort", exact: true })).toBeVisible();
+        const locationDetails = page.getByRole("region", { name: locale === "en" ? "By location" : "Nach Ladeort", exact: true }).locator("details").filter({ hasText: "Energy fixture charger" });
+        await locationDetails.locator("summary").focus();
+        await page.keyboard.press("Space");
+        await expect(locationDetails).toHaveAttribute("open", "");
+        await expect(locationDetails).toContainText("EUR");
         await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
         await page.screenshot({ path: testInfo.outputPath("economics.png"), fullPage: true });
         await page.getByLabel(locale === "en" ? "Month" : "Monat", { exact: true }).fill("2099-06");
