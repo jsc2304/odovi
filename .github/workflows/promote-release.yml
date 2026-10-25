@@ -12,7 +12,7 @@ on:
         required: true
         type: string
       authorization:
-        description: Enter PROMOTE 0.4.0 to publish stable tags and a GitHub Release
+        description: Enter PROMOTE 0.5.0 to publish stable tags and a GitHub Release
         required: true
         type: string
 
@@ -20,7 +20,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: promote-stable-0.4.0
+  group: promote-stable-0.5.0
   cancel-in-progress: false
 
 jobs:
@@ -44,35 +44,41 @@ jobs:
           CANDIDATE_RUN_ATTEMPT: ${{ inputs.candidate_run_attempt }}
         run: |
           test "${{ github.ref }}" = "refs/heads/main"
-          test "$AUTHORIZATION" = "PROMOTE 0.4.0"
+          test "$AUTHORIZATION" = "PROMOTE 0.5.0"
           [[ "$CANDIDATE_RUN_ID" =~ ^[1-9][0-9]*$ ]]
           [[ "$CANDIDATE_RUN_ATTEMPT" =~ ^[1-9][0-9]*$ ]]
 
-      - name: Download candidate record from the selected run
+      - name: Check out trusted promotion code and metadata
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Authenticate the selected candidate run
+        id: provenance
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CANDIDATE_RUN_ID: ${{ inputs.candidate_run_id }}
+          CANDIDATE_RUN_ATTEMPT: ${{ inputs.candidate_run_attempt }}
+        run: node scripts/verify-release-candidate-run.mjs
+
+      - name: Download candidate record from the authenticated run
         uses: actions/download-artifact@v4
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ inputs.candidate_run_id }}
-          pattern: release-candidate-*-${{ inputs.candidate_run_attempt }}
+          name: ${{ steps.provenance.outputs.artifact_name }}
           path: ${{ runner.temp }}/candidate
-          merge-multiple: true
-
-      - name: Read candidate source revision
-        id: source
-        run: echo "commit=$(node -p 'require("${{ runner.temp }}/candidate/release-candidate.json").sourceCommit')" >> "$GITHUB_OUTPUT"
-
-      - name: Check out the exact candidate source revision
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ steps.source.outputs.commit }}
 
       - name: Recheck release consistency and candidate acceptance
         run: |
-          node scripts/check-release-consistency.mjs release/0.4.0/release.json
+          node scripts/check-release-consistency.mjs release/0.5.0/release.json
           node scripts/verify-release-candidate.mjs \
-            release/0.4.0/release.json \
+            release/0.5.0/release.json \
             "${{ runner.temp }}/candidate/release-candidate.json" \
-            "${{ github.repository }}"
+            "${{ github.repository }}" \
+            "${{ steps.provenance.outputs.source_commit }}"
 
       - name: Export accepted identity
         id: candidate
@@ -87,16 +93,16 @@ jobs:
         run: |
           mkdir -p stable-assets
           node scripts/render-release-compose.mjs \
-            release/0.4.0/docker-compose.yml \
+            release/0.5.0/docker-compose.yml \
             "${{ steps.candidate.outputs.web_digest }}" \
             "${{ steps.candidate.outputs.worker_digest }}" \
-            stable-assets/odovi-0.4.0-docker-compose.yml
+            stable-assets/odovi-0.5.0-docker-compose.yml
           cp "${{ runner.temp }}/candidate/release-candidate.json" stable-assets/release-candidate.json
 
       - name: Upload verified stable assets
         uses: actions/upload-artifact@v4
         with:
-          name: stable-assets-0.4.0-${{ github.run_attempt }}
+          name: stable-assets-0.5.0-${{ github.run_attempt }}
           path: stable-assets/
           if-no-files-found: error
           retention-days: 90
@@ -109,15 +115,16 @@ jobs:
       packages: write
 
     steps:
-      - name: Check out the accepted source revision
+      - name: Check out trusted promotion release notes
         uses: actions/checkout@v4
         with:
-          ref: ${{ needs.verify-candidate.outputs.source_commit }}
+          ref: ${{ github.sha }}
+          persist-credentials: false
 
       - name: Download verified stable assets
         uses: actions/download-artifact@v4
         with:
-          name: stable-assets-0.4.0-${{ github.run_attempt }}
+          name: stable-assets-0.5.0-${{ github.run_attempt }}
           path: stable-assets
 
       - name: Set up Docker Buildx
@@ -133,19 +140,19 @@ jobs:
       - name: Promote accepted digests without rebuilding
         run: |
           docker buildx imagetools create \
-            --tag ghcr.io/jsc2304/odovi-web:0.4.0 \
+            --tag ghcr.io/jsc2304/odovi-web:0.5.0 \
             "ghcr.io/jsc2304/odovi-web@${{ needs.verify-candidate.outputs.web_digest }}"
           docker buildx imagetools create \
-            --tag ghcr.io/jsc2304/odovi-worker:0.4.0 \
+            --tag ghcr.io/jsc2304/odovi-worker:0.5.0 \
             "ghcr.io/jsc2304/odovi-worker@${{ needs.verify-candidate.outputs.worker_digest }}"
 
       - name: Publish the GitHub Release from the same source revision
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create v0.4.0 \
+          gh release create v0.5.0 \
             --target "${{ needs.verify-candidate.outputs.source_commit }}" \
-            --title "Odovi 0.4.0" \
-            --notes-file docs/releases/0.4.0.md \
-            stable-assets/odovi-0.4.0-docker-compose.yml \
+            --title "Odovi 0.5.0" \
+            --notes-file docs/releases/0.5.0.md \
+            stable-assets/odovi-0.5.0-docker-compose.yml \
             stable-assets/release-candidate.json

@@ -110,9 +110,33 @@ export function createCandidateRecord(metadata, options) {
   };
 }
 
-export function verifyCandidateRecord(metadata, record, expectedRepository = "jsc2304/odovi") {
+export function verifyCandidateRun(run, workflow, repository, runId, attempt) {
+  if (!/^[1-9][0-9]*$/.test(runId) || !/^[1-9][0-9]*$/.test(attempt)) {
+    throw new Error("invalid candidate run coordinates");
+  }
+  if (repository.full_name !== "jsc2304/odovi" || repository.default_branch !== "main" ||
+      run.repository?.id !== repository.id || run.head_repository?.id !== repository.id) {
+    throw new Error("candidate run must originate in jsc2304/odovi");
+  }
+  if (workflow.path !== ".github/workflows/release.yml" || workflow.state !== "active" ||
+      run.workflow_id !== workflow.id || run.path !== workflow.path) {
+    throw new Error("candidate run must use the Release Candidate workflow");
+  }
+  if (String(run.id) !== runId || String(run.run_attempt) !== attempt ||
+      run.head_branch !== repository.default_branch || run.event !== "workflow_dispatch" ||
+      run.status !== "completed" || run.conclusion !== "success") {
+    throw new Error("candidate must be the selected successful main workflow_dispatch attempt");
+  }
+  return assertCommit(run.head_sha);
+}
+
+export function verifyCandidateRecord(metadata, record, expectedRepository, expectedSourceCommit) {
   assertReleaseMetadata(metadata);
   assertCommit(record.sourceCommit);
+  assertCommit(expectedSourceCommit);
+  if (record.sourceCommit !== expectedSourceCommit) {
+    throw new Error("candidate source commit does not match the authenticated run");
+  }
   if (expectedRepository !== "jsc2304/odovi") throw new Error("candidate must be promoted in jsc2304/odovi");
   if (record.schemaVersion !== 1 || record.version !== metadata.version || record.candidate !== metadata.candidate) {
     throw new Error("candidate identity does not match release metadata");

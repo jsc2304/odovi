@@ -21,7 +21,7 @@
     "drizzle-orm": "^0.45.2",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.23.0",
-    "next": "16.3.8",
+    "next": "16.4.1",
     "next-intl": "^4.13.1",
     "pdfjs-dist": "6.3.289",
     "postgres": "^3.4.5",
@@ -30,10 +30,10 @@
     "server-only": "^0.0.1",
     "yauzl": "3.4.0",
     "yazl": "3.3.1",
-    "zod": "^3.24.1"
+    "zod": "^4.6.6"
   },
   "devDependencies": {
-    "@next/eslint-plugin-next": "16.3.8",
+    "@next/eslint-plugin-next": "16.4.1",
     "@tailwindcss/postcss": "^4",
     "@types/leaflet": "^1.9.21",
     "@types/node": "^20",
@@ -42,7 +42,7 @@
     "@types/yauzl": "2.10.3",
     "@types/yazl": "3.3.0",
     "eslint": "^9",
-    "eslint-config-next": "16.3.8",
+    "eslint-config-next": "16.4.1",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^3.0.5"
