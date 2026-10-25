@@ -1,8 +1,8 @@
 # Quick classification and undo
 
-This documents an **unreleased source feature**, including migration `0009`.
-Use a matching source build and the supported backup/restore procedure. The
-published [0.4.0 release notes](releases/0.4.0.md) describe the stable version.
+Available in **Odovi 0.5.0**, including migration `0009`. Existing
+installations must follow the [upgrade and backup/restore procedure](upgrade-odovi.md).
+See the [0.5.0 release notes](releases/0.5.0.md) for release evidence and limits.
 
 Choosing a category in the Start drive journal, day view or bulk selection
 saves immediately. The control names the affected drive or selection before

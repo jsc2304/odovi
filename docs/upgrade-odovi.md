@@ -1,11 +1,11 @@
 # Upgrade Odovi 0.4.0 to 0.5.0
 
-This procedure targets the 0.5.0 release. At this source revision, 0.5.0 is a
-candidate: exact published-image, native Raspberry Pi and upgrade acceptance
-are still pending. Do not treat the commands below as evidence of publication.
-Once accepted, use the versioned Compose asset and exact accepted image digests
-attached to the [GitHub Release](https://github.com/jsc2304/odovi/releases/tag/v0.5.0).
-See the [0.5.0 release notes](releases/0.5.0.md) for the recorded evidence.
+Use the versioned Compose asset and exact accepted image digests attached to
+the [0.5.0 GitHub Release](https://github.com/jsc2304/odovi/releases/tag/v0.5.0).
+The [release notes](releases/0.5.0.md) and
+[acceptance summary](../release/0.5.0/acceptance-summary.json) record the published
+image, native Raspberry Pi and upgrade/recovery checks. Retain the original
+installation identity throughout the procedure.
 Installations on 0.3.0 can use the
 [archived 0.3.0 → 0.4.0 procedure](https://github.com/jsc2304/odovi/blob/fc747e2579e86732e2dc56b59d449bf2b29b0a11/docs/upgrade-odovi.md) first.
 Installations on 0.2.0 can use the

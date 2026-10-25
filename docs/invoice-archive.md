@@ -1,8 +1,8 @@
 # Tesla invoice archive
 
-This documents an **unreleased source feature**, including migration `0010`.
-Use a matching source build and the supported backup/restore procedure. The
-published [0.4.0 release notes](releases/0.4.0.md) describe the stable version.
+Available in **Odovi 0.5.0**, including migration `0010`. Existing
+installations must follow the [upgrade and backup/restore procedure](upgrade-odovi.md).
+See the [0.5.0 release notes](releases/0.5.0.md) for release evidence and limits.
 
 Open **More → Tesla invoices** (`/invoices`) and enable invoice imports. The
 archive is optional and disabled for imports by default. It runs locally and
@@ -111,9 +111,9 @@ reviewed metadata and a monthly manifest, confirm login and cost provenance,
 and perform a deletion/reversal on disposable test data. Run the matching
 application version/migrations before resuming writes.
 
-This feature adds an Odovi schema migration. Existing versioned release
-images/Compose assets do not gain it automatically; follow the normal accepted
-release and backup/restore process before deploying a build containing it.
+Upgrading from stable 0.4.0 adds this schema through migration `0010`. Older
+release images and Compose assets retain their original features; use the
+0.5.0 release artifacts and the supported backup/restore process.
 
 ## Technical references
 

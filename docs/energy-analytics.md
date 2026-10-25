@@ -1,6 +1,6 @@
 # Battery and charging analytics
 
-Available in the Odovi 0.5.0 source candidate. These views read the Odovi
+Available in Odovi 0.5.0. These views read the Odovi
 archive; they do not wake the vehicle or activate an external provider.
 
 ## Battery range history
