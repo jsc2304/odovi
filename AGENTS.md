@@ -16,8 +16,8 @@ Git ignore rules do not make already-tracked data private.
 
 Before committing, run `pnpm publication:check`. Before pushing, also run
 `node scripts/check-publication.mjs --history HEAD`. Install the local Git
-hooks with `git config core.hooksPath .githooks`; CI is a second check after
-publication and cannot replace the pre-push review. Review meaning as well as
+hooks with `git config core.hooksPath .githooks`. The GitHub Actions job runs
+lint, unit tests, and the production build. It cannot replace the pre-push review. Review meaning as well as
 the automated path/pattern checks; neither checks every possible disclosure.
 
 ## Working rules

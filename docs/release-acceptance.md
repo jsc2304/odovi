@@ -107,11 +107,12 @@ status, and the blocked outcome. They deliberately omit query strings because
 those can contain coordinates. `verify-egress.mjs` fails if any recorded host
 is undeclared.
 
-## CI invocation
+## When to run it
 
-`.github/workflows/release-acceptance.yml` runs the same command for pull
-requests and manual dispatches, then uploads only the sanitized manifest, including when
-the run fails. It does not publish images, tags, releases, or deployments.
+GitHub Actions does not run this harness. Run `./scripts/release-acceptance.sh`
+on a maintainer machine when a change needs release-stack evidence, and keep
+the sanitized `manifest.json` with the release notes. The command does not
+publish images, tags, releases, or deployments.
 
 ## Acceptance gates
 

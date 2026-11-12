@@ -45,17 +45,6 @@ test("authenticates the exact successful candidate run attempt", () => {
   }
 });
 
-test("promotion uses trusted code before downloading the exact authenticated artifact", () => {
-  const yaml = readFileSync(new URL("../.github/workflows/promote-release.yml", import.meta.url), "utf8");
-  const checkout = yaml.indexOf("ref: ${{ github.sha }}");
-  const authenticate = yaml.indexOf("run: node scripts/verify-release-candidate-run.mjs");
-  const download = yaml.indexOf("uses: actions/download-artifact@v4");
-  assert.ok(checkout > 0 && checkout < authenticate && authenticate < download);
-  assert.match(yaml, /name: \$\{\{ steps\.provenance\.outputs\.artifact_name \}\}/);
-  assert.match(yaml, /"\$\{\{ steps\.provenance\.outputs\.source_commit \}\}"/);
-  assert.doesNotMatch(yaml, /ref:.*(?:steps\.source|source_commit)|pattern: release-candidate/);
-});
-
 test("run verifier exports only API-authenticated commits in trusted promotion history", () => {
   const dir = mkdtempSync(join(tmpdir(), "odovi-provenance-"));
   try {
