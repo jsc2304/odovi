@@ -1,7 +1,7 @@
 # TeslaMate compatibility
 
 Odovi v0.3.0 retains support for TeslaMate **v4.0.1 through v4.2.0**. The lower and upper
-boundaries run in CI against schema fixtures generated from the official
+boundaries are checked locally against schema fixtures generated from the official
 TeslaMate images. Each boundary test first probes the complete source-schema
 contract and then executes every SQL query used by synchronization.
 The queries run as a non-owner role with SELECT-only grants, not as the fixture
@@ -13,7 +13,7 @@ administrator. The tests also verify that this role has no write privileges.
 | v4.0.2 through v4.1.x | Supported range | bounded by the tested endpoints; not every patch has its own fixture |
 | v4.2.0 | Supported | upper-boundary schema fixture, probe, and all sync queries |
 | v2.1.0 | Unsupported | outside the tested range; no support claim |
-| Any other version | Untested compatibility candidate | not supported until its boundary evidence is added and passes CI |
+| Any other version | Untested compatibility candidate | not supported until its boundary evidence is added and the local compatibility check passes |
 
 Passing the schema probe on a version outside the table does not turn that
 version into a supported release. It only means the fields currently read by

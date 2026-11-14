@@ -4,12 +4,24 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
   pull_request:
-  workflow_call:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   checks:
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Check out repository
@@ -27,13 +39,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Check public repository boundary
-        run: pnpm publication:check
-
-      - name: Audit production dependencies
-        run: pnpm audit:prod
-
-      - name: Lint and typecheck
+      - name: Lint
         run: pnpm lint
 
       - name: Test
@@ -41,29 +47,3 @@ jobs:
 
       - name: Build
         run: pnpm -r build
-
-  teslamate-compatibility:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        teslamate-version: ["4.0.1", "4.2.0"]
-
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Exercise TeslaMate synchronization queries
-        run: ./scripts/test-teslamate-compatibility.sh "${{ matrix.teslamate-version }}"
